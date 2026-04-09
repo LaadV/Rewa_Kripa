@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Your Seat — Rewa Kripa Travels</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container header-inner">
+    <div class="logo"><a href="index.html">REWA KRIPA</a></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="index.html#routes">Routes</a>
+      <a href="upcoming-trip.html">Trips</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="page-eyebrow">Instant WhatsApp Booking</div>
+    <h1>Book Your Seat</h1>
+    <p>Select your route, pick your seat, and confirm via WhatsApp in under 60 seconds</p>
+  </div>
+</section>
+
+<section class="book-page-body">
+  <div class="container">
+    <div class="book-layout">
+
+      <!-- LEFT: Route + Seat Map -->
+      <div>
+        <!-- Route Selector -->
+        <div class="route-selector">
+          <h3>Journey Details</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Route</label>
+              <select id="routeSelect" onchange="updateRoute()">
+                <option value="barwani-bokrata">Barwani → Pati → Bokrata</option>
+                <option value="indore-barwani">Indore → Barwani</option>
+                <option value="barwani-indore">Barwani → Indore</option>
+                <option value="anjad-indore">Anjad → Indore</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Travel Date</label>
+              <input type="date" id="travelDate" min="">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Bus</label>
+              <select id="busSelect" onchange="updateBusInfo()">
+                <option value="MP09CY8606">MP09CY8606 — Luxury AC Seater</option>
+                <option value="MP09CY7782">MP09CY7782 — AC Seater</option>
+                <option value="MP09CY9911">MP09CY9911 — Premium Coach</option>
+                <option value="MP09CY4455">MP09CY4455 — Non-AC Seater</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Departure Time</label>
+              <input type="text" id="depTime" value="08:00 AM" readonly style="background:#f8fafc;cursor:not-allowed;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Seat Map -->
+        <div class="seat-map-box">
+          <h3>Select Your Seat</h3>
+          <p class="seat-map-subtitle">Click on an available seat to select it. You can select multiple seats.</p>
+
+          <div class="bus-diagram">
+            <div class="bus-front">
+              <span class="bus-front-label">🚌 Front of Bus</span>
+              <span class="driver-icon">👨‍✈️ Driver</span>
+            </div>
+            <div class="seat-rows" id="seatMap"></div>
+          </div>
+
+          <div class="seat-legend">
+            <div class="legend-item"><div class="legend-dot leg-avail"></div> Available</div>
+            <div class="legend-item"><div class="legend-dot leg-sel"></div> Selected</div>
+            <div class="legend-item"><div class="legend-dot leg-booked"></div> Booked</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Booking Summary -->
+      <div>
+        <div class="booking-summary">
+          <div class="booking-summary-header">
+            <h3>Booking Summary</h3>
+            <p>Confirm via WhatsApp instantly</p>
+          </div>
+          <div class="booking-summary-body">
+            <div class="summary-row"><span class="sk">Route</span><span class="sv" id="sumRoute">Barwani → Bokrata</span></div>
+            <div class="summary-row"><span class="sk">Bus No.</span><span class="sv" id="sumBus">MP09CY8606</span></div>
+            <div class="summary-row"><span class="sk">Date</span><span class="sv" id="sumDate">—</span></div>
+            <div class="summary-row"><span class="sk">Departure</span><span class="sv" id="sumDep">08:00 AM</span></div>
+            <div class="summary-row"><span class="sk">Fare/Seat</span><span class="sv" id="sumFare">₹230</span></div>
+
+            <div style="margin-top:14px;">
+              <p style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Selected Seats</p>
+              <div class="selected-seats-display" id="selectedSeatsDisplay">
+                <p>No seats selected yet</p>
+              </div>
+            </div>
+
+            <div class="total-row">
+              <span class="tl">Total Amount</span>
+              <span class="tv" id="totalAmt">₹0</span>
+            </div>
+
+            <div class="name-input-section" style="margin-top:16px;">
+              <label>Your Full Name *</label>
+              <input type="text" id="passengerName" placeholder="Enter your full name" oninput="updateSummary()">
+            </div>
+
+            <div style="margin-top:4px;">
+              <label style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Mobile Number *</label>
+              <input type="tel" id="passengerPhone" placeholder="+91 XXXXX XXXXX" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:0.2s;" oninput="updateSummary()">
+            </div>
+
+            <button class="wa-book-btn" id="waBookBtn" style="margin-top:18px;" onclick="bookViaWhatsApp()" disabled>
+              💬 Confirm on WhatsApp
+            </button>
+            <p class="book-note">You'll be redirected to WhatsApp with all your booking details pre-filled. Our team will confirm your seat within minutes.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom">
+      <span>© 2026 Rewa Kripa Travels, Barwani. All rights reserved.</span>
+      <div class="footer-payments"><span class="pay-badge">VISA</span><span class="pay-badge">UPI</span><span class="pay-badge">RuPay</span></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+var WA_NUMBER = '919977855338';
+
+var ROUTES = {
+  'barwani-bokrata': { label: 'Barwani → Pati → Bokrata', dep: '08:00 AM', fare: 230 },
+  'indore-barwani':  { label: 'Indore → Barwani',         dep: '06:50 AM', fare: 230 },
+  'barwani-indore':  { label: 'Barwani → Indore',         dep: '08:30 AM', fare: 230 },
+  'anjad-indore':    { label: 'Anjad → Indore',           dep: '07:30 AM', fare: 170 }
+};
+
+// Pre-booked seats (simulated)
+var BOOKED = [3, 7, 12, 18, 24, 29];
+
+var selectedSeats = [];
+
+// Set min date to today
+var today = new Date().toISOString().split('T')[0];
+document.getElementById('travelDate').min = today;
+document.getElementById('travelDate').value = today;
+document.getElementById('sumDate').textContent = formatDate(today);
+document.getElementById('travelDate').addEventListener('change', function(){
+  document.getElementById('sumDate').textContent = formatDate(this.value);
+  updateSummary();
+});
+
+function formatDate(d) {
+  if (!d) return '—';
+  var dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'long', year:'numeric' });
+}
+
+// Pre-select route from URL
+var urlParams = new URLSearchParams(window.location.search);
+var urlRoute = urlParams.get('route');
+if (urlRoute && ROUTES[urlRoute]) {
+  document.getElementById('routeSelect').value = urlRoute;
+}
+updateRoute();
+renderSeatMap();
+
+function updateRoute() {
+  var r = ROUTES[document.getElementById('routeSelect').value];
+  document.getElementById('depTime').value = r.dep;
+  document.getElementById('sumRoute').textContent = r.label;
+  document.getElementById('sumDep').textContent = r.dep;
+  document.getElementById('sumFare').textContent = '₹' + r.fare;
+  updateSummary();
+}
+
+function updateBusInfo() {
+  document.getElementById('sumBus').textContent = document.getElementById('busSelect').value;
+  selectedSeats = [];
+  renderSeatMap();
+  updateSummary();
+}
+
+function renderSeatMap() {
+  var map = document.getElementById('seatMap');
+  map.innerHTML = '';
+  // 2+2 layout, 10 rows = 40 seats
+  for (var row = 1; row <= 10; row++) {
+    var rowEl = document.createElement('div');
+    rowEl.className = 'seat-row';
+
+    rowEl.innerHTML = '<span class="seat-row-num">' + row + '</span>';
+
+    // Left 2 seats
+    [1,2].forEach(function(col) {
+      var num = (row-1)*4 + col;
+      rowEl.appendChild(makeSeat(num));
+    });
+
+    // Aisle
+    var aisle = document.createElement('div');
+    aisle.className = 'aisle';
+    rowEl.appendChild(aisle);
+
+    // Right 2 seats
+    [3,4].forEach(function(col) {
+      var num = (row-1)*4 + col;
+      rowEl.appendChild(makeSeat(num));
+    });
+
+    map.appendChild(rowEl);
+  }
+}
+
+function makeSeat(num) {
+  var el = document.createElement('div');
+  el.className = 'seat';
+  el.textContent = num;
+  el.id = 'seat-' + num;
+
+  if (BOOKED.indexOf(num) !== -1) {
+    el.classList.add('seat-booked');
+    el.title = 'Seat ' + num + ' is already booked';
+  } else {
+    el.onclick = function() { toggleSeat(num); };
+    el.title = 'Seat ' + num;
+  }
+  return el;
+}
+
+function toggleSeat(num) {
+  var idx = selectedSeats.indexOf(num);
+  var el = document.getElementById('seat-' + num);
+  if (idx === -1) {
+    selectedSeats.push(num);
+    el.classList.add('selected');
+  } else {
+    selectedSeats.splice(idx, 1);
+    el.classList.remove('selected');
+  }
+  updateSummary();
+}
+
+function updateSummary() {
+  var fare = ROUTES[document.getElementById('routeSelect').value].fare;
+  var total = selectedSeats.length * fare;
+  document.getElementById('totalAmt').textContent = '₹' + total.toLocaleString('en-IN');
+
+  var disp = document.getElementById('selectedSeatsDisplay');
+  if (selectedSeats.length === 0) {
+    disp.innerHTML = '<p>No seats selected yet</p>';
+  } else {
+    disp.innerHTML = selectedSeats.slice().sort(function(a,b){return a-b;}).map(function(s){
+      return '<span class="selected-seat-tag">Seat ' + s + '</span>';
+    }).join('');
+  }
+
+  var name = document.getElementById('passengerName').value.trim();
+  var phone = document.getElementById('passengerPhone').value.trim();
+  var btn = document.getElementById('waBookBtn');
+  btn.disabled = !(selectedSeats.length > 0 && name.length > 1 && phone.length >= 10);
+}
+
+function bookViaWhatsApp() {
+  var route = ROUTES[document.getElementById('routeSelect').value];
+  var bus = document.getElementById('busSelect').value;
+  var date = document.getElementById('travelDate').value;
+  var name = document.getElementById('passengerName').value.trim();
+  var phone = document.getElementById('passengerPhone').value.trim();
+  var seats = selectedSeats.slice().sort(function(a,b){return a-b;});
+  var fare = route.fare;
+  var total = seats.length * fare;
+
+  var msg =
+    '🚌 *REWA KRIPA TRAVELS — SEAT BOOKING REQUEST*\n\n' +
+    '👤 *Passenger Name:* ' + name + '\n' +
+    '📱 *Mobile:* ' + phone + '\n\n' +
+    '🗺️ *Route:* ' + route.label + '\n' +
+    '🚌 *Bus No.:* ' + bus + '\n' +
+    '📅 *Travel Date:* ' + formatDate(date) + '\n' +
+    '⏰ *Departure:* ' + route.dep + '\n' +
+    '💺 *Seat(s):* ' + seats.map(function(s){ return 'Seat '+s; }).join(', ') + '\n' +
+    '🎫 *No. of Seats:* ' + seats.length + '\n\n' +
+    '💰 *Fare per Seat:* ₹' + fare + '\n' +
+    '💳 *Total Amount:* ₹' + total.toLocaleString('en-IN') + '\n\n' +
+    '⚠️ _Please confirm my seat(s) and share payment details. Thank you!_';
+
+  var url = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trip Details — Rewa Kripa Travels</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container header-inner">
+    <div class="logo"><a href="index.html">REWA KRIPA</a></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="upcoming-trip.html">← All Trips</a>
+      <a href="book-seat.html" class="btn-book">Book Seat</a>
+    </nav>
+  </div>
+</header>
+
+<div class="trip-hero">
+  <img id="tripImg" src="images/bus3.jpeg" alt="Trip">
+  <div class="trip-hero-overlay"></div>
+  <div class="trip-hero-content">
+    <div class="container">
+      <div class="page-eyebrow" id="tripTag">Special Trip</div>
+      <h1 id="tripTitle">Trip Details</h1>
+      <p id="tripSub">Loading...</p>
+    </div>
+  </div>
+</div>
+
+<section class="trip-detail-body">
+  <div class="container">
+    <div class="trip-detail-layout">
+      <div>
+        <div class="trip-section"><h2>About This Trip</h2><p id="tripDesc"></p></div>
+        <div class="trip-section"><h2>Day-by-Day Itinerary</h2><div id="itinerary"></div></div>
+        <div class="trip-section"><h2>What's Included</h2><div class="inclusions-grid" id="inclusions"></div></div>
+        <div class="trip-section" id="notIncSection" style="display:none;"><h2>What's Not Included</h2><div class="inclusions-grid" id="notInclusions"></div></div>
+        <div class="trip-section" id="notesSection" style="display:none;">
+          <h2>Important Notes</h2>
+          <div id="tripNotes"></div>
+        </div>
+      </div>
+      <div>
+        <div class="sticky-book-box">
+          <div class="sticky-book-header"><h3>Book This Trip</h3><p>Limited seats — book early</p></div>
+          <div class="sticky-book-body">
+            <div class="sbp-price" id="bookPrice">₹21,000</div>
+            <span class="sbp-per">per person (all inclusive)</span>
+            <div class="sb-row"><span class="sl">Departure</span><span class="sv" id="bookDep">—</span></div>
+            <div class="sb-row"><span class="sl">Return</span><span class="sv" id="bookRet">—</span></div>
+            <div class="sb-row"><span class="sl">Duration</span><span class="sv" id="bookDur">—</span></div>
+            <div class="sb-row"><span class="sl">Bus Type</span><span class="sv">Luxury AC Coach</span></div>
+            <div class="sb-row"><span class="sl">Meals</span><span class="sv" id="bookMeals">Breakfast + Dinner</span></div>
+            <div class="seats-urgency">🔴 Only <span id="seatsLeft" style="margin:0 4px;">6</span> seats left!</div>
+            <div class="sb-cta-group">
+              <button class="sb-wa-btn" id="tripWaBtn" onclick="bookTripWhatsApp()">💬 Book via WhatsApp</button>
+              <button class="sb-call-btn" onclick="window.location.href='tel:+919977855338'">📞 +91 99778 55338</button>
+            </div>
+            <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:10px;line-height:1.5;">Advance booking required. 25% deposit to confirm seat.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom">
+      <span>© 2026 Rewa Kripa Travels, Barwani. All rights reserved.</span>
+      <div class="footer-payments"><span class="pay-badge">UPI</span><span class="pay-badge">Cash</span><span class="pay-badge">NEFT</span></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+var TRIPS = {
+  chardham: {
+    title: 'Barwani → Char Dham Yatra 2026',
+    sub: 'Luxury 15-day pilgrimage — Yamunotri, Gangotri, Kedarnath & Badrinath',
+    img: 'images/bus3.jpeg', tag: '🙏 Luxury Spiritual Pilgrimage',
+    price: '₹21,000', dep: 'May 15, 2026', ret: 'May 29, 2026', dur: '15 Days', seats: '18', meals: 'Breakfast + Dinner',
+    desc: 'Embark on the most sacred journey of your lifetime — the Char Dham Yatra, now with luxury stays and full-board meals. Visit all four holy abodes of the Himalayas: Yamunotri, Gangotri, Kedarnath, and Badrinath. Travel in our premium AC luxury coach with recliner seats. All hotels are 3-star properties with attached bathrooms. Breakfast and dinner are included every day. This 15-day package from Barwani is priced at ₹21,000 per person — making divine blessings accessible to all.',
+    itin: [
+      { day:'Day 1', title:'Departure from Barwani', desc:'Depart from Navalpura Bus Stand, Barwani at 06:00 AM. Journey toward Haridwar overnight.' },
+      { day:'Day 2', title:'Haridwar Arrival & Rishikesh', desc:'Arrive Haridwar by morning. Check-in at hotel. Evening Ganga Aarti at Har Ki Pauri. Visit Rishikesh — Lakshman Jhula & Triveni Ghat.' },
+      { day:'Day 3', title:'Journey to Barkot (Yamunotri Base)', desc:'Depart for Barkot — the base for Yamunotri Dham. Scenic mountain drive. Check-in and rest.' },
+      { day:'Day 4', title:'Yamunotri Dham', desc:'Early morning departure for Yamunotri. Trek 6 km to temple. Holy dip in Yamuna river. Witness puja at Yamunotri temple. Return to Barkot.' },
+      { day:'Day 5', title:'Journey to Uttarkashi (Gangotri Base)', desc:'Drive to Uttarkashi through the beautiful Yamuna valley. Check-in at 3-star hotel.' },
+      { day:'Day 6', title:'Gangotri Dham', desc:'Visit Gangotri temple — origin of the sacred Ganga river. Attend morning aarti. Explore Gangotri town. Return to Uttarkashi.' },
+      { day:'Day 7', title:'Journey to Guptkashi (Kedarnath Base)', desc:'Long scenic drive through Tehri and Augustmuni to Guptkashi. Rest and acclimatization.' },
+      { day:'Day 8', title:'Gaurikund to Kedarnath (Trek/Helicopter)', desc:'Depart for Gaurikund. Trek 16 km (or optional helicopter service available at extra cost) to Kedarnath. Check-in at guest house.' },
+      { day:'Day 9', title:'Kedarnath Dham Darshan', desc:'Early morning Abhishek puja at Kedarnath temple — one of the 12 Jyotirlingas. Witness breathtaking Himalayan sunrise. Trek back to Gaurikund.' },
+      { day:'Day 10', title:'Journey to Badrinath', desc:'Drive through Joshimath to the holy town of Badrinath. Check-in at 3-star hotel near the temple.' },
+      { day:'Day 11', title:'Badrinath Dham Darshan', desc:'Early morning Abhishek puja at Badrinath Vishnu temple. Visit Mana Village — the last Indian village before Tibet. Vasudhara Falls and Brahma Kapal.' },
+      { day:'Day 12', title:'Badrinath to Rishikesh', desc:'Descend from Badrinath. Drive to Rishikesh. Check-in, rest, and optional river rafting.' },
+      { day:'Day 13', title:'Haridwar Sightseeing & Shopping', desc:'Visit Chandi Devi, Maya Devi temple, and the famous Har Ki Pauri market. Purchase prasad and keepsakes.' },
+      { day:'Day 14', title:'Return Journey Begins', desc:'Depart Haridwar for Barwani. Overnight journey in luxury AC coach.' },
+      { day:'Day 15', title:'Arrival in Barwani', desc:'Arrive Barwani by afternoon with divine blessings, prasad and memories of a lifetime.' }
+    ],
+    inc: ['🚌 Luxury AC Coach (Recliner Seats)','🏨 13 Nights (3-Star Hotels)','🍳 Breakfast Daily (All 15 Days)','🍽️ Dinner Daily (All 15 Days)','🙏 Puja Samagri & Prasad','👨‍💼 Experienced Tour Guide','🧳 Luggage Assistance','🩺 First Aid & Medical Kit','📿 Temple Entry Arrangements','🎫 All Toll & Parking'],
+    notInc: ['✈️ Air/Train Tickets','🚁 Helicopter (Kedarnath — Optional)','🥗 Lunch','📸 Personal Expenses','🏔️ Adventure Activities','💊 Personal Medication'],
+    notes: ['Carry government-issued photo ID (Aadhaar/PAN/Passport).','Warm woolens and rain gear essential.','Mobile network is limited in high-altitude areas.','Kedarnath helicopter is optional at approx ₹4,500–6,000 extra per person.','25% advance payment required to confirm booking.','Cancellation policy: 50% refund if cancelled 15+ days before departure.']
+  },
+  goa: {
+    title: 'Barwani → Goa Weekend Trip',
+    sub: 'Sun, sand & serenity — 3 days in Goa',
+    img: 'images/bus1.jpeg', tag: '🔥 Leisure Trip',
+    price: '₹3,200', dep: 'Apr 20, 2026', ret: 'Apr 23, 2026', dur: '3 Days', seats: '8', meals: 'Breakfast Included',
+    desc: 'Escape to the golden shores of Goa — India\'s beloved beach destination. This 3-day trip from Barwani covers the best of North and South Goa, from the vibrant Baga beach to the serene Palolem shore and the historic churches of Old Goa. Travel in our premium AC coach and let the ocean breeze wash your worries away.',
+    itin: [
+      { day:'Day 1', title:'Departure from Barwani', desc:'Depart Navalpura Bus Stand at 6:00 PM. Comfortable overnight journey in AC coach.' },
+      { day:'Day 2', title:'Arrival & North Goa Beaches', desc:'Arrive Goa by morning. Check-in at hotel near Baga Beach. Explore Baga, Calangute, and Anjuna beaches. Evening at Tito\'s Lane.' },
+      { day:'Day 3', title:'South Goa & Old Goa', desc:'Morning visit to Palolem Beach. Afternoon — Basilica of Bom Jesus (UNESCO), Se Cathedral, and Goa Museum.' },
+      { day:'Day 4', title:'Return Journey', desc:'Depart Goa at 6:00 PM. Arrive Barwani by next morning.' }
+    ],
+    inc: ['🚌 AC Coach (Both Ways)','🏨 2 Nights Hotel (Beachside)','🍳 Breakfast Daily','🗺️ Tour Guide','📸 Sightseeing Stops','💊 First Aid Kit'],
+    notInc: ['🥗 Lunch & Dinner','🏄 Water Sports','🍺 Beverages','📸 Personal Expenses'],
+    notes: ['Carry valid photo ID.','Beach-wear and sunscreen recommended.','Water sports available at extra cost.','30% advance to confirm booking.']
+  },
+  manali: {
+    title: 'Barwani → Manali Hill Trip',
+    sub: 'Himalayan heights — 5 magical days in the mountains',
+    img: 'images/bus2.jpeg', tag: '❄️ Hill Trip',
+    price: '₹5,500', dep: 'May 5, 2026', ret: 'May 10, 2026', dur: '5 Days', seats: '15', meals: 'Breakfast + Dinner',
+    desc: 'Journey to Manali — the jewel of the Himalayas. Experience snow-capped peaks, roaring rivers, and the legendary charm of Kullu valley. This 5-day package includes visits to Solang Valley, Hadimba Devi Temple, Vashisht Hot Springs, and an optional Rohtang Pass excursion.',
+    itin: [
+      { day:'Day 1', title:'Departure from Barwani', desc:'Overnight departure from Barwani in premium AC coach. En-route rest stops.' },
+      { day:'Day 2', title:'Arrival in Manali', desc:'Check-in at hotel. Rest and acclimatization. Evening walk at Mall Road and Old Manali.' },
+      { day:'Day 3', title:'Solang Valley & Rohtang Approach', desc:'Full day at Solang Valley — snow activities, zorbing, and paragliding (at extra cost). Scenic views of Beas river valley.' },
+      { day:'Day 4', title:'Hadimba Temple & Vashisht', desc:'Morning puja at Hadimba Devi Temple. Visit Manu Temple, Vashisht Hot Springs, and Tibetan market.' },
+      { day:'Day 5', title:'Kullu Maidan & Departure', desc:'Kullu river rafting (optional). Shopping at Kullu shawl market. Evening departure for Barwani.' }
+    ],
+    inc: ['🚌 Luxury AC Coach','🏨 4 Nights Hotel (Mountain View)','🍳 Breakfast Daily','🍽️ Dinner Daily','🗺️ Expert Guide','💊 First Aid Kit'],
+    notInc: ['🥗 Lunch','🏔️ Rohtang Permit (₹500–1000 extra)','🪂 Paragliding/Adventure Activities','📸 Personal Expenses'],
+    notes: ['Carry warm woolens — temperatures can drop to 5–10°C.','Rohtang Pass may require separate permit.','River rafting is optional at extra cost.','25% advance required.']
+  },
+  shirdi: {
+    title: 'Shirdi Sai Baba Yatra',
+    sub: 'Seek blessings at Shirdi — 4 days of spiritual peace',
+    img: 'images/bus1.jpeg', tag: '🙏 Spiritual Journey',
+    price: '₹4,500', dep: 'Jun 1, 2026', ret: 'Jun 4, 2026', dur: '4 Days', seats: '12', meals: 'Breakfast + Dinner',
+    desc: 'A peaceful and deeply spiritual pilgrimage to Shirdi — the holy town of Sai Baba. Participate in the sacred morning aarti at the Sai Baba Samadhi Mandir, explore the Chavadi, and also visit the famous Shani Shingnapur temple and Trimbakeshwar in Nashik.',
+    itin: [
+      { day:'Day 1', title:'Departure from Barwani', desc:'Evening departure from Barwani. Overnight AC journey to Shirdi.' },
+      { day:'Day 2', title:'Shirdi Darshan', desc:'Morning Aarti at Sai Baba Samadhi Mandir. Dwarkamai and Chavadi visit. Guided temple tour. Evening Sheji Aarti.' },
+      { day:'Day 3', title:'Shani Shingnapur & Nashik', desc:'Day trip to Shani Shingnapur (Lord Shani temple). Afternoon at Trimbakeshwar Jyotirlinga, Nashik. Return to Shirdi.' },
+      { day:'Day 4', title:'Final Darshan & Return', desc:'Early morning final Darshan. Prasad distribution. Depart for Barwani. Arrive by evening.' }
+    ],
+    inc: ['🚌 AC Bus (Both Ways)','🏨 3 Nights Dharamshala/Hotel','🍳 Breakfast Daily','🍽️ Dinner Daily','🙏 Puja Arrangements','🎁 Sai Prasad'],
+    notInc: ['🥗 Lunch','📸 Personal Expenses','🛒 Shopping'],
+    notes: ['Modest, respectful clothing required at temple.','Carry valid photo ID.','Senior-citizen-friendly itinerary with minimal walking.','20% advance to confirm.']
+  }
+};
+
+var id = new URLSearchParams(window.location.search).get('trip') || 'chardham';
+var trip = TRIPS[id] || TRIPS.chardham;
+
+document.getElementById('tripImg').src = trip.img;
+document.getElementById('tripTag').textContent = trip.tag;
+document.getElementById('tripTitle').textContent = trip.title;
+document.getElementById('tripSub').textContent = trip.sub;
+document.getElementById('tripDesc').textContent = trip.desc;
+document.getElementById('bookPrice').textContent = trip.price;
+document.getElementById('bookDep').textContent = trip.dep;
+document.getElementById('bookRet').textContent = trip.ret;
+document.getElementById('bookDur').textContent = trip.dur;
+document.getElementById('seatsLeft').textContent = trip.seats;
+document.getElementById('bookMeals').textContent = trip.meals;
+document.title = trip.title + ' — Rewa Kripa';
+
+trip.itin.forEach(function(i){
+  document.getElementById('itinerary').innerHTML +=
+    '<div class="itin-item"><div class="itin-day-pill">'+i.day+'</div><div class="itin-content"><h4>'+i.title+'</h4><p>'+i.desc+'</p></div></div>';
+});
+trip.inc.forEach(function(i){
+  document.getElementById('inclusions').innerHTML += '<div class="inc-item">'+i+'</div>';
+});
+if(trip.notInc && trip.notInc.length){
+  document.getElementById('notIncSection').style.display='block';
+  trip.notInc.forEach(function(i){
+    document.getElementById('notInclusions').innerHTML += '<div class="inc-item" style="border-color:#fee2e2;">'+i+'</div>';
+  });
+}
+if(trip.notes && trip.notes.length){
+  document.getElementById('notesSection').style.display='block';
+  var nl = trip.notes.map(function(n){ return '<li>'+n+'</li>'; }).join('');
+  document.getElementById('tripNotes').innerHTML = '<ul style="padding-left:18px;">'+nl+'</ul>';
+  document.getElementById('tripNotes').querySelectorAll('li').forEach(function(li){
+    li.style.cssText='font-size:14px;color:#64748b;line-height:1.8;margin-bottom:6px;';
+  });
+}
+
+function bookTripWhatsApp(){
+  var msg =
+    '🙏 *REWA KRIPA TRAVELS — TRIP BOOKING ENQUIRY*\n\n' +
+    '🗺️ *Trip:* ' + trip.title + '\n' +
+    '📅 *Departure:* ' + trip.dep + '\n' +
+    '📅 *Return:* ' + trip.ret + '\n' +
+    '⏱️ *Duration:* ' + trip.dur + '\n' +
+    '💰 *Cost:* ' + trip.price + ' per person\n\n' +
+    '👤 *Interested. Please send booking details and payment information.*\n\n' +
+    '_Sent from rewakripa.com_';
+  window.open('https://wa.me/919977855338?text=' + encodeURIComponent(msg), '_blank');
+}
+</script>
+</body>
+</html>
