@@ -5,25 +5,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css"></head>
 <body>
-<header><div class="container header-inner"><div class="logo"><a href="index.html">REWA KRIPA</a></div><nav><a href="index.html">Home</a><a href="contact.html">Contact</a><a href="book-seat.html" class="btn-book">Book Now</a></nav></div></header>
-<section class="page-hero"><div class="container"><div class="page-eyebrow">Support</div><h1>Help Centre</h1><p>Common questions and how to get in touch with us</p></div></section>
-<section class="policy-body"><div class="container"><div class="policy-content">
-<h2>How do I book a seat?</h2>
-<p>Go to our <a href="book-seat.html" style="color:#7EC8C9;">Book Seat page</a>, select your route, date, bus, and seat number. Enter your name and phone number. Click "Confirm on WhatsApp" — your booking details will be pre-filled. Just press Send on WhatsApp. We confirm within minutes.</p>
-<h2>What is your WhatsApp booking number?</h2>
-<p><strong>+91 99778 55338</strong> — Mon–Sat 6:00 AM to 9:00 PM · Sunday 7:00 AM to 2:00 PM.</p>
-<h2>Where is your office?</h2>
-<p>Bus Station, Navalpura, Barwani — 451551, Madhya Pradesh. Near the main Barwani Bus Stand.</p>
-<h2>Can I book on redBus, MakeMyTrip or Goibibo?</h2>
-<p>Yes! Rewa Kripa Travels is listed on redBus, Goibibo, MakeMyTrip, and AbhiBus. Or book directly with us on WhatsApp for fastest service.</p>
-<h2>What amenities do your buses have?</h2>
-<p>Reading Light, USB Charging, CCTV, Leg Rest, and M-Ticket support on all buses. Premium coaches also have WiFi, entertainment, and AC recliners.</p>
-<h2>What is the cancellation policy?</h2>
-<p>90% refund if cancelled 48+ hours before departure. 50% for 24–48 hours. No refund under 24 hours. See our full <a href="cancellations.html" style="color:#7EC8C9;">Cancellation Policy</a>.</p>
-<h2>What ID should I carry?</h2>
-<p>Any valid government-issued photo ID — Aadhaar, Voter ID, PAN, Passport, or Driving Licence.</p>
-<h2>Still need help?</h2>
-<p><a href="https://wa.me/919977855338" target="_blank" style="color:#7EC8C9;font-weight:600;">WhatsApp us at +91 99778 55338</a> or email <a href="mailto:rewakripa@gmail.com" style="color:#7EC8C9;">rewakripa@gmail.com</a></p>
-</div></div></section>
-<footer><div class="container"><div class="footer-bottom"><span>© 2026 Rewa Kripa Travels, Barwani.</span></div></div></footer>
-<script src="script.js"></script></body></html>
+<div id="site-header"></div>
+<section class="page-hero"><div class="container"><div class="page-eyebrow">Support</div><h1>Help Centre</h1><p>Common questions and how to reach us</p></div></section>
+<section class="policy-body"><div class="container"><div class="policy-content" id="help-content"></div></div></section>
+<div id="site-footer"></div>
+<script src="config.js"></script><script src="script.js"></script>
+<script>
+buildHeader('help.html'); buildFooter();
+var c = CONFIG.company;
+document.getElementById('help-content').innerHTML =
+  '<h2>How do I book a seat?</h2><p>Go to our <a href="book-seat.html" style="color:#7EC8C9;">Book Seat page</a>, select your route, date, bus, and seat. Enter your name and phone, click "Confirm on WhatsApp" — booking details are pre-filled. Just press Send. We confirm within minutes.</p>'+
+  '<h2>WhatsApp booking number?</h2><p><strong>'+c.phone+'</strong> — '+c.hours.weekdays+' · '+c.hours.sunday+'</p>'+
+  '<h2>Where is your office?</h2><p>'+c.address.line1+', '+c.address.city+' — '+c.address.pin+', '+c.address.state+'. Near the main Barwani Bus Stand.</p>'+
+  '<h2>Can I book on redBus, MakeMyTrip or Goibibo?</h2><p>Yes! Rewa Kripa Travels is listed on redBus, Goibibo, MakeMyTrip, and AbhiBus. Or book directly with us on WhatsApp for fastest service.</p>'+
+  '<h2>What amenities do buses have?</h2><p>Reading Light, USB Charging, CCTV, Leg Rest on all buses. Premium coaches also have WiFi, entertainment, and AC recliners.</p>'+
+  '<h2>Cancellation policy?</h2><p>90% refund if cancelled 48+ hours before. 50% for 24–48 hours. No refund under 24 hours. See full <a href="cancellations.html" style="color:#7EC8C9;">Cancellation Policy</a>.</p>'+
+  '<h2>What ID should I carry?</h2><p>Any valid government-issued photo ID — Aadhaar, Voter ID, PAN, Passport, or Driving Licence.</p>'+
+  '<h2>Still need help?</h2><p><a href="https://wa.me/'+c.whatsapp+'" target="_blank" style="color:#7EC8C9;font-weight:600;">WhatsApp '+c.phone+'</a> or email <a href="mailto:'+c.email+'" style="color:#7EC8C9;">'+c.email+'</a></p>';
+</script>
+</body></html>

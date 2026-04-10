@@ -5,20 +5,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css"></head>
 <body>
-<header><div class="container header-inner"><div class="logo"><a href="index.html">REWA KRIPA</a></div><nav><a href="index.html">Home</a><a href="book-seat.html" class="btn-book">Book Now</a></nav></div></header>
+<div id="site-header"></div>
 <section class="page-hero"><div class="container"><div class="page-eyebrow">Legal · India</div><h1>Cookie Policy</h1><p>Effective Date: 1 April 2026</p></div></section>
-<section class="policy-body"><div class="container"><div class="policy-content">
-<p class="policy-date">This Cookie Policy complies with the Information Technology Act, 2000 and IT (Reasonable Security Practices and Procedures) Rules, 2011 of India.</p>
-<h2>1. What Are Cookies?</h2>
-<p>Cookies are small text files placed on your device when you visit our website. They help the site function correctly and help us understand visitor usage patterns.</p>
-<h2>2. Types of Cookies We Use</h2>
-<ul><li><strong>Essential Cookies:</strong> Required for core website functionality. Cannot be disabled.</li><li><strong>Analytics Cookies:</strong> Help us understand traffic patterns. No personal data is stored.</li><li><strong>Preference Cookies:</strong> Remember your settings and preferences.</li></ul>
-<h2>3. Managing Cookies</h2>
-<p>You can manage or disable cookies through your browser settings. Disabling essential cookies may affect website functionality. Most modern browsers allow you to refuse cookies via their settings menu.</p>
-<h2>4. Third-Party Cookies</h2>
-<p>Services like Google Analytics and WhatsApp may set their own cookies. We do not control these. We recommend reviewing their respective privacy policies.</p>
-<h2>5. Contact</h2>
-<p>Questions? Email us at rewakripa@gmail.com or WhatsApp +91 99778 55338.</p>
-</div></div></section>
-<footer><div class="container"><div class="footer-bottom"><span>© 2026 Rewa Kripa Travels, Barwani.</span></div></div></footer>
-<script src="script.js"></script></body></html>
+<section class="policy-body"><div class="container"><div class="policy-content" id="pol"></div></div></section>
+<div id="site-footer"></div>
+<script src="config.js"></script><script src="script.js"></script>
+<script>
+buildHeader(''); buildFooter();
+var c = CONFIG.company;
+document.getElementById('pol').innerHTML =
+  '<p class="policy-date">Complies with the Information Technology Act, 2000 and IT (Reasonable Security Practices) Rules, 2011.</p>'+
+  '<h2>1. What Are Cookies?</h2><p>Small text files placed on your device when you visit our website. They help the site function and help us understand usage patterns.</p>'+
+  '<h2>2. Types of Cookies</h2><ul><li><strong>Essential:</strong> Required for core functionality. Cannot be disabled.</li><li><strong>Analytics:</strong> Help us understand traffic. No personal data stored.</li><li><strong>Preference:</strong> Remember your settings.</li></ul>'+
+  '<h2>3. Managing Cookies</h2><p>Manage or disable cookies through your browser settings. Disabling essential cookies may affect site functionality.</p>'+
+  '<h2>4. Third-Party Cookies</h2><p>Services like Google Analytics and WhatsApp may set their own cookies. We recommend reviewing their privacy policies.</p>'+
+  '<h2>5. Contact</h2><p>Questions? Email <a href="mailto:'+c.email+'" style="color:#7EC8C9;">'+c.email+'</a></p>';
+</script>
+</body></html>

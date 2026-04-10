@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cancellation & Refund Policy — Rewa Kripa Travels</title>
+<title>Cancellation Policy — Rewa Kripa Travels</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css"></head>
 <body>
-<header><div class="container header-inner"><div class="logo"><a href="index.html">REWA KRIPA</a></div><nav><a href="index.html">Home</a><a href="help.html">Help</a><a href="book-seat.html" class="btn-book">Book Now</a></nav></div></header>
+<div id="site-header"></div>
 <section class="page-hero"><div class="container"><div class="page-eyebrow">Legal · India</div><h1>Cancellation &amp; Refund Policy</h1><p>Effective Date: 1 April 2026</p></div></section>
-<section class="policy-body"><div class="container"><div class="policy-content">
-<p class="policy-date">This policy complies with the Consumer Protection Act, 2019 (India) and is binding on all bookings made with Rewa Kripa Travels, Bus Station, Navalpura, Barwani — 451551, MP.</p>
-<h2>1. Regular Seat / Route Ticket Cancellations</h2>
-<ul><li><strong>More than 48 hours before departure:</strong> 90% refund.</li><li><strong>24–48 hours before departure:</strong> 50% refund.</li><li><strong>Less than 24 hours before departure:</strong> No refund. Ticket may be rescheduled once without charge (subject to availability).</li><li><strong>No-show:</strong> No refund.</li></ul>
-<h2>2. Special Trip / Package Tour Cancellations</h2>
-<ul><li><strong>15+ days before departure:</strong> 75% refund of amount paid.</li><li><strong>8–14 days before:</strong> 50% refund.</li><li><strong>3–7 days before:</strong> 25% refund.</li><li><strong>Less than 72 hours:</strong> No refund. Booking may be transferred to another person (with ID verification).</li></ul>
-<h2>3. How to Request Cancellation</h2>
-<p>All cancellation requests must be made via <strong>WhatsApp at +91 99778 55338</strong> or email at <strong>rewakripa@gmail.com</strong>. Written confirmation is mandatory. Verbal cancellations are not accepted.</p>
-<h2>4. Refund Processing</h2>
-<p>Refunds will be processed within <strong>7 working days</strong> of approval, to the original payment method. The Company is not liable for delays caused by banking institutions.</p>
-<h2>5. Cancellation by the Company</h2>
-<p>If the Company cancels a trip (natural calamity, government order, force majeure, vehicle breakdown), passengers receive a <strong>full refund</strong> or free rescheduling at their choice.</p>
-<h2>6. Rescheduling</h2>
-<p>One free rescheduling permitted up to 6 hours before departure. Subsequent rescheduling: ₹50 per seat fee applies.</p>
-<div class="policy-highlight">For disputes, applicable law is the law of India. Jurisdiction: Courts of Barwani, Madhya Pradesh.</div>
-</div></div></section>
-<footer><div class="container"><div class="footer-bottom"><span>© 2026 Rewa Kripa Travels, Barwani.</span></div></div></footer>
-<script src="script.js"></script></body></html>
+<section class="policy-body"><div class="container"><div class="policy-content" id="pol-content"></div></div></section>
+<div id="site-footer"></div>
+<script src="config.js"></script><script src="script.js"></script>
+<script>
+buildHeader(''); buildFooter();
+var c = CONFIG.company;
+document.getElementById('pol-content').innerHTML =
+  '<p class="policy-date">Complies with Consumer Protection Act, 2019 (India). Binding on all bookings with '+c.fullName+', '+c.address.line1+', '+c.address.city+' — '+c.address.pin+'.</p>'+
+  '<h2>1. Regular Seat Cancellations</h2><ul><li><strong>48+ hours before departure:</strong> 90% refund.</li><li><strong>24–48 hours before:</strong> 50% refund.</li><li><strong>Less than 24 hours:</strong> No refund. Ticket may be rescheduled once free of charge (subject to availability).</li><li><strong>No-show:</strong> No refund.</li></ul>'+
+  '<h2>2. Tour Package Cancellations</h2><ul><li><strong>15+ days before:</strong> 75% refund.</li><li><strong>8–14 days before:</strong> 50% refund.</li><li><strong>3–7 days before:</strong> 25% refund.</li><li><strong>Less than 72 hours:</strong> No refund. Booking may be transferred to another person (with ID).</li></ul>'+
+  '<h2>3. How to Cancel</h2><p>WhatsApp <strong>'+c.phone+'</strong> or email <strong>'+c.email+'</strong>. Written request mandatory.</p>'+
+  '<h2>4. Refund Processing</h2><p>Refunds processed within <strong>7 working days</strong> to the original payment method.</p>'+
+  '<h2>5. Cancellation by the Company</h2><p>If the Company cancels (natural calamity, force majeure, breakdown), passengers receive a <strong>full refund</strong> or free rescheduling.</p>'+
+  '<h2>6. Rescheduling</h2><p>One free rescheduling up to 6 hours before departure. Subsequent: ₹50 per seat.</p>'+
+  '<div class="policy-highlight">Disputes governed by Indian law. Jurisdiction: Courts of '+c.address.city+', '+c.address.state+'.</div>';
+</script>
+</body></html>

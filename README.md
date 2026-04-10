@@ -1,1 +1,0 @@
-# Rewa_Kripa

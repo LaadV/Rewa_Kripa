@@ -1,62 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bus Details — Rewa Kripa Travels</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bus Details — Rewa Kripa Travels</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
-<header><div class="container header-inner"><div class="logo"><a href="index.html">REWA KRIPA</a></div>
-<nav><a href="index.html">Home</a><a href="index.html#buses">Our Buses</a><a href="book-seat.html" class="btn-book">Book Now</a></nav></div></header>
+<div id="site-header"></div>
 
-<div class="bus-detail-hero"><img id="busImg" src="images/bus1.jpeg" alt="Bus"></div>
+<div class="bus-detail-hero">
+  <img id="busImg" src="images/bus1.jpeg" alt="Bus">
+</div>
 
-<section class="bus-detail-body"><div class="container"><div class="bus-detail-layout">
-  <div>
-    <span class="bus-plate-tag" id="busPlate">MP09CY8606</span>
-    <h1 id="busTitle">Luxury Seater</h1>
-    <p class="bus-detail-desc" id="busDesc"></p>
-    <div class="bus-specs-grid" id="busSpecs"></div>
-    <p class="features-heading">On-board Amenities</p>
-    <div class="features-list" id="busFeatures"></div>
-  </div>
-  <div>
-    <div class="book-sidebar">
-      <div class="book-sidebar-header"><h3>Book a Seat</h3><p>On this bus via WhatsApp</p></div>
-      <div class="book-sidebar-body">
-        <div class="book-price-display"><span class="big" id="busPrice">₹230</span><span class="per">per seat</span></div>
-        <div class="book-row"><span class="bl">Route</span><span class="bv" id="busRoute">—</span></div>
-        <div class="book-row"><span class="bl">Departure</span><span class="bv" id="busDep">08:00 AM</span></div>
-        <div class="book-row"><span class="bl">Capacity</span><span class="bv" id="busCap">40 Seats</span></div>
-        <div class="book-cta">
-          <a href="book-seat.html" class="btn-primary" style="text-align:center;display:block;width:100%;padding:13px;">🎫 Choose Seat & Book</a>
-          <a href="https://wa.me/919977855338" target="_blank" class="btn-whatsapp">💬 WhatsApp to Book</a>
+<section class="bus-detail-body">
+  <div class="container">
+    <div class="bus-detail-layout">
+      <div>
+        <span class="bus-plate-tag" id="busPlate"></span>
+        <h1 id="busTitle"></h1>
+        <p class="bus-detail-desc" id="busDesc"></p>
+        <div class="bus-specs-grid" id="busSpecs"></div>
+        <p class="features-heading">On-board Amenities</p>
+        <div class="features-list" id="busFeatures"></div>
+      </div>
+      <div>
+        <div class="book-sidebar">
+          <div class="book-sidebar-header">
+            <h3>Book a Seat on This Bus</h3>
+            <p>Instant confirmation via WhatsApp</p>
+          </div>
+          <div class="book-sidebar-body">
+            <div class="book-price-display">
+              <span class="big" id="busPrice"></span>
+              <span class="per">per seat</span>
+            </div>
+            <div class="book-row"><span class="bl">Route</span><span class="bv" id="busRoute"></span></div>
+            <div class="book-row"><span class="bl">Departure</span><span class="bv" id="busDep"></span></div>
+            <div class="book-row"><span class="bl">Layout</span><span class="bv" id="busLayout"></span></div>
+            <div class="book-row"><span class="bl">Capacity</span><span class="bv" id="busCap"></span></div>
+            <div class="book-cta">
+              <a id="busBookLink" href="book-seat.html" class="btn-primary" style="text-align:center;display:block;width:100%;padding:13px;">🎫 Choose Seat &amp; Book</a>
+              <a id="busWALink" href="#" target="_blank" class="btn-whatsapp">💬 WhatsApp to Book</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div></div></section>
+</section>
 
-<footer><div class="container"><div class="footer-bottom"><span>© 2026 Rewa Kripa Travels, Barwani.</span><div class="footer-payments"><span class="pay-badge">UPI</span><span class="pay-badge">RuPay</span></div></div></div></footer>
-
+<div id="site-footer"></div>
+<script src="config.js"></script>
+<script src="script.js"></script>
 <script>
-var D={
-  bus1:{plate:'MP09CY8606',title:'Luxury Seater',image:'images/bus1.jpeg',price:'₹230',route:'Barwani → Pati → Bokrata',dep:'08:00 AM',cap:'40 Seats',desc:'Our flagship Luxury Seater with premium 2×2 recliner seating, USB charging, and full AC. Ideal for the Barwani–Bokrata route.',specs:[{l:'Layout',v:'2×2'},{l:'Capacity',v:'40 Seats'},{l:'Climate',v:'Full AC'},{l:'Type',v:'Recliner'}],features:['❄️ Air Conditioning','📶 Free WiFi','🔌 USB Charging','💺 Recliner Seats','💡 Reading Light','📹 CCTV']},
-  bus2:{plate:'MP09CY7782',title:'AC Seater',image:'images/bus2.jpeg',price:'₹230',route:'Barwani → Pati',dep:'09:00 AM',cap:'44 Seats',desc:'Comfortable AC Seater with pushback recline. Reading lights, cup holders, and USB ports for a pleasant journey.',specs:[{l:'Layout',v:'2×2'},{l:'Capacity',v:'44 Seats'},{l:'Climate',v:'Full AC'},{l:'Type',v:'Pushback'}],features:['❄️ Air Conditioning','💡 Reading Light','☕ Cup Holder','🔌 USB Charging','💺 Pushback Seats','📹 CCTV']},
-  bus3:{plate:'MP09CY9911',title:'Premium Coach',image:'images/bus3.jpeg',price:'₹350',route:'Indore → Barwani',dep:'07:00 AM',cap:'36 Seats',desc:'The ultimate travel experience. Entertainment system, complimentary snacks, LED displays, and spacious 2×1 seating.',specs:[{l:'Layout',v:'2×1'},{l:'Capacity',v:'36 Seats'},{l:'Climate',v:'Full AC'},{l:'Type',v:'Premium'}],features:['🎬 Entertainment','🍿 Snacks','📺 LED Displays','❄️ Full AC','🔌 USB Charging','📶 WiFi']},
-  bus4:{plate:'MP09CY4455',title:'Budget Seater',image:'images/bus4.jpeg',price:'₹170',route:'Anjad → Indore',dep:'07:30 AM',cap:'52 Seats',desc:'Reliable and economical. Clean, punctual, and ideal for budget-conscious travellers on short routes.',specs:[{l:'Layout',v:'2×3'},{l:'Capacity',v:'52 Seats'},{l:'Climate',v:'Fans'},{l:'Type',v:'Non-AC'}],features:['💨 Ceiling Fans','🧳 Luggage Racks','💰 Budget Fares','⏱️ On-time']}
-};
-var id=new URLSearchParams(window.location.search).get('bus')||'bus1';
-var b=D[id]||D.bus1;
-document.getElementById('busImg').src=b.image;
-document.getElementById('busPlate').textContent=b.plate;
-document.getElementById('busTitle').textContent=b.title;
-document.getElementById('busDesc').textContent=b.desc;
-document.getElementById('busPrice').textContent=b.price;
-document.getElementById('busRoute').textContent=b.route;
-document.getElementById('busDep').textContent=b.dep;
-document.getElementById('busCap').textContent=b.cap;
-document.title=b.title+' — Rewa Kripa';
-b.specs.forEach(function(s){document.getElementById('busSpecs').innerHTML+='<div class="spec-box"><span class="sl">'+s.l+'</span><span class="sv">'+s.v+'</span></div>';});
-b.features.forEach(function(f){document.getElementById('busFeatures').innerHTML+='<div class="feat-item">'+f+'</div>';});
+buildHeader('');
+buildFooter();
+
+var id = new URLSearchParams(window.location.search).get('bus') || CONFIG.buses[0].id;
+var b  = getBus(id);
+
+document.title = b.plate + ' — ' + CONFIG.company.fullName;
+document.getElementById('busImg').src     = b.image;
+document.getElementById('busImg').alt     = b.title;
+document.getElementById('busPlate').textContent = b.plate;
+document.getElementById('busTitle').textContent = b.title;
+document.getElementById('busDesc').textContent  = b.description;
+document.getElementById('busPrice').textContent = formatINR(b.price);
+document.getElementById('busRoute').textContent = b.route;
+document.getElementById('busDep').textContent   = b.departure;
+document.getElementById('busLayout').textContent= b.layout;
+document.getElementById('busCap').textContent   = b.capacity + ' Seats';
+
+document.getElementById('busBookLink').href = 'book-seat.html?bus='+b.id;
+document.getElementById('busWALink').href   = 'https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent('Hi, I want to book a seat on bus '+b.plate+' ('+b.title+') on the route '+b.route+'.');
+
+var specs = [
+  { l:'Bus Number', v: b.plate   },
+  { l:'Layout',     v: b.layout  },
+  { l:'Capacity',   v: b.capacity+' Seats' },
+  { l:'Climate',    v: b.climate },
+  { l:'Type',       v: b.type    },
+  { l:'Fare',       v: formatINR(b.price)+'/seat' }
+];
+document.getElementById('busSpecs').innerHTML = specs.map(function(s){
+  return '<div class="spec-box"><span class="sl">'+s.l+'</span><span class="sv">'+s.v+'</span></div>';
+}).join('');
+
+document.getElementById('busFeatures').innerHTML = b.features.map(function(f){
+  return '<div class="feat-item">'+f+'</div>';
+}).join('');
 </script>
-</body></html>
+</body>
+</html>
