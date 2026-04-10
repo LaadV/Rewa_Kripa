@@ -3,249 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rewa Kripa Travels — Barwani's Trusted Bus Service</title>
+  <title>Rewa Kripa Travels</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <div class="container header-inner">
-    <div class="logo"><a href="index.html">REWA KRIPA</a></div>
-    <nav>
-      <a href="index.html" class="active">Home</a>
-      <a href="#buses">Our Buses</a>
-      <a href="#routes">Routes</a>
-      <a href="#trips">Trips</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="book-seat.html" class="btn-book">Book Now</a>
-    </nav>
-  </div>
-</header>
+<div id="site-header"></div>
 
 <section class="hero">
-  <div class="slider">
-    <div class="slide active"><img src="images/bus1.jpeg" alt="Rewa Kripa Bus"></div>
-    <div class="slide"><img src="images/bus2.jpeg" alt="Rewa Kripa Bus"></div>
-    <div class="slide"><img src="images/bus3.jpeg" alt="Rewa Kripa Bus"></div>
-    <div class="slide"><img src="images/bus4.jpeg" alt="Rewa Kripa Bus"></div>
-    <div class="slide"><img src="images/bus5.jpeg" alt="Rewa Kripa Bus"></div>
-    <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
-    <button class="next" onclick="changeSlide(1)">&#10095;</button>
-    <div class="dots">
-      <span class="active" onclick="goToSlide(0)"></span>
-      <span onclick="goToSlide(1)"></span>
-      <span onclick="goToSlide(2)"></span>
-      <span onclick="goToSlide(3)"></span>
-      <span onclick="goToSlide(4)"></span>
-    </div>
-  </div>
+  <div class="slider" id="slider"></div>
   <div class="overlay"></div>
   <div class="hero-content">
-    <div class="hero-eyebrow">🚌 Madhya Pradesh's Trusted Bus Service Since 2008</div>
-    <h1>Travel Safe &amp;<br>Comfortable</h1>
-    <p>Barwani · Pati · Bokrata · Indore · Anjad — Connecting MP daily</p>
+    <div class="hero-eyebrow" id="hero-eyebrow"></div>
+    <h1 id="hero-heading"></h1>
+    <p id="hero-sub"></p>
     <div class="hero-actions">
-      <a href="book-seat.html" class="btn-primary">Book Your Seat</a>
-      <a href="#routes" class="btn-outline">View Routes</a>
+      <a href="book-seat.html" class="btn-primary" id="hero-btn1"></a>
+      <a href="#routes" class="btn-outline" id="hero-btn2"></a>
     </div>
   </div>
-  <div class="hero-stats">
-    <div class="container">
-      <div class="stat-item"><div class="num">15+</div><div class="lbl">Years Running</div></div>
-      <div class="stat-item"><div class="num">4</div><div class="lbl">Premium Buses</div></div>
-      <div class="stat-item"><div class="num">50K+</div><div class="lbl">Passengers Served</div></div>
-      <div class="stat-item"><div class="num">4.0★</div><div class="lbl">Avg Rating</div></div>
-    </div>
-  </div>
+  <div class="hero-stats"><div class="container" id="hero-stats"></div></div>
 </section>
 
-<!-- OUR BUSES -->
 <section class="section section-light" id="buses">
   <div class="container">
     <h2 class="section-title">Our Buses</h2>
     <p class="section-subtitle">Every bus maintained to the highest standards for your comfort and safety</p>
-    <div class="buses-scroll-wrap">
-      <a href="bus.html?bus=bus1" class="bus-card">
-        <img src="images/bus1.jpeg" alt="MP09CY8606">
-        <div class="bus-content">
-          <h3>MP09CY8606</h3>
-          <p>Luxury Seater · 2×2 Layout</p>
-          <div class="bus-tags"><span class="bus-tag">❄️ AC</span><span class="bus-tag">📶 WiFi</span><span class="bus-tag">🔌 USB</span><span class="bus-tag">💺 Recliner</span></div>
-          <span class="bus-link">View Details →</span>
-        </div>
-      </a>
-      <a href="bus.html?bus=bus2" class="bus-card">
-        <img src="images/bus2.jpeg" alt="MP09CY7782">
-        <div class="bus-content">
-          <h3>MP09CY7782</h3>
-          <p>AC Seater · Pushback Seats</p>
-          <div class="bus-tags"><span class="bus-tag">❄️ AC</span><span class="bus-tag">💡 Reading Light</span><span class="bus-tag">☕ Cup Holder</span></div>
-          <span class="bus-link">View Details →</span>
-        </div>
-      </a>
-      <a href="bus.html?bus=bus3" class="bus-card">
-        <img src="images/bus3.jpeg" alt="MP09CY9911">
-        <div class="bus-content">
-          <h3>MP09CY9911</h3>
-          <p>Premium Coach · Spacious Interior</p>
-          <div class="bus-tags"><span class="bus-tag">🎬 Entertainment</span><span class="bus-tag">🍿 Snacks</span><span class="bus-tag">📺 LED</span></div>
-          <span class="bus-link">View Details →</span>
-        </div>
-      </a>
-      <a href="bus.html?bus=bus4" class="bus-card">
-        <img src="images/bus4.jpeg" alt="MP09CY4455">
-        <div class="bus-content">
-          <h3>MP09CY4455</h3>
-          <p>Non-AC Seater · Budget Friendly</p>
-          <div class="bus-tags"><span class="bus-tag">💨 Fan</span><span class="bus-tag">💰 Budget</span><span class="bus-tag">🧳 Luggage</span></div>
-          <span class="bus-link">View Details →</span>
-        </div>
-      </a>
-    </div>
+    <div class="buses-scroll-wrap" id="buses-grid"></div>
     <div class="scroll-hint">← Swipe to explore all buses →</div>
   </div>
 </section>
 
-<!-- ROUTES -->
 <section class="section section-gray" id="routes">
   <div class="container">
     <h2 class="section-title">Available Routes</h2>
     <p class="section-subtitle">Daily departures across Madhya Pradesh — real fares, on-time service</p>
-    <div class="routes-scroll-wrap">
-      <a href="book-seat.html?route=barwani-bokrata" class="route-card">
-        <div class="card-image"><img src="images/bus1.jpeg" alt="Barwani to Bokrata"><span class="distance-badge">4.5 hrs</span></div>
-        <div class="card-content">
-          <h3>Barwani → Pati → Bokrata</h3>
-          <span class="address">MP State Highway · Daily · Dep 08:00 AM</span>
-          <div class="card-footer"><div class="rating">⭐ 4.9 <span>(1,060+)</span></div><button class="open-btn">Open Now</button></div>
-          <div class="route-price-row"><span class="route-price">₹230</span><span class="route-dep">First bus: 08:30</span></div>
-          <button class="route-book-btn">Book Seat →</button>
-        </div>
-      </a>
-      <a href="book-seat.html?route=indore-barwani" class="route-card">
-        <div class="card-image"><img src="images/bus4.jpeg" alt="Indore to Barwani"><span class="distance-badge">3–4 hrs</span></div>
-        <div class="card-content">
-          <h3>Indore → Barwani</h3>
-          <span class="address">Daily Highway Route · First bus 06:50</span>
-          <div class="card-footer"><div class="rating">⭐ 4.8 <span>(980+)</span></div><button class="open-btn">Open Now</button></div>
-          <div class="route-price-row"><span class="route-price">₹230</span><span class="route-dep">Last bus: 20:30</span></div>
-          <button class="route-book-btn">Book Seat →</button>
-        </div>
-      </a>
-      <a href="book-seat.html?route=barwani-indore" class="route-card">
-        <div class="card-image"><img src="images/bus2.jpeg" alt="Barwani to Indore"><span class="distance-badge">3–4 hrs</span></div>
-        <div class="card-content">
-          <h3>Barwani → Indore</h3>
-          <span class="address">Express Route · First bus 08:30</span>
-          <div class="card-footer"><div class="rating">⭐ 4.7 <span>(860+)</span></div><button class="open-btn">Open Now</button></div>
-          <div class="route-price-row"><span class="route-price">₹230</span><span class="route-dep">Last bus: 16:15</span></div>
-          <button class="route-book-btn">Book Seat →</button>
-        </div>
-      </a>
-      <a href="book-seat.html?route=anjad-indore" class="route-card">
-        <div class="card-image"><img src="images/bus3.jpeg" alt="Anjad to Indore"><span class="distance-badge">2.5 hrs</span></div>
-        <div class="card-content">
-          <h3>Anjad → Indore</h3>
-          <span class="address">Shortest Route · Mon–Sat</span>
-          <div class="card-footer"><div class="rating">⭐ 4.6 <span>(540+)</span></div><button class="open-btn">Open Now</button></div>
-          <div class="route-price-row"><span class="route-price">₹170</span><span class="route-dep">Daily morning</span></div>
-          <button class="route-book-btn">Book Seat →</button>
-        </div>
-      </a>
-    </div>
+    <div class="routes-scroll-wrap" id="routes-grid"></div>
     <div class="scroll-hint">← Scroll to see all routes →</div>
   </div>
 </section>
 
-<!-- UPCOMING TRIPS (DARK) -->
 <section class="section section-dark" id="trips">
   <div class="container">
     <h2 class="section-title">Next Available Trips</h2>
     <p class="section-subtitle">Curated group journeys — beaches, mountains &amp; sacred temples</p>
-    <div class="trips-grid">
-      <a href="trip-detail.html?trip=chardham" class="trip-card">
-        <div class="trip-card-img"><img src="images/bus3.jpeg" alt="Char Dham Yatra"><span class="trip-type-badge badge-spiritual">🙏 Spiritual</span><span class="seats-left">6 seats left</span></div>
-        <div class="trip-card-body">
-          <h3>Barwani → Char Dham Yatra</h3>
-          <p class="trip-desc">Luxury 15-day pilgrimage to all four holy abodes — Yamunotri, Gangotri, Kedarnath &amp; Badrinath. Breakfast &amp; dinner included.</p>
-          <div class="trip-meta-row">
-            <div class="trip-meta-item"><span class="ml">Departure</span><span class="mv">May 15, 2026</span></div>
-            <div class="trip-meta-item"><span class="ml">Duration</span><span class="mv">15 Days</span></div>
-          </div>
-          <div class="trip-card-footer"><div class="trip-price">₹21,000 <small>/person</small></div><button class="trip-book-btn">View Trip</button></div>
-        </div>
-      </a>
-      <a href="trip-detail.html?trip=goa" class="trip-card">
-        <div class="trip-card-img"><img src="images/bus1.jpeg" alt="Goa Trip"><span class="trip-type-badge badge-popular">🔥 Popular</span><span class="seats-left">8 seats left</span></div>
-        <div class="trip-card-body">
-          <h3>Barwani → Goa Weekend</h3>
-          <p class="trip-desc">Sun, sand and sea — a perfect 3-day beach escape from the heartland.</p>
-          <div class="trip-meta-row">
-            <div class="trip-meta-item"><span class="ml">Departure</span><span class="mv">Apr 20, 2026</span></div>
-            <div class="trip-meta-item"><span class="ml">Duration</span><span class="mv">3 Days</span></div>
-          </div>
-          <div class="trip-card-footer"><div class="trip-price">₹3,200 <small>/person</small></div><button class="trip-book-btn">View Trip</button></div>
-        </div>
-      </a>
-      <a href="trip-detail.html?trip=manali" class="trip-card">
-        <div class="trip-card-img"><img src="images/bus2.jpeg" alt="Manali"><span class="trip-type-badge badge-trending">❄️ Trending</span><span class="seats-left">15 seats left</span></div>
-        <div class="trip-card-body">
-          <h3>Barwani → Manali</h3>
-          <p class="trip-desc">Majestic Himalayan mountains — 5 days of snow peaks, river rafting &amp; valley views.</p>
-          <div class="trip-meta-row">
-            <div class="trip-meta-item"><span class="ml">Departure</span><span class="mv">May 5, 2026</span></div>
-            <div class="trip-meta-item"><span class="ml">Duration</span><span class="mv">5 Days</span></div>
-          </div>
-          <div class="trip-card-footer"><div class="trip-price">₹5,500 <small>/person</small></div><button class="trip-book-btn">View Trip</button></div>
-        </div>
-      </a>
-    </div>
+    <div class="trips-grid" id="trips-grid"></div>
     <div class="view-all-wrap"><a href="upcoming-trip.html" class="btn-primary">View All Trips</a></div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <span class="footer-logo">REWA KRIPA</span>
-        <p>Connecting Barwani, Pati, Bokrata, Indore &amp; Anjad with safe, affordable, and comfortable bus travel since 2008. Located at Navalpura Bus Station, Barwani.</p>
-        <div class="footer-social">
-          <a href="https://www.instagram.com/rewa_kripa_travels_/" target="_blank">📸</a>
-          <a href="#">✖</a><a href="#">💼</a><a href="#">📘</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Help</h4>
-        <a href="help.html">Get Help</a>
-        <a href="cancellations.html">Cancellations &amp; Refunds</a>
-        <a href="terms-of-sale.html">Terms of Sale</a>
-        <a href="cookie-policy.html">Cookie Policy</a>
-        <a href="terms-of-use.html">Terms of Use</a>
-      </div>
-      <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About Us</a>
-        <a href="blog.html">Blog</a>
-        <a href="travel-stories.html">Travel Stories</a>
-        <a href="careers.html">Careers</a>
-      </div>
-      <div class="footer-col">
-        <h4>Contact</h4>
-        <div class="contact-row">📱 <span>+91 99778 55338</span></div>
-        <div class="contact-row">📧 <span>rewakripa@gmail.com</span></div>
-        <div class="contact-row">📍 <span>Bus Station, Navalpura, Barwani — 451551, MP</span></div>
-        <div class="contact-row">🕐 <span>Mon–Sat: 6:00 AM – 9:00 PM</span></div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 Rewa Kripa Travels, Barwani. All rights reserved.</span>
-      <div class="footer-payments"><span class="pay-badge">VISA</span><span class="pay-badge">Mastercard</span><span class="pay-badge">UPI</span><span class="pay-badge">RuPay</span></div>
-    </div>
-  </div>
-</footer>
+<div id="site-footer"></div>
+<script src="config.js"></script>
 <script src="script.js"></script>
+<script>
+buildHeader('index.html');
+buildFooter();
+document.title = CONFIG.company.fullName + ' — ' + CONFIG.company.tagline;
+
+var H = CONFIG.hero;
+document.getElementById('hero-eyebrow').textContent = H.eyebrow;
+document.getElementById('hero-heading').innerHTML = H.heading1 + '<br>' + H.heading2;
+document.getElementById('hero-sub').textContent = H.subtext;
+document.getElementById('hero-btn1').textContent = H.btnBook;
+document.getElementById('hero-btn2').textContent = H.btnRoutes;
+
+var sliderEl = document.getElementById('slider');
+H.slides.forEach(function(src, i){
+  var d = document.createElement('div');
+  d.className = 'slide'+(i===0?' active':'');
+  d.innerHTML = '<img src="'+src+'" alt="Bus">';
+  sliderEl.appendChild(d);
+});
+sliderEl.innerHTML += '<button class="prev" onclick="changeSlide(-1)">&#10094;</button><button class="next" onclick="changeSlide(1)">&#10095;</button><div class="dots">'+H.slides.map(function(_,i){ return '<span class="'+(i===0?'active':'')+'" onclick="goToSlide('+i+')"></span>'; }).join('')+'</div>';
+
+document.getElementById('hero-stats').innerHTML = CONFIG.stats.map(function(s){
+  return '<div class="stat-item"><div class="num">'+s.num+'</div><div class="lbl">'+s.label+'</div></div>';
+}).join('');
+
+document.getElementById('buses-grid').innerHTML = CONFIG.buses.map(function(b){
+  return '<a href="bus.html?bus='+b.id+'" class="bus-card"><img src="'+b.image+'" alt="'+b.plate+'"><div class="bus-content"><h3>'+b.plate+'</h3><p>'+b.title+' · '+b.layout+'</p><div class="bus-tags">'+b.tags.map(function(t){ return '<span class="bus-tag">'+t+'</span>'; }).join('')+'</div><span class="bus-link">View Details →</span></div></a>';
+}).join('');
+
+document.getElementById('routes-grid').innerHTML = CONFIG.routes.map(function(r){
+  return '<a href="book-seat.html?route='+r.id+'" class="route-card"><div class="card-image"><img src="'+r.image+'" alt="'+r.label+'"><span class="distance-badge">'+r.duration+'</span></div><div class="card-content"><h3>'+r.label+'</h3><span class="address">'+r.type+' · First bus: '+r.firstBus+'</span><div class="card-footer"><div class="rating">⭐ '+r.rating+' <span>('+r.reviews+')</span></div>'+(r.status==='open'?'<button class="open-btn">Open Now</button>':'')+'</div><div class="route-price-row"><span class="route-price">'+formatINR(r.price)+'</span><span class="route-dep">Last: '+r.lastBus+'</span></div><button class="route-book-btn">Book Seat →</button></div></a>';
+}).join('');
+
+document.getElementById('trips-grid').innerHTML = CONFIG.trips.slice(0,3).map(function(t){
+  return '<a href="trip-detail.html?trip='+t.id+'" class="trip-card"><div class="trip-card-img"><img src="'+t.image+'" alt="'+t.shortTitle+'"><span class="trip-type-badge '+badgeClass(t.badge)+'">'+t.badgeLabel+'</span><span class="seats-left">'+t.seatsLeft+' seats left</span></div><div class="trip-card-body"><h3>'+t.title+'</h3><p class="trip-desc">'+t.subtitle+'</p><div class="trip-meta-row"><div class="trip-meta-item"><span class="ml">Departure</span><span class="mv">'+t.departure+'</span></div><div class="trip-meta-item"><span class="ml">Duration</span><span class="mv">'+t.duration+'</span></div></div><div class="trip-card-footer"><div class="trip-price">'+formatINR(t.price)+' <small>/person</small></div><button class="trip-book-btn">View Trip</button></div></div></a>';
+}).join('');
+</script>
 </body>
 </html>

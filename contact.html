@@ -1,154 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Us — Rewa Kripa Travels Barwani</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us — Rewa Kripa Travels</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head>
 <body>
-<header>
-  <div class="container header-inner">
-    <div class="logo"><a href="index.html">REWA KRIPA</a></div>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="contact.html" class="active">Contact</a>
-      <a href="book-seat.html" class="btn-book">Book Now</a>
-    </nav>
+<div id="site-header"></div>
+<section class="page-hero"><div class="container"><div class="page-eyebrow">We're Here to Help</div><h1>Contact Us</h1><p>Reach us by phone, WhatsApp, email, or visit our office</p></div></section>
+<section class="section section-gray"><div class="container"><div class="contact-grid">
+  <div><div class="contact-form-box">
+    <h3>Send Us a Message</h3>
+    <p>We'll reply on WhatsApp within a few hours.</p>
+    <div class="cf-group"><label>Full Name *</label><input type="text" id="cf-name" placeholder="e.g. Ramesh Patel"></div>
+    <div class="cf-group"><label>Mobile Number *</label><input type="tel" id="cf-phone" placeholder="+91 XXXXX XXXXX"></div>
+    <div class="cf-group"><label>Subject *</label><select id="cf-subject"><option value="">Select a subject</option><option>Seat Booking Enquiry</option><option>Trip / Tour Enquiry</option><option>Cancellation / Refund</option><option>Complaint / Feedback</option><option>Bus Hire / Charter</option><option>Other</option></select></div>
+    <div class="cf-group"><label>Message *</label><textarea id="cf-msg" placeholder="Describe your query in detail..."></textarea></div>
+    <button class="cf-submit" onclick="sendWA()">💬 Send via WhatsApp</button>
+    <p style="font-size:12px;color:#94a3b8;margin-top:10px;">Opens WhatsApp with your message pre-filled. We respond within 2 hours during business hours.</p>
+  </div></div>
+  <div class="contact-info-box">
+    <div class="contact-info-card"><div class="ci-icon">📍</div><div class="ci-body" id="ci-addr"><h4>Office Address</h4></div></div>
+    <div class="contact-info-card"><div class="ci-icon">📱</div><div class="ci-body" id="ci-phone"><h4>Phone &amp; WhatsApp</h4></div></div>
+    <div class="contact-info-card"><div class="ci-icon">📧</div><div class="ci-body" id="ci-email"><h4>Email</h4></div></div>
+    <div class="contact-info-card"><div class="ci-icon">🕐</div><div class="ci-body" id="ci-hours"><h4>Business Hours</h4></div></div>
+    <div class="map-embed"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724!2d74.9!3d22.03!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDAyJzA0LjkiTiA3NMKwNTQnMDAuMCJF!5e0!3m2!1sen!2sin!4v1" width="100%" height="200" style="border:0;display:block;" allowfullscreen="" loading="lazy"></iframe></div>
   </div>
-</header>
-
-<section class="page-hero">
-  <div class="container">
-    <div class="page-eyebrow">We're Here to Help</div>
-    <h1>Contact Us</h1>
-    <p>Reach us by phone, WhatsApp, email, or visit our office in Barwani</p>
-  </div>
-</section>
-
-<section class="section section-gray">
-  <div class="container">
-    <div class="contact-grid">
-
-      <!-- FORM -->
-      <div>
-        <div class="contact-form-box">
-          <h3>Send Us a Message</h3>
-          <p>Fill the form below and we'll get back to you within a few hours on WhatsApp.</p>
-
-          <div class="cf-group">
-            <label>Your Full Name *</label>
-            <input type="text" id="cf-name" placeholder="e.g. Ramesh Patel">
-          </div>
-          <div class="cf-group">
-            <label>Mobile Number *</label>
-            <input type="tel" id="cf-phone" placeholder="+91 XXXXX XXXXX">
-          </div>
-          <div class="cf-group">
-            <label>Subject *</label>
-            <select id="cf-subject">
-              <option value="">Select a subject</option>
-              <option value="Seat Booking Enquiry">Seat Booking Enquiry</option>
-              <option value="Trip / Tour Enquiry">Trip / Tour Enquiry</option>
-              <option value="Cancellation / Refund">Cancellation / Refund</option>
-              <option value="Complaint / Feedback">Complaint / Feedback</option>
-              <option value="Bus Hire / Charter">Bus Hire / Charter</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="cf-group">
-            <label>Message *</label>
-            <textarea id="cf-message" placeholder="Describe your query in detail..."></textarea>
-          </div>
-
-          <button class="cf-submit" onclick="sendContactWhatsApp()">💬 Send via WhatsApp</button>
-          <p style="font-size:12px;color:#94a3b8;margin-top:10px;">Clicking the button will open WhatsApp with your message pre-filled. We respond within 2 hours during business hours.</p>
-        </div>
-      </div>
-
-      <!-- INFO CARDS -->
-      <div class="contact-info-box">
-
-        <div class="contact-info-card">
-          <div class="ci-icon">📍</div>
-          <div class="ci-body">
-            <h4>Office Address</h4>
-            <p>Rewa Kripa Travels</p>
-            <p>Bus Station, Navalpura</p>
-            <p>Barwani — 451551</p>
-            <p>Madhya Pradesh, India</p>
-          </div>
-        </div>
-
-        <div class="contact-info-card">
-          <div class="ci-icon">📱</div>
-          <div class="ci-body">
-            <h4>Phone &amp; WhatsApp</h4>
-            <a href="tel:+919977855338" style="color:#7EC8C9;font-weight:600;">+91 99778 55338</a>
-            <p>Mon – Sat: 6:00 AM – 9:00 PM</p>
-            <p>Sunday: 7:00 AM – 2:00 PM</p>
-          </div>
-        </div>
-
-        <div class="contact-info-card">
-          <div class="ci-icon">📧</div>
-          <div class="ci-body">
-            <h4>Email</h4>
-            <a href="mailto:rewakripa@gmail.com" style="color:#7EC8C9;">rewakripa@gmail.com</a>
-            <a href="mailto:business@rewakripa.com" style="color:#7EC8C9;">business@rewakripa.com</a>
-            <p>Response within 24 hours</p>
-          </div>
-        </div>
-
-        <div class="contact-info-card">
-          <div class="ci-icon">🗺️</div>
-          <div class="ci-body">
-            <h4>Find Us on Map</h4>
-            <p>We are located at Navalpura Bus Station, Barwani. Look for the Rewa Kripa Travels signboard near the main bus stand.</p>
-            <a href="https://maps.google.com/?q=Navalpura+Bus+Station+Barwani+MP" target="_blank" style="color:#7EC8C9;font-weight:600;font-size:14px;">Open in Google Maps →</a>
-          </div>
-        </div>
-
-        <!-- Map embed placeholder -->
-        <div class="map-embed">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3684.5!2d74.9009!3d22.0338!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3962e0b4a8d0a9c1%3A0x1234!2sBarwani%20Bus%20Stand!5e0!3m2!1sen!2sin!4v1234567890"
-            width="100%" height="220" style="border:0;display:block;" allowfullscreen="" loading="lazy">
-          </iframe>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="container">
-    <div class="footer-bottom">
-      <span>© 2026 Rewa Kripa Travels, Barwani. All rights reserved.</span>
-      <div class="footer-payments"><span class="pay-badge">VISA</span><span class="pay-badge">UPI</span><span class="pay-badge">RuPay</span></div>
-    </div>
-  </div>
-</footer>
-
+</div></div></section>
+<div id="site-footer"></div>
+<script src="config.js"></script><script src="script.js"></script>
 <script>
-function sendContactWhatsApp(){
+buildHeader('contact.html'); buildFooter();
+var c = CONFIG.company;
+document.title = 'Contact Us — ' + c.fullName;
+document.getElementById('ci-addr').innerHTML = '<h4>Office Address</h4><p>'+c.fullName+'</p><p>'+c.address.line1+'</p><p>'+c.address.city+' — '+c.address.pin+'</p><p>'+c.address.state+', '+c.address.country+'</p><a href="'+c.address.mapLink+'" target="_blank" style="color:#7EC8C9;font-weight:600;font-size:14px;">Open in Google Maps →</a>';
+document.getElementById('ci-phone').innerHTML = '<h4>Phone &amp; WhatsApp</h4><a href="tel:'+c.whatsapp+'" style="color:#7EC8C9;font-weight:600;font-size:15px;">'+c.phone+'</a><p>'+c.hours.weekdays+'</p><p>'+c.hours.sunday+'</p>';
+document.getElementById('ci-email').innerHTML = '<h4>Email</h4><a href="mailto:'+c.email+'" style="color:#7EC8C9;">'+c.email+'</a><br><a href="mailto:'+c.emailBiz+'" style="color:#7EC8C9;">'+c.emailBiz+'</a>';
+document.getElementById('ci-hours').innerHTML = '<h4>Business Hours</h4><p>'+c.hours.weekdays+'</p><p>'+c.hours.sunday+'</p>';
+function sendWA(){
   var name=document.getElementById('cf-name').value.trim();
   var phone=document.getElementById('cf-phone').value.trim();
-  var subject=document.getElementById('cf-subject').value;
-  var message=document.getElementById('cf-message').value.trim();
-  if(!name||!phone||!subject||!message){alert('Please fill all fields before sending.');return;}
-  var msg=
-    '📬 *REWA KRIPA — CONTACT FORM*\n\n'+
-    '👤 *Name:* '+name+'\n'+
-    '📱 *Phone:* '+phone+'\n'+
-    '📌 *Subject:* '+subject+'\n\n'+
-    '💬 *Message:*\n'+message+'\n\n'+
-    '_Sent from rewakripa.com contact page_';
-  window.open('https://wa.me/919977855338?text='+encodeURIComponent(msg),'_blank');
+  var subj=document.getElementById('cf-subject').value;
+  var msg=document.getElementById('cf-msg').value.trim();
+  if(!name||!phone||!subj||!msg){alert('Please fill all fields.');return;}
+  var text='\uD83D\uDCEC *REWA KRIPA \u2014 CONTACT FORM*\n\n\uD83D\uDC64 *Name:* '+name+'\n\uD83D\uDCF1 *Phone:* '+phone+'\n\uD83D\uDCCC *Subject:* '+subj+'\n\n\uD83D\uDCAC *Message:*\n'+msg;
+  window.open('https://wa.me/'+c.whatsapp+'?text='+encodeURIComponent(text),'_blank');
 }
 </script>
-</body>
-</html>
+</body></html>

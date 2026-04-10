@@ -5,47 +5,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css"></head>
 <body>
-<header><div class="container header-inner"><div class="logo"><a href="index.html">REWA KRIPA</a></div>
-<nav><a href="index.html">Home</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="book-seat.html" class="btn-book">Book Now</a></nav></div></header>
-
-<section class="page-hero"><div class="container"><div class="page-eyebrow">Join Our Team</div><h1>Careers at Rewa Kripa</h1><p>We are looking for passionate, reliable people to grow with us</p></div></section>
-
-<section class="section section-gray"><div class="container">
-<div style="max-width:860px;margin:0 auto;">
-
-  <div style="background:white;border-radius:14px;padding:36px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:24px;">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:16px;">
-      <div><h3 style="font-size:20px;color:#0f172a;margin-bottom:4px;">Bus Driver (Licensed)</h3><p style="font-size:14px;color:#64748b;margin:0;">Full-time · Barwani, MP · ₹18,000–₹25,000/month</p></div>
-      <button onclick="applyJob('Bus Driver')" class="btn-primary" style="padding:10px 22px;font-size:14px;">Apply via WhatsApp</button>
-    </div>
-    <ul style="padding-left:18px;"><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Valid Heavy Motor Vehicle (HMV) licence required.</li><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Minimum 3 years of highway driving experience.</li><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Clean driving record. Character certificate required.</li><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Local candidates from Barwani/Indore region preferred.</li></ul>
-  </div>
-
-  <div style="background:white;border-radius:14px;padding:36px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:24px;">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:16px;">
-      <div><h3 style="font-size:20px;color:#0f172a;margin-bottom:4px;">Ticketing &amp; Customer Service Staff</h3><p style="font-size:14px;color:#64748b;margin:0;">Full-time · Barwani Office · ₹10,000–₹15,000/month</p></div>
-      <button onclick="applyJob('Ticketing Staff')" class="btn-primary" style="padding:10px 22px;font-size:14px;">Apply via WhatsApp</button>
-    </div>
-    <ul style="padding-left:18px;"><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">12th Pass or Graduate preferred.</li><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Basic smartphone and WhatsApp skills essential.</li><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Fluency in Hindi required; English a bonus.</li><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Working hours: 6:00 AM – 9:00 PM (shifts).</li></ul>
-  </div>
-
-  <div style="background:white;border-radius:14px;padding:36px;box-shadow:0 4px 20px rgba(0,0,0,.06);">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:16px;">
-      <div><h3 style="font-size:20px;color:#0f172a;margin-bottom:4px;">Tour Coordinator (Travel Packages)</h3><p style="font-size:14px;color:#64748b;margin:0;">Full-time · Barwani · ₹15,000–₹20,000/month + Incentives</p></div>
-      <button onclick="applyJob('Tour Coordinator')" class="btn-primary" style="padding:10px 22px;font-size:14px;">Apply via WhatsApp</button>
-    </div>
-    <ul style="padding-left:18px;"><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Experience in travel/tourism coordination preferred.</li><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Handle hotel bookings, itinerary planning, and group management.</li><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Comfortable with travel (must be willing to accompany groups).</li><li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">Performance-based incentives on packages sold.</li></ul>
-  </div>
-
-</div>
-</div></section>
-
-<footer><div class="container"><div class="footer-bottom"><span>© 2026 Rewa Kripa Travels, Barwani. All rights reserved.</span></div></div></footer>
-<script src="script.js"></script>
+<div id="site-header"></div>
+<section class="page-hero"><div class="container"><div class="page-eyebrow">Join Our Team</div><h1>Careers at Rewa Kripa</h1><p>Passionate, reliable people to grow with us</p></div></section>
+<section class="section section-gray"><div class="container"><div style="max-width:860px;margin:0 auto;" id="jobs-grid"></div></div></section>
+<div id="site-footer"></div>
+<script src="config.js"></script><script src="script.js"></script>
 <script>
+buildHeader('careers.html'); buildFooter();
+var jobs = [
+  { title:'Bus Driver (Licensed)', detail:'Full-time · Barwani, MP · ₹18,000–₹25,000/month', points:['Valid HMV licence required.','Minimum 3 years highway driving experience.','Clean driving record. Character certificate required.','Local candidates from Barwani/Indore preferred.'] },
+  { title:'Ticketing & Customer Service Staff', detail:'Full-time · Barwani Office · ₹10,000–₹15,000/month', points:['12th Pass or Graduate preferred.','Basic smartphone and WhatsApp skills essential.','Fluency in Hindi required; English a bonus.','Shifts: 6:00 AM – 9:00 PM.'] },
+  { title:'Tour Coordinator (Travel Packages)', detail:'Full-time · Barwani · ₹15,000–₹20,000/month + Incentives', points:['Experience in travel/tourism coordination preferred.','Handle hotel bookings, itinerary planning, group management.','Comfortable with travel — must accompany groups.','Performance-based incentives on packages sold.'] }
+];
+document.getElementById('jobs-grid').innerHTML = jobs.map(function(j){
+  return '<div style="background:white;border-radius:14px;padding:36px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:24px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:16px;">'+
+      '<div><h3 style="font-size:20px;color:#0f172a;margin-bottom:4px;">'+j.title+'</h3><p style="font-size:14px;color:#64748b;margin:0;">'+j.detail+'</p></div>'+
+      '<button onclick="applyJob(\''+j.title+'\')" class="btn-primary" style="padding:10px 22px;font-size:14px;">Apply via WhatsApp</button>'+
+    '</div>'+
+    '<ul style="padding-left:18px;">'+j.points.map(function(p){ return '<li style="font-size:14px;color:#64748b;line-height:1.8;margin-bottom:4px;">'+p+'</li>'; }).join('')+'</ul>'+
+  '</div>';
+}).join('');
 function applyJob(role){
-  var msg='🧑‍💼 *JOB APPLICATION — REWA KRIPA TRAVELS*\n\nI am interested in the *'+role+'* position.\n\nName: \nAge: \nQualification: \nExperience: \nCity: \n\nPlease let me know the next steps. Thank you!';
-  window.open('https://wa.me/919977855338?text='+encodeURIComponent(msg),'_blank');
+  var msg='\uD83E\uDDD1\u200D\uD83D\uDCBC *JOB APPLICATION \u2014 REWA KRIPA TRAVELS*\n\nI am interested in the *'+role+'* position.\n\nName: \nAge: \nQualification: \nExperience: \nCity: \n\nPlease let me know the next steps. Thank you!';
+  window.open('https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent(msg),'_blank');
 }
 </script>
 </body></html>
