@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Rewa Kripa Travels</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:#f1f5f9;color:#0f172a;}
+
+/* ── Login screen ── */
+.login-screen{position:fixed;inset:0;background:#012738;display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:white;border-radius:20px;padding:48px 40px;width:380px;max-width:92vw;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.4);}
+.login-logo{font-size:28px;font-weight:800;color:#012738;letter-spacing:2px;margin-bottom:6px;}
+.login-sub{font-size:13px;color:#94a3b8;margin-bottom:32px;}
+.login-label{font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;text-align:left;margin-bottom:6px;}
+.login-input{width:100%;padding:13px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;margin-bottom:16px;}
+.login-input:focus{border-color:#7EC8C9;}
+.login-btn{width:100%;padding:14px;background:#012738;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;transition:.2s;}
+.login-btn:hover{background:#024a6e;}
+.login-error{color:#dc2626;font-size:13px;margin-top:12px;display:none;}
+
+/* ── App layout ── */
+.app{display:none;}
+.topbar{background:#012738;color:white;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3);}
+.topbar-brand{font-size:18px;font-weight:700;letter-spacing:1px;}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.topbar-right a{color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;}
+.topbar-right a:hover{color:white;}
+.logout-btn{background:rgba(255,255,255,.1);color:white;border:none;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
+.logout-btn:hover{background:rgba(255,255,255,.2);}
+
+.page-body{padding:32px;}
+.section-card{background:white;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:24px;}
+.section-card h2{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:4px;}
+.section-card .desc{font-size:13px;color:#64748b;margin-bottom:20px;}
+
+/* ── Controls bar ── */
+.controls-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:24px;}
+.ctrl-group{display:flex;flex-direction:column;gap:5px;}
+.ctrl-group label{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;}
+.ctrl-select,.ctrl-date,.ctrl-input{padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;background:white;color:#0f172a;}
+.ctrl-select:focus,.ctrl-date:focus,.ctrl-input:focus{border-color:#7EC8C9;}
+.ctrl-btn{padding:10px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
+.btn-teal{background:#7EC8C9;color:#012738;} .btn-teal:hover{background:#5fb8b9;}
+.btn-red{background:#fee2e2;color:#dc2626;} .btn-red:hover{background:#fecaca;}
+.btn-navy{background:#012738;color:white;} .btn-navy:hover{background:#024a6e;}
+.btn-green{background:#dcfce7;color:#15803d;} .btn-green:hover{background:#bbf7d0;}
+
+/* ── Seat grid ── */
+.seat-grid-wrap{background:#f8fafc;border-radius:12px;padding:20px;overflow-x:auto;}
+.seat-front{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:2px dashed #e2e8f0;}
+.seat-front-label{font-size:12px;font-weight:600;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
+.driver-pill{background:#012738;color:white;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;}
+.seat-rows-adm{display:flex;flex-direction:column;gap:10px;}
+.seat-row-adm{display:flex;gap:8px;align-items:center;}
+.seat-row-num-adm{font-size:11px;color:#94a3b8;width:20px;text-align:center;flex-shrink:0;}
+.aisle-adm{width:24px;flex-shrink:0;}
+
+.seat-adm{
+  width:46px;height:46px;border-radius:8px 8px 4px 4px;
+  border:2px solid #d1d5db;background:#f9fafb;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#64748b;
+  cursor:pointer;transition:.15s;position:relative;flex-shrink:0;
+  user-select:none;line-height:1.2;
+}
+.seat-adm::before{content:'';position:absolute;top:-6px;left:4px;right:4px;height:6px;background:inherit;border-radius:4px 4px 0 0;border:2px solid #d1d5db;border-bottom:none;}
+.seat-adm:hover{border-color:#7EC8C9;background:#e0f7f8;color:#012738;}
+.seat-adm.adm-m{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8;cursor:pointer;}
+.seat-adm.adm-m::before{background:#dbeafe;border-color:#93c5fd;}
+.seat-adm.adm-f{background:#fce7f3;border-color:#f9a8d4;color:#be185d;cursor:pointer;}
+.seat-adm.adm-f::before{background:#fce7f3;border-color:#f9a8d4;}
+.seat-adm.adm-sel{background:#012738;border-color:#012738;color:white;}
+.seat-adm.adm-sel::before{background:#012738;border-color:#012738;}
+.seat-name{font-size:8px;opacity:.75;max-width:40px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ── Legend ── */
+.adm-legend{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;}
+.adm-leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;}
+.adm-leg-dot{width:14px;height:14px;border-radius:3px;}
+.aldot-free{background:#f9fafb;border:2px solid #d1d5db;}
+.aldot-m{background:#dbeafe;border:2px solid #93c5fd;}
+.aldot-f{background:#fce7f3;border:2px solid #f9a8d4;}
+.aldot-sel{background:#012738;}
+
+/* ── Manual block form ── */
+.block-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;margin-top:20px;padding-top:20px;border-top:1px solid #f1f5f9;}
+.block-form-title{grid-column:1/-1;font-size:13px;font-weight:600;color:#0f172a;margin-bottom:-4px;}
+
+/* ── Bookings table ── */
+.bookings-table-wrap{overflow-x:auto;}
+.bookings-table{width:100%;border-collapse:collapse;font-size:13px;}
+.bookings-table th{background:#f8fafc;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:10px 14px;text-align:left;border-bottom:2px solid #e5e7eb;}
+.bookings-table td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;vertical-align:middle;}
+.bookings-table tr:hover td{background:#fafafa;}
+.gender-pill-m{background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;}
+.gender-pill-f{background:#fce7f3;color:#be185d;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;}
+.unblock-btn{padding:5px 11px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;}
+.unblock-btn:hover{background:#fecaca;}
+.empty-state{text-align:center;color:#94a3b8;padding:32px;font-size:14px;}
+
+/* ── Toast ── */
+#adm-toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#012738;color:white;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.3);border:1px solid rgba(126,200,201,.4);}
+
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.stat-card .snum{font-size:32px;font-weight:700;color:#012738;}
+.stat-card .slbl{font-size:12px;color:#64748b;margin-top:4px;}
+.stat-card.blue .snum{color:#1d4ed8;}
+.stat-card.pink .snum{color:#be185d;}
+.stat-card.green .snum{color:#15803d;}
+
+@media(max-width:768px){
+  .page-body{padding:16px;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .block-form{grid-template-columns:1fr 1fr;}
+  .controls-bar{flex-direction:column;align-items:stretch;}
+  .seat-adm{width:36px;height:36px;font-size:9px;}
+  .seat-row-adm{gap:4px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Login Screen ── -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">REWA KRIPA</div>
+    <div class="login-sub">Admin Panel — Seat Management</div>
+    <label class="login-label">Password</label>
+    <input type="password" class="login-input" id="pwInput" placeholder="Enter admin password"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Login</button>
+    <div class="login-error" id="loginError">Incorrect password. Please try again.</div>
+  </div>
+</div>
+
+<!-- ── Admin App ── -->
+<div class="app" id="appRoot">
+
+  <div class="topbar">
+    <div class="topbar-brand">&#128652; REWA KRIPA — Admin</div>
+    <div class="topbar-right">
+      <a href="index.html" target="_blank">View Website</a>
+      <a href="book-seat.html" target="_blank">Booking Page</a>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="snum" id="statTotal">0</div><div class="slbl">Total Booked Seats</div></div>
+      <div class="stat-card blue"><div class="snum" id="statMale">0</div><div class="slbl">Male Passengers</div></div>
+      <div class="stat-card pink"><div class="snum" id="statFemale">0</div><div class="slbl">Female Passengers</div></div>
+      <div class="stat-card green"><div class="snum" id="statFree">0</div><div class="slbl">Available Seats</div></div>
+    </div>
+
+    <!-- Seat Map Card -->
+    <div class="section-card">
+      <h2>&#128714; Seat Management</h2>
+      <p class="desc">Select bus, date, then click any seat to block/unblock it. Blue = Male, Pink = Female, White = Available.</p>
+
+      <div class="controls-bar">
+        <div class="ctrl-group">
+          <label>Bus</label>
+          <select class="ctrl-select" id="admBusSel" onchange="loadSeatMap()"></select>
+        </div>
+        <div class="ctrl-group">
+          <label>Travel Date</label>
+          <input type="date" class="ctrl-date" id="admDate" onchange="loadSeatMap()">
+        </div>
+        <button class="ctrl-btn btn-teal" onclick="loadSeatMap()">&#8635; Refresh</button>
+        <button class="ctrl-btn btn-red" onclick="clearAllToday()">&#128465; Clear All Today</button>
+        <button class="ctrl-btn btn-navy" onclick="clearAllDates()">&#9888;&#65039; Full Reset</button>
+      </div>
+
+      <div class="seat-grid-wrap">
+        <div class="seat-front">
+          <span class="seat-front-label">&#128652; Front of Bus</span>
+          <span class="driver-pill">&#128104;&#8205;&#9992;&#65039; Driver</span>
+        </div>
+        <div class="seat-rows-adm" id="admSeatMap">
+          <p style="color:#94a3b8;text-align:center;padding:20px;">Select a bus and date above</p>
+        </div>
+      </div>
+
+      <div class="adm-legend">
+        <div class="adm-leg-item"><div class="adm-leg-dot aldot-free"></div> Available — click to block</div>
+        <div class="adm-leg-item"><div class="adm-leg-dot aldot-m"></div> Male Booked — click to unblock</div>
+        <div class="adm-leg-item"><div class="adm-leg-dot aldot-f"></div> Female Booked — click to unblock</div>
+        <div class="adm-leg-item"><div class="adm-leg-dot aldot-sel"></div> Selected (in bulk block)</div>
+      </div>
+
+      <!-- Manual block form -->
+      <div class="block-form">
+        <div class="block-form-title">Manual Block — Enter seat numbers to block manually</div>
+        <div class="ctrl-group">
+          <label>Passenger Name</label>
+          <input type="text" class="ctrl-input" id="manualName" placeholder="e.g. Ramesh Patel">
+        </div>
+        <div class="ctrl-group">
+          <label>Mobile</label>
+          <input type="tel" class="ctrl-input" id="manualPhone" placeholder="+91 XXXXX XXXXX">
+        </div>
+        <div class="ctrl-group">
+          <label>Gender</label>
+          <select class="ctrl-select" id="manualGender">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+        </div>
+        <div class="ctrl-group">
+          <label>Seat Numbers (comma separated)</label>
+          <input type="text" class="ctrl-input" id="manualSeats" placeholder="e.g. 3,7,12">
+        </div>
+        <button class="ctrl-btn btn-navy" onclick="manualBlock()" style="align-self:flex-end;">Block Seats</button>
+      </div>
+    </div>
+
+    <!-- Bookings List -->
+    <div class="section-card">
+      <h2>&#128203; Current Bookings</h2>
+      <p class="desc">All seats currently blocked for the selected bus and date. Click Unblock to release any seat.</p>
+      <div class="bookings-table-wrap">
+        <table class="bookings-table">
+          <thead>
+            <tr>
+              <th>Seat</th>
+              <th>Name</th>
+              <th>Gender</th>
+              <th>Phone</th>
+              <th>Booked At</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsBody">
+            <tr><td colspan="6" class="empty-state">No bookings yet for this selection</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /page-body -->
+</div><!-- /app -->
+
+<div id="adm-toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, update, remove, set }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+/* ── SAME Firebase config as book-seat.html ── */
+const FIREBASE_CONFIG = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+const app = initializeApp(FIREBASE_CONFIG);
+const db  = getDatabase(app);
+window.__FB = { db, ref, onValue, update, remove, set };
+window.dispatchEvent(new Event('fb-ready'));
+</script>
+
+<script src="config.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN PANEL ENGINE
+   Password: Swift@8606 (change below)
+   All seat blocks/unblocks write to Firebase in real-time.
+   Customers on book-seat.html see changes instantly.
+   ═══════════════════════════════════════════════════════════════ */
+
+const ADMIN_PASSWORD = "Swift@8606";  /* Change this password */
+
+var isLoggedIn  = false;
+var fbReady     = false;
+var currentBus  = null;
+var currentDate = null;
+var liveSeats   = {};   /* Firebase snapshot */
+var fbUnsub     = null;
+var selectedAdmSeats = [];   /* Seats selected for bulk block */
+
+window.addEventListener('fb-ready', function(){ fbReady = true; });
+
+/* ── Login / Logout ── */
+function doLogin(){
+  var pw = document.getElementById('pwInput').value;
+  if(pw === ADMIN_PASSWORD){
+    isLoggedIn = true;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appRoot').style.display     = 'block';
+    document.getElementById('loginError').style.display  = 'none';
+    initApp();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+window.doLogin = doLogin;
+
+function doLogout(){
+  isLoggedIn = false;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appRoot').style.display     = 'none';
+  document.getElementById('pwInput').value = '';
+}
+window.doLogout = doLogout;
+
+/* ── Init app after login ── */
+function initApp(){
+  /* Populate bus selector */
+  var sel = document.getElementById('admBusSel');
+  CONFIG.buses.forEach(function(b){
+    var o = document.createElement('option');
+    o.value = b.id;
+    o.textContent = b.plate + ' — ' + b.title;
+    sel.appendChild(o);
+  });
+  /* Set today as default date */
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById('admDate').value = today;
+  currentDate = today;
+  currentBus  = CONFIG.buses[0];
+  loadSeatMap();
+}
+
+/* ── Load seat map (subscribe to Firebase) ── */
+function loadSeatMap(){
+  var busId = document.getElementById('admBusSel').value;
+  currentDate = document.getElementById('admDate').value;
+  currentBus  = CONFIG.buses.find(function(b){ return b.id===busId; }) || CONFIG.buses[0];
+  selectedAdmSeats = [];
+
+  if(fbUnsub){ fbUnsub(); fbUnsub = null; }
+  liveSeats = {};
+
+  if(!fbReady){
+    renderAdmMap(); renderBookingsTable(); updateStats();
+    showToast('Firebase not configured. Showing empty map.');
+    return;
+  }
+  var F = window.__FB;
+  var dayRef = F.ref(F.db, 'seats/'+busId+'/'+currentDate);
+  fbUnsub = F.onValue(dayRef, function(snap){
+    liveSeats = snap.val() || {};
+    renderAdmMap();
+    renderBookingsTable();
+    updateStats();
+  });
+}
+window.loadSeatMap = loadSeatMap;
+
+/* ── Render seat map (admin view) ── */
+function renderAdmMap(){
+  var map = document.getElementById('admSeatMap'); map.innerHTML = '';
+  var rows = Math.ceil(currentBus.capacity / 4);
+  for(var row=1; row<=rows; row++){
+    var rowEl = document.createElement('div'); rowEl.className = 'seat-row-adm';
+    rowEl.innerHTML = '<span class="seat-row-num-adm">'+row+'</span>';
+    for(var c=1;c<=2;c++){ var n=(row-1)*4+c; if(n<=currentBus.capacity) rowEl.appendChild(mkAdmSeat(n)); }
+    var ai=document.createElement('div');ai.className='aisle-adm';rowEl.appendChild(ai);
+    for(var c=3;c<=4;c++){ var n=(row-1)*4+c; if(n<=currentBus.capacity) rowEl.appendChild(mkAdmSeat(n)); }
+    map.appendChild(rowEl);
+  }
+}
+
+function mkAdmSeat(num){
+  var el = document.createElement('div'); el.className='seat-adm'; el.id='adm-s-'+num;
+  var d  = liveSeats[num] || liveSeats[String(num)];
+  var isSel = selectedAdmSeats.indexOf(num) !== -1;
+
+  if(isSel){
+    el.classList.add('adm-sel');
+    el.innerHTML = num+'<span class="seat-name">Selected</span>';
+    el.title = 'Seat '+num+' — Selected for block';
+    el.addEventListener('click', function(){ toggleAdmSelect(num); });
+  } else if(d){
+    var g = d.gender||'M';
+    el.classList.add(g==='F'?'adm-f':'adm-m');
+    el.innerHTML = num+'<span class="seat-name">'+(d.name||'')+'</span>';
+    el.title = (g==='F'?'Female':'Male')+': '+(d.name||'unknown')+' — Click to UNBLOCK';
+    el.addEventListener('click', function(){ confirmUnblock(num); });
+  } else {
+    el.innerHTML = num;
+    el.title = 'Seat '+num+' — Available (click to select for blocking)';
+    el.addEventListener('click', function(){ toggleAdmSelect(num); });
+  }
+  return el;
+}
+
+/* ── Toggle seat selection for bulk block ── */
+function toggleAdmSelect(num){
+  var idx = selectedAdmSeats.indexOf(num);
+  if(idx===-1) selectedAdmSeats.push(num);
+  else selectedAdmSeats.splice(idx,1);
+  renderAdmMap();
+}
+
+/* ── Confirm unblock ── */
+function confirmUnblock(num){
+  var d = liveSeats[num] || liveSeats[String(num)];
+  var info = d ? (d.name||'unknown')+' ('+(d.gender==='F'?'Female':'Male')+')' : 'this seat';
+  if(!confirm('Unblock Seat '+num+' — '+info+'?')) return;
+  unblockSeat(num);
+}
+
+function unblockSeat(num){
+  if(!fbReady){ showToast('Firebase not configured.'); return; }
+  var F = window.__FB;
+  F.remove(F.ref(F.db,'seats/'+currentBus.id+'/'+currentDate+'/'+num))
+    .then(function(){ showToast('Seat '+num+' unblocked.'); })
+    .catch(function(e){ showToast('Error: '+e.message); });
+}
+window.unblockSeat = unblockSeat;
+
+/* ── Manual block ── */
+function manualBlock(){
+  var name    = (document.getElementById('manualName').value||'').trim();
+  var phone   = (document.getElementById('manualPhone').value||'').trim();
+  var gender  = document.getElementById('manualGender').value;
+  var seatsRaw= document.getElementById('manualSeats').value;
+
+  /* Also include any seats selected on the map */
+  var seatsFromInput = seatsRaw.split(/[,\s]+/).map(function(s){ return parseInt(s); }).filter(function(n){ return !isNaN(n)&&n>0&&n<=currentBus.capacity; });
+  var allSeats = selectedAdmSeats.concat(seatsFromInput.filter(function(n){ return selectedAdmSeats.indexOf(n)===-1; }));
+
+  if(!allSeats.length){ showToast('Select seats on the map or enter seat numbers.'); return; }
+  if(!name){ showToast('Please enter passenger name.'); return; }
+
+  if(!fbReady){ showToast('Firebase not configured.'); return; }
+  var F = window.__FB, updates = {};
+  allSeats.forEach(function(n){
+    updates['seats/'+currentBus.id+'/'+currentDate+'/'+n] = {
+      gender:gender, name:name, phone:phone, ts:Date.now(), blockedByAdmin:true
+    };
+  });
+  F.update(F.ref(F.db),updates)
+    .then(function(){
+      showToast('Blocked seat(s): '+allSeats.join(', '));
+      selectedAdmSeats=[];
+      document.getElementById('manualName').value='';
+      document.getElementById('manualPhone').value='';
+      document.getElementById('manualSeats').value='';
+    })
+    .catch(function(e){ showToast('Error: '+e.message); });
+}
+window.manualBlock = manualBlock;
+
+/* ── Clear all seats for today ── */
+function clearAllToday(){
+  if(!confirm('Clear ALL booked seats for '+currentDate+' on bus '+currentBus.plate+'?')) return;
+  if(!fbReady){ showToast('Firebase not configured.'); return; }
+  var F = window.__FB;
+  F.remove(F.ref(F.db,'seats/'+currentBus.id+'/'+currentDate))
+    .then(function(){ showToast('All seats cleared for '+currentDate+'.'); })
+    .catch(function(e){ showToast('Error: '+e.message); });
+}
+window.clearAllToday = clearAllToday;
+
+/* ── Full reset — all buses, all dates ── */
+function clearAllDates(){
+  if(!confirm('FULL RESET: Delete ALL seat data for ALL buses and ALL dates? This cannot be undone.')) return;
+  if(!fbReady){ showToast('Firebase not configured.'); return; }
+  var F = window.__FB;
+  F.remove(F.ref(F.db,'seats'))
+    .then(function(){ showToast('Full reset complete.'); })
+    .catch(function(e){ showToast('Error: '+e.message); });
+}
+window.clearAllDates = clearAllDates;
+
+/* ── Render bookings table ── */
+function renderBookingsTable(){
+  var tbody = document.getElementById('bookingsBody');
+  var entries = Object.keys(liveSeats).map(function(k){
+    var v = liveSeats[k]; return {seat:parseInt(k), data:v};
+  }).sort(function(a,b){ return a.seat-b.seat; });
+
+  if(!entries.length){
+    tbody.innerHTML='<tr><td colspan="6" class="empty-state">No bookings for this bus and date</td></tr>';
+    return;
+  }
+  tbody.innerHTML = entries.map(function(e){
+    var d = e.data||{}, g=d.gender||'M';
+    var pill = g==='F'?'<span class="gender-pill-f">Female</span>':'<span class="gender-pill-m">Male</span>';
+    var ts   = d.ts ? new Date(d.ts).toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'}) : 'Admin';
+    var admin= d.blockedByAdmin ? ' <span style="font-size:10px;color:#94a3b8;">(admin)</span>':'';
+    return '<tr>'+
+      '<td><strong>Seat '+e.seat+'</strong></td>'+
+      '<td>'+(d.name||'—')+admin+'</td>'+
+      '<td>'+pill+'</td>'+
+      '<td>'+(d.phone||'—')+'</td>'+
+      '<td>'+ts+'</td>'+
+      '<td><button class="unblock-btn" onclick="unblockSeat('+e.seat+')">Unblock</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+/* ── Update stats ── */
+function updateStats(){
+  var keys  = Object.keys(liveSeats);
+  var males = keys.filter(function(k){ return (liveSeats[k]&&liveSeats[k].gender)==='M'; }).length;
+  var fems  = keys.filter(function(k){ return (liveSeats[k]&&liveSeats[k].gender)==='F'; }).length;
+  var free  = currentBus ? currentBus.capacity - keys.length : 0;
+  document.getElementById('statTotal').textContent  = keys.length;
+  document.getElementById('statMale').textContent   = males;
+  document.getElementById('statFemale').textContent = fems;
+  document.getElementById('statFree').textContent   = Math.max(0,free);
+}
+
+/* ── Toast ── */
+function showToast(msg){
+  var t=document.getElementById('adm-toast');
+  t.textContent=msg; t.style.display='block';
+  clearTimeout(t._t); t._t=setTimeout(function(){t.style.display='none';},4000);
+}
+</script>
+</body>
+</html>

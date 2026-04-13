@@ -14,15 +14,13 @@
   <div class="container">
     <div class="page-eyebrow">Instant WhatsApp Booking</div>
     <h1>Book Your Seat</h1>
-    <p>Seats blocked for <strong>all customers live</strong> the moment you tap Send on WhatsApp</p>
+    <p>Select seats, add each traveller's name &amp; gender, confirm via WhatsApp</p>
   </div>
 </section>
 
 <section class="book-page-body">
   <div class="container">
     <div class="book-layout">
-
-      <!-- LEFT: Route selector + Seat map -->
       <div>
         <div class="route-selector">
           <h3>Journey Details</h3>
@@ -36,10 +34,9 @@
               <input type="date" id="travelDate">
             </div>
           </div>
-          <!-- Bus auto-fills from route — one route = one fixed bus -->
           <div class="bus-info-bar" id="busInfoBar">
             <div class="bus-info-left">
-              <span style="font-size:22px;">🚌</span>
+              <span style="font-size:22px;">&#128652;</span>
               <div>
                 <strong id="busInfoPlate" style="color:#012738;font-size:14px;display:block;"></strong>
                 <span id="busInfoSub" style="font-size:12px;color:#64748b;"></span>
@@ -49,107 +46,90 @@
                 <strong id="busInfoDep" style="color:#012738;font-size:14px;"></strong>
               </div>
             </div>
-            <button class="driver-open-btn" onclick="openDriverModal()">👨‍✈️ Driver Info</button>
+            <button class="driver-open-btn" onclick="openDriverModal()">&#128104;&#8205;&#9992;&#65039; Driver Info</button>
           </div>
           <div class="status-notice" id="statusNotice"></div>
         </div>
 
         <div class="seat-map-box">
-          <h3>Select Your Seat</h3>
+          <h3>Select Seat(s)</h3>
           <p class="seat-map-subtitle">
-            ① Choose gender &nbsp;→&nbsp; ② Click a white seat &nbsp;→&nbsp; ③ Enter name & phone &nbsp;→&nbsp; ④ Tap WhatsApp<br>
-            <span style="color:#1d4ed8;font-weight:600;">🔵 Blue = Male booked</span> &nbsp;|&nbsp;
-            <span style="color:#be185d;font-weight:600;">🩷 Pink = Female booked</span> &nbsp;|&nbsp;
-            <span style="color:#92400e;font-weight:600;">🚫 Striped = Blocked (male adj. to female)</span>
+            Click any white seat to select it. You can select multiple seats for your group.<br>
+            <span style="color:#1d4ed8;font-weight:600;">Blue = Male booked</span> &nbsp;|&nbsp;
+            <span style="color:#be185d;font-weight:600;">Pink = Female booked</span> &nbsp;|&nbsp;
+            <span style="color:#92400e;font-weight:600;">Striped = Blocked (male adj. to female)</span>
           </p>
           <div class="bus-diagram">
             <div class="bus-front">
-              <span class="bus-front-label">🚌 Front of Bus</span>
-              <span class="driver-icon">👨‍✈️ Driver</span>
+              <span class="bus-front-label">&#128652; Front of Bus</span>
+              <span class="driver-icon">&#128104;&#8205;&#9992;&#65039; Driver</span>
             </div>
             <div class="seat-rows" id="seatMap">
-              <p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading seat map…</p>
+              <p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px 0;">Loading seat map&#8230;</p>
             </div>
           </div>
           <div class="seat-legend">
             <div class="legend-item"><div class="legend-dot leg-avail"></div> Available</div>
-            <div class="legend-item"><div class="legend-dot leg-sel"></div> Your Pick</div>
+            <div class="legend-item"><div class="legend-dot leg-sel"></div> Selected</div>
             <div class="legend-item"><div class="legend-dot leg-male"></div> Male Booked</div>
             <div class="legend-item"><div class="legend-dot leg-female"></div> Female Booked</div>
             <div class="legend-item"><div class="legend-dot leg-blocked"></div> Blocked</div>
           </div>
         </div>
-
-        <!-- Admin: always visible, password-gated -->
-        <button class="admin-unlock-btn" id="adminUnlockBtn" onclick="showAdminPanel()">
-          🔐 Admin — Manage / Unblock Seats
-        </button>
-        <div class="admin-panel" id="adminPanel">
-          <h4>🔧 Admin Mode Active</h4>
-          <p>Click any <strong style="color:#1d4ed8;">blue</strong> or <strong style="color:#be185d;">pink</strong> booked seat above to unblock it individually.</p>
-          <div class="admin-panel-btns">
-            <button class="abtn-clear" onclick="adminClearToday()">🗑️ Clear All — Today</button>
-            <button class="abtn-reset" onclick="adminClearAll()">⚠️ Full Reset (All Dates)</button>
-          </div>
-        </div>
       </div>
 
-      <!-- RIGHT: Booking summary -->
       <div>
         <div class="booking-summary">
           <div class="booking-summary-header">
             <h3>Booking Summary</h3>
-            <p>Live — visible to all customers instantly</p>
+            <p>Live &#8212; all customers see same seat map</p>
           </div>
           <div class="booking-summary-body">
-            <div class="summary-row"><span class="sk">Route</span><span class="sv" id="sumRoute">—</span></div>
-            <div class="summary-row"><span class="sk">Bus No.</span><span class="sv" id="sumBus">—</span></div>
-            <div class="summary-row"><span class="sk">Date</span><span class="sv" id="sumDate">—</span></div>
-            <div class="summary-row"><span class="sk">Departure</span><span class="sv" id="sumDep">—</span></div>
-            <div class="summary-row"><span class="sk">Fare / Seat</span><span class="sv" id="sumFare">—</span></div>
+            <div class="summary-row"><span class="sk">Route</span><span class="sv" id="sumRoute">&#8212;</span></div>
+            <div class="summary-row"><span class="sk">Bus No.</span><span class="sv" id="sumBus">&#8212;</span></div>
+            <div class="summary-row"><span class="sk">Date</span><span class="sv" id="sumDate">&#8212;</span></div>
+            <div class="summary-row"><span class="sk">Departure</span><span class="sv" id="sumDep">&#8212;</span></div>
+            <div class="summary-row"><span class="sk">Fare / Seat</span><span class="sv" id="sumFare">&#8212;</span></div>
 
-            <div style="margin-top:16px;">
-              <p style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Your Gender *</p>
-              <div class="gender-picker">
-                <button class="gender-btn" id="genderM" onclick="setGender('M')">♂ Male</button>
-                <button class="gender-btn" id="genderF" onclick="setGender('F')">♀ Female</button>
+            <div class="passenger-section">
+              <div class="passenger-section-title">
+                <span>Traveller Details</span>
+                <span id="passengerCount" style="color:#94a3b8;font-size:12px;">0 seats selected</span>
               </div>
-            </div>
-
-            <div style="margin-top:6px;">
-              <p style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Selected Seats</p>
-              <div class="selected-seats-display" id="seatsDisplay">
-                <p style="font-size:13px;color:#94a3b8;">Select gender &amp; click a seat</p>
+              <div id="passengerRows">
+                <p class="no-seat-notice">Select seats from the map to add traveller details</p>
               </div>
             </div>
 
             <div class="total-row">
               <span class="tl">Total Amount</span>
-              <span class="tv" id="totalAmt">₹0</span>
+              <span class="tv" id="totalAmt">&#8377;0</span>
             </div>
 
-            <div style="margin-top:16px;">
-              <label style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Your Full Name *</label>
-              <input type="text" id="passengerName" placeholder="Enter your full name" oninput="updateBtn()"
-                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:0.2s;">
-            </div>
-            <div style="margin-top:10px;">
-              <label style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Mobile Number *</label>
-              <input type="tel" id="passengerPhone" placeholder="+91 XXXXX XXXXX" oninput="updateBtn()"
-                style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:0.2s;">
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid #f1f5f9;">
+              <p style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Primary Contact</p>
+              <div style="margin-bottom:10px;">
+                <label style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;">Full Name *</label>
+                <input type="text" id="contactName" placeholder="e.g. Ramesh Patel" oninput="updateBtn()"
+                  style="width:100%;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;">
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;">Mobile Number *</label>
+                <input type="tel" id="contactPhone" placeholder="+91 XXXXX XXXXX" oninput="updateBtn()"
+                  style="width:100%;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;">
+              </div>
             </div>
 
             <button class="wa-book-btn" id="waBtn" onclick="confirmBooking()" disabled style="margin-top:18px;">
-              💬 Confirm on WhatsApp
+              &#128172; Confirm on WhatsApp
             </button>
             <p class="book-note">
-              Seats blocked for <strong>all customers</strong> the moment you tap Send.<br>
-              Auto-release 2 hrs after bus departure if not confirmed.
+              Seats blocked for all customers the moment you tap Send.<br>
+              Auto-reset 2 hrs after bus departure.
             </p>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -157,15 +137,15 @@
 <!-- Driver Info Modal -->
 <div class="modal-overlay" id="driverModal" onclick="closeDriverModal(event)">
   <div class="driver-modal">
-    <button class="modal-close" onclick="closeDriverModal()">✕</button>
+    <button class="modal-close" onclick="closeDriverModal()">&#10005;</button>
     <div id="driverPhotoWrap"></div>
     <h3 id="driverName"></h3>
     <div class="driver-exp" id="driverExp"></div>
-    <div class="d-row"><div class="d-icon">📱</div><div><span class="d-label">Phone</span><span class="d-val" id="driverPhone"></span></div></div>
-    <div class="d-row"><div class="d-icon">📋</div><div><span class="d-label">Driving Licence</span><span class="d-val" id="driverLicence"></span></div></div>
-    <div class="d-row"><div class="d-icon">🚌</div><div><span class="d-label">Bus Number</span><span class="d-val" id="driverBusNo"></span></div></div>
-    <div class="d-row"><div class="d-icon">🛣️</div><div><span class="d-label">Assigned Route</span><span class="d-val" id="driverRoute"></span></div></div>
-    <button class="driver-call-btn" id="driverCallBtn">📞 Call Driver</button>
+    <div class="d-row"><div class="d-icon">&#128241;</div><div><span class="d-label">Phone</span><span class="d-val" id="driverPhone"></span></div></div>
+    <div class="d-row"><div class="d-icon">&#128203;</div><div><span class="d-label">Driving Licence</span><span class="d-val" id="driverLicence"></span></div></div>
+    <div class="d-row"><div class="d-icon">&#128652;</div><div><span class="d-label">Bus Number</span><span class="d-val" id="driverBusNo"></span></div></div>
+    <div class="d-row"><div class="d-icon">&#128739;&#65039;</div><div><span class="d-label">Assigned Route</span><span class="d-val" id="driverRoute"></span></div></div>
+    <button class="driver-call-btn" id="driverCallBtn">&#128222; Call Driver</button>
   </div>
 </div>
 
@@ -175,20 +155,19 @@
 <script src="config.js"></script>
 <script src="script.js"></script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     FIREBASE SETUP — 5 minutes, free forever
-     ───────────────────────────────────────────────────────────────────
-     1. Go to https://console.firebase.google.com
-     2. Create Project → Add Web App → copy config values below
-     3. Left menu: Realtime Database → Create → Start in TEST MODE
-     4. Paste your values into FIREBASE_CONFIG and save this file
-     ═══════════════════════════════════════════════════════════════════ -->
+<!-- Firebase: real shared seat state visible to ALL customers instantly -->
 <script type="module">
-import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+/*
+  FIREBASE SETUP (5 minutes, free forever):
+  1. Go to https://console.firebase.google.com
+  2. Create Project -> Add Web App -> copy config values below
+  3. Realtime Database -> Create -> Start in TEST MODE
+  4. Paste your values into FIREBASE_CONFIG and save
+*/
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, update, remove }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-/* ── Paste YOUR Firebase config here ── */
 const FIREBASE_CONFIG = {
   apiKey:            "YOUR_API_KEY",
   authDomain:        "YOUR_PROJECT.firebaseapp.com",
@@ -199,77 +178,51 @@ const FIREBASE_CONFIG = {
   appId:             "YOUR_APP_ID"
 };
 
-/* ── Admin password (change this) ── */
-const ADMIN_PASSWORD = "Swift@8606";
-
-/* ── Init Firebase ── */
-const fbApp = initializeApp(FIREBASE_CONFIG);
-const db    = getDatabase(fbApp);
-
-/* ── Expose DB + password to the page script below ── */
-window._fb = { db, ref, onValue, update, remove, ADMIN_PASSWORD };
+const app = initializeApp(FIREBASE_CONFIG);
+const db  = getDatabase(app);
+window.__FB = { db, ref, onValue, update, remove };
 window.dispatchEvent(new Event('fb-ready'));
 </script>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════════
-   BOOKING ENGINE
-   Seat state stored in Firebase so ALL customers see the same map.
-   Path: seats/{busId}/{YYYY-MM-DD}/{seatNum} = { gender, name, phone, ts }
-   Auto-reset: Firebase node deleted 2 hrs after bus departure.
-   Admin: password-gated; can unblock individual seats or clear all.
-   Gender: M=Blue, F=Pink. Adjacent female seat blocks next male seat.
-   ═══════════════════════════════════════════════════════════════════ */
-
-var selectedSeats  = [];
-var selectedGender = null;
+var selectedSeats = [];
+var passengerData = {};   // { seatNum: { name, gender } }
 var currentBus, currentRoute, currentDate;
-var isAdminMode = false;
-var liveSeats   = {};       /* Firebase snapshot: { "5":{gender,name,phone,ts}, ... } */
-var fbUnsub     = null;     /* unsubscribe previous Firebase listener */
-var fbReady     = false;
+var liveSeats = {};
+var fbUnsub   = null;
+var fbReady   = false;
 
-/* ── Wait for Firebase module to init ── */
 window.addEventListener('fb-ready', function() { fbReady = true; });
 
-/* ── Firebase path helpers ── */
-function fbPath(bid,date,n) { return 'seats/'+bid+'/'+date+'/'+n; }
-function fbDay(bid,date)    { return 'seats/'+bid+'/'+date; }
+function fbPath(bid,d,n){ return 'seats/'+bid+'/'+d+'/'+n; }
+function fbDay(bid,d)   { return 'seats/'+bid+'/'+d; }
 
-/* ── Init page ── */
 buildHeader('book-seat.html');
 buildFooter();
 
 var today = new Date().toISOString().split('T')[0];
 var dateEl = document.getElementById('travelDate');
 dateEl.min = today; dateEl.value = today; currentDate = today;
-dateEl.addEventListener('change', function() {
+dateEl.addEventListener('change', function(){
   currentDate = this.value;
-  selectedSeats = [];
-  hideNotice();
-  attachListener();
+  selectedSeats = []; passengerData = {};
+  hideNotice(); attachListener();
 });
 
 var routeSel = document.getElementById('routeSelect');
-CONFIG.routes.forEach(function(r) {
+CONFIG.routes.forEach(function(r){
   var o = document.createElement('option');
-  o.value = r.id;
-  o.textContent = r.label + ' — ' + formatINR(r.price);
+  o.value = r.id; o.textContent = r.label + ' — ' + formatINR(r.price);
   routeSel.appendChild(o);
 });
-
 var urlRoute = new URLSearchParams(window.location.search).get('route');
-if (urlRoute) routeSel.value = urlRoute;
-
+if(urlRoute) routeSel.value = urlRoute;
 onRouteChange();
 
-/* ═══════════════════════════════════════
-   ROUTE CHANGE — auto-assigns bus from busId
-   ═══════════════════════════════════════ */
-function onRouteChange() {
+function onRouteChange(){
   currentRoute = getRoute(routeSel.value);
   currentBus   = getBusForRoute(currentRoute.id);
-  selectedSeats = [];
+  selectedSeats = []; passengerData = {};
 
   document.getElementById('busInfoPlate').textContent = currentBus.plate + ' — ' + currentBus.title;
   document.getElementById('busInfoSub').textContent   = currentBus.layout + ' · ' + currentBus.climate;
@@ -279,368 +232,250 @@ function onRouteChange() {
   document.getElementById('sumDep').textContent       = currentRoute.firstBus;
   document.getElementById('sumFare').textContent      = formatINR(currentRoute.price);
 
-  hideNotice();
-  attachListener();
+  hideNotice(); attachListener();
 }
+window.onRouteChange = onRouteChange;
 
-/* ═══════════════════════════════════════
-   FIREBASE LISTENER — real-time for all users
-   ═══════════════════════════════════════ */
-function attachListener() {
-  if (typeof fbUnsub === 'function') { fbUnsub(); fbUnsub = null; }
+function attachListener(){
+  if(typeof fbUnsub === 'function'){ fbUnsub(); fbUnsub = null; }
   liveSeats = {};
-
-  if (!fbReady) {
-    /* Firebase not configured yet — fall back gracefully */
-    checkAutoReset();
-    renderSeatMap();
-    return;
-  }
-
-  var F = window._fb;
   checkAutoReset();
-  var dayRef = F.ref(F.db, fbDay(currentBus.id, currentDate));
-  fbUnsub = F.onValue(dayRef, function(snap) {
+  if(!fbReady){ renderSeatMap(); renderPassengerRows(); return; }
+  var F = window.__FB;
+  fbUnsub = F.onValue(F.ref(F.db, fbDay(currentBus.id, currentDate)), function(snap){
     liveSeats = snap.val() || {};
     renderSeatMap();
   });
 }
 
-/* ═══════════════════════════════════════
-   AUTO-RESET: wipe Firebase 2 hrs post-departure
-   ═══════════════════════════════════════ */
-function checkAutoReset() {
-  var raw = (currentBus.departure || '').trim();
-  var m12 = raw.match(/(\d+):(\d+)\s*(AM|PM)/i);
-  var m24 = raw.match(/^(\d+):(\d+)$/);
-  var h = 0, m = 0;
-  if (m12) {
-    h = parseInt(m12[1]); m = parseInt(m12[2]);
-    if (m12[3].toUpperCase() === 'PM' && h !== 12) h += 12;
-    if (m12[3].toUpperCase() === 'AM' && h === 12) h = 0;
-  } else if (m24) { h = parseInt(m24[1]); m = parseInt(m24[2]); }
-  else return;
-
-  var dep     = new Date(currentDate + 'T00:00:00'); dep.setHours(h, m, 0, 0);
-  var resetAt = new Date(dep.getTime() + 7200000);
-  var now     = new Date();
-
-  if (now >= resetAt) {
-    if (fbReady) {
-      var F = window._fb;
-      F.remove(F.ref(F.db, fbDay(currentBus.id, currentDate))).catch(function() {});
-    }
-    liveSeats = {};
-    showNotice('Seats for ' + currentDate + ' auto-reset — bus departed 2+ hrs ago.', 'info');
-  } else if (now >= dep) {
-    showNotice('Bus departed. Seats auto-release in ~' + Math.ceil((resetAt - now) / 60000) + ' min.', 'warn');
+function checkAutoReset(){
+  var raw = (currentBus.departure||'').trim();
+  var m12 = raw.match(/(\d+):(\d+)\s*(AM|PM)/i), m24 = raw.match(/^(\d+):(\d+)$/);
+  var h=0,m=0;
+  if(m12){h=+m12[1];m=+m12[2];if(m12[3].toUpperCase()==='PM'&&h!==12)h+=12;if(m12[3].toUpperCase()==='AM'&&h===12)h=0;}
+  else if(m24){h=+m24[1];m=+m24[2];} else return;
+  var dep=new Date(currentDate+'T00:00:00'); dep.setHours(h,m,0,0);
+  var resetAt=new Date(dep.getTime()+7200000), now=new Date();
+  if(now>=resetAt){
+    liveSeats={};
+    if(fbReady){ var F=window.__FB; F.remove(F.ref(F.db,fbDay(currentBus.id,currentDate))).catch(function(){}); }
+    showNotice('Seats auto-reset — bus departed 2+ hrs ago.','info');
+  } else if(now>=dep){
+    showNotice('Bus departed. Seats auto-release in ~'+Math.ceil((resetAt-now)/60000)+' min.','warn');
   }
 }
 
-/* ═══════════════════════════════════════
-   SEAT MAP
-   ═══════════════════════════════════════ */
-function getAllBooked() {
-  var nums = [], genders = {};
-  /* Config-level (permanent) */
-  (currentBus.bookedSeats || []).forEach(function(e) {
-    var n = typeof e === 'object' ? e.num : e;
-    var g = typeof e === 'object' ? (e.gender || 'M') : 'M';
-    if (nums.indexOf(n) < 0) { nums.push(n); genders[n] = g; }
+function getAllBooked(){
+  var nums=[], genders={}, names={};
+  Object.keys(liveSeats).forEach(function(k){
+    var v=liveSeats[k], n=parseInt(k);
+    nums.push(n); genders[n]=(v&&v.gender)||'M'; names[n]=(v&&v.name)||'';
   });
-  /* Firebase-level (dynamic — overrides config) */
-  Object.keys(liveSeats).forEach(function(k) {
-    var n = parseInt(k);
-    if (nums.indexOf(n) < 0) nums.push(n);
-    genders[n] = (liveSeats[k] && liveSeats[k].gender) || 'M';
-  });
-  return { nums: nums, genders: genders };
+  return {nums:nums, genders:genders, names:names};
 }
 
-function getAdjacentSeat(num) {
-  var row = Math.ceil(num / 4), pos = num - (row - 1) * 4;
-  if (pos === 1) return (row - 1) * 4 + 2;
-  if (pos === 2) return (row - 1) * 4 + 1;
-  if (pos === 3) return (row - 1) * 4 + 4;
-  if (pos === 4) return (row - 1) * 4 + 3;
+function getAdjSeat(num){
+  var row=Math.ceil(num/4), pos=num-(row-1)*4;
+  if(pos===1)return(row-1)*4+2; if(pos===2)return(row-1)*4+1;
+  if(pos===3)return(row-1)*4+4; if(pos===4)return(row-1)*4+3;
   return null;
 }
 
-function getAdjBlocked(bookedNums, genders) {
-  if (selectedGender !== 'M') return [];
-  var blocked = [];
-  bookedNums.forEach(function(n) {
-    if (genders[n] === 'F') {
-      var adj = getAdjacentSeat(n);
-      if (adj && adj >= 1 && adj <= currentBus.capacity && bookedNums.indexOf(adj) < 0)
-        blocked.push(adj);
+function getAdjBlocked(bookedNums,genders){
+  var blocked=[];
+  bookedNums.forEach(function(n){
+    if(genders[n]==='F'){
+      var adj=getAdjSeat(n);
+      if(adj&&adj>=1&&adj<=currentBus.capacity&&bookedNums.indexOf(adj)<0) blocked.push(adj);
     }
   });
   return blocked;
 }
 
-function renderSeatMap() {
-  var map = document.getElementById('seatMap'); map.innerHTML = '';
-  var b = getAllBooked();
-  var adj = getAdjBlocked(b.nums, b.genders);
-  var rows = Math.ceil(currentBus.capacity / 4);
-
-  for (var row = 1; row <= rows; row++) {
-    var rowEl = document.createElement('div'); rowEl.className = 'seat-row';
-    rowEl.innerHTML = '<span class="seat-row-num">' + row + '</span>';
-    for (var col = 1; col <= 2; col++) {
-      var n = (row - 1) * 4 + col;
-      if (n <= currentBus.capacity) rowEl.appendChild(makeSeat(n, b, adj));
-    }
-    var aisle = document.createElement('div'); aisle.className = 'aisle'; rowEl.appendChild(aisle);
-    for (var col = 3; col <= 4; col++) {
-      var n = (row - 1) * 4 + col;
-      if (n <= currentBus.capacity) rowEl.appendChild(makeSeat(n, b, adj));
-    }
+function renderSeatMap(){
+  var map=document.getElementById('seatMap'); map.innerHTML='';
+  var b=getAllBooked(), adj=getAdjBlocked(b.nums,b.genders);
+  var rows=Math.ceil(currentBus.capacity/4);
+  for(var row=1;row<=rows;row++){
+    var rowEl=document.createElement('div'); rowEl.className='seat-row';
+    rowEl.innerHTML='<span class="seat-row-num">'+row+'</span>';
+    for(var c=1;c<=2;c++){var n=(row-1)*4+c;if(n<=currentBus.capacity)rowEl.appendChild(mkSeat(n,b,adj));}
+    var ai=document.createElement('div');ai.className='aisle';rowEl.appendChild(ai);
+    for(var c=3;c<=4;c++){var n=(row-1)*4+c;if(n<=currentBus.capacity)rowEl.appendChild(mkSeat(n,b,adj));}
     map.appendChild(rowEl);
   }
 }
 
-function makeSeat(num, b, adjBlocked) {
-  var el = document.createElement('div');
-  el.className = 'seat'; el.id = 'seat-' + num; el.textContent = num;
-
-  var isBooked   = b.nums.indexOf(num) !== -1;
-  var isAdj      = adjBlocked.indexOf(num) !== -1;
-  var isSelected = selectedSeats.indexOf(num) !== -1;
-
-  if (isBooked) {
-    var g = b.genders[num] || 'M';
-    el.classList.add(g === 'F' ? 'seat-booked-f' : 'seat-booked-m');
-    el.title = (g === 'F' ? '♀ Female' : '♂ Male') + ' Booked — Seat ' + num;
-    if (isAdminMode) {
-      el.style.cursor = 'pointer';
-      el.title += ' (click to unblock)';
-      (function(n){ el.addEventListener('click', function(){ adminUnblock(n); }); })(num);
-    }
-  } else if (isAdj) {
-    /* Females CAN still book an adj seat */
-    if (selectedGender === 'F') {
-      el.onclick = function() { toggleSeat(num); };
-      el.title = 'Seat ' + num + ' — Available';
-    } else {
-      el.classList.add('seat-blocked'); el.textContent = '🚫';
-      el.title = 'Blocked — adjacent to female passenger';
-    }
-  } else if (isSelected) {
+function mkSeat(num,b,adjBlocked){
+  var el=document.createElement('div');
+  el.className='seat'; el.id='seat-'+num; el.textContent=num;
+  var isBooked=b.nums.indexOf(num)!==-1, isAdj=adjBlocked.indexOf(num)!==-1, isSel=selectedSeats.indexOf(num)!==-1;
+  if(isBooked){
+    var g=b.genders[num]||'M';
+    el.classList.add(g==='F'?'seat-booked-f':'seat-booked-m');
+    el.title=(g==='F'?'Female':'Male')+': '+b.names[num]+' — Seat '+num;
+  } else if(isAdj){
+    el.classList.add('seat-blocked'); el.title='Blocked — adjacent to female seat';
+  } else if(isSel){
     el.classList.add('selected');
-    el.addEventListener('click', function() { toggleSeat(num); });
+    el.addEventListener('click',function(){toggleSeat(num);});
   } else {
-    el.addEventListener('click', function() {
-      if (!selectedGender) { showToast('⚠️ Please select Male or Female first.'); return; }
-      toggleSeat(num);
-    });
-    el.title = 'Seat ' + num + ' — Available';
+    el.addEventListener('click',function(){toggleSeat(num);});
+    el.title='Seat '+num+' — Available';
   }
   return el;
 }
 
-function toggleSeat(num) {
-  var idx = selectedSeats.indexOf(num);
-  if (idx === -1) selectedSeats.push(num); else selectedSeats.splice(idx, 1);
-  renderSeatMap(); updateSummary();
+function toggleSeat(num){
+  var idx=selectedSeats.indexOf(num);
+  if(idx===-1){ selectedSeats.push(num); if(!passengerData[num]) passengerData[num]={name:'',gender:'M'}; }
+  else{ selectedSeats.splice(idx,1); delete passengerData[num]; }
+  renderSeatMap(); renderPassengerRows(); updateSummary();
 }
 
-/* ═══════════════════════════════════════
-   GENDER PICKER
-   ═══════════════════════════════════════ */
-function setGender(g) {
-  selectedGender = g; selectedSeats = [];
-  document.getElementById('genderM').className = 'gender-btn' + (g === 'M' ? ' male-active'   : '');
-  document.getElementById('genderF').className = 'gender-btn' + (g === 'F' ? ' female-active' : '');
-  renderSeatMap(); updateSummary();
-}
-window.setGender = setGender;
-
-/* ═══════════════════════════════════════
-   SUMMARY + BUTTON
-   ═══════════════════════════════════════ */
-function updateSummary() {
-  var fare  = currentRoute ? currentRoute.price : 0;
-  var total = selectedSeats.length * fare;
-  document.getElementById('totalAmt').textContent = formatINR(total);
-
-  if (currentDate) {
-    var dt = new Date(currentDate + 'T00:00:00');
-    document.getElementById('sumDate').textContent = dt.toLocaleDateString('en-IN', {
-      weekday:'short', day:'numeric', month:'long', year:'numeric'
-    });
+function renderPassengerRows(){
+  var container=document.getElementById('passengerRows');
+  document.getElementById('passengerCount').textContent=selectedSeats.length+' seat'+(selectedSeats.length!==1?'s':'')+' selected';
+  if(!selectedSeats.length){
+    container.innerHTML='<p class="no-seat-notice">Select seats from the map to add traveller details</p>';
+    return;
   }
+  container.innerHTML='';
+  selectedSeats.slice().sort(function(a,b){return a-b;}).forEach(function(sn){
+    var pd=passengerData[sn]||{name:'',gender:'M'};
+    var d=document.createElement('div'); d.className='passenger-row'; d.id='pr-'+sn;
+    d.innerHTML=
+      '<div class="passenger-row-header">'+
+        '<span class="passenger-row-label">Traveller — Seat '+sn+'</span>'+
+        '<button class="remove-passenger-btn" onclick="removeSeat('+sn+')">Remove</button>'+
+      '</div>'+
+      '<div class="passenger-fields">'+
+        '<div class="pf-group"><label>Full Name *</label>'+
+          '<input type="text" id="pname-'+sn+'" placeholder="Enter name" value="'+esc(pd.name)+'" oninput="updatePD('+sn+')"></div>'+
+        '<div class="pf-group"><label>Gender *</label>'+
+          '<select id="pgender-'+sn+'" onchange="updatePD('+sn+')">'+
+            '<option value="M"'+(pd.gender==='M'?' selected':'')+'>Male</option>'+
+            '<option value="F"'+(pd.gender==='F'?' selected':'')+'>Female</option>'+
+          '</select></div>'+
+      '</div>';
+    container.appendChild(d);
+  });
+}
 
-  var disp = document.getElementById('seatsDisplay');
-  if (!selectedSeats.length) {
-    disp.innerHTML = '<p style="font-size:13px;color:#94a3b8;">Select gender &amp; click a seat</p>';
-  } else {
-    disp.innerHTML = selectedSeats.slice().sort(function(a,b){return a-b;}).map(function(s) {
-      return '<span class="selected-seat-tag' + (selectedGender === 'F' ? ' tag-f' : '') + '">' +
-             (selectedGender === 'F' ? '♀' : '♂') + ' Seat ' + s + '</span>';
-    }).join('');
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+function removeSeat(num){
+  var idx=selectedSeats.indexOf(num);
+  if(idx!==-1){selectedSeats.splice(idx,1);delete passengerData[num];}
+  renderSeatMap();renderPassengerRows();updateSummary();
+}
+window.removeSeat=removeSeat;
+
+function updatePD(sn){
+  var ne=document.getElementById('pname-'+sn), ge=document.getElementById('pgender-'+sn);
+  if(!ne||!ge)return;
+  passengerData[sn]={name:ne.value.trim(),gender:ge.value};
+  updateBtn();
+}
+window.updatePD=updatePD;
+
+function updateSummary(){
+  var fare=currentRoute?currentRoute.price:0;
+  document.getElementById('totalAmt').textContent=formatINR(selectedSeats.length*fare);
+  if(currentDate){
+    var dt=new Date(currentDate+'T00:00:00');
+    document.getElementById('sumDate').textContent=dt.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
   }
   updateBtn();
 }
 
-function updateBtn() {
-  var name  = document.getElementById('passengerName').value.trim();
-  var phone = document.getElementById('passengerPhone').value.trim();
-  document.getElementById('waBtn').disabled =
-    !(selectedSeats.length > 0 && selectedGender && name.length > 1 && phone.length >= 10);
+function updateBtn(){
+  var n=(document.getElementById('contactName').value||'').trim();
+  var p=(document.getElementById('contactPhone').value||'').trim();
+  var ok=selectedSeats.length>0&&n.length>1&&p.length>=10;
+  if(ok) ok=selectedSeats.every(function(s){var pd=passengerData[s];return pd&&pd.name&&pd.gender;});
+  document.getElementById('waBtn').disabled=!ok;
 }
 
-/* ═══════════════════════════════════════
-   CONFIRM BOOKING — write to Firebase then WhatsApp
-   ═══════════════════════════════════════ */
-function confirmBooking() {
-  var date    = document.getElementById('travelDate').value;
-  var name    = document.getElementById('passengerName').value.trim();
-  var phone   = document.getElementById('passengerPhone').value.trim();
-  var seats   = selectedSeats.slice().sort(function(a,b){return a-b;});
-  var total   = seats.length * currentRoute.price;
-  var dt      = new Date(date + 'T00:00:00');
-  var dateStr = dt.toLocaleDateString('en-IN', {weekday:'short',day:'numeric',month:'long',year:'numeric'});
-  var gLabel  = selectedGender === 'F' ? 'Female' : 'Male';
-  var gIcon   = selectedGender === 'F' ? '\u2640\uFE0F' : '\u2642\uFE0F';
+function confirmBooking(){
+  var date=document.getElementById('travelDate').value;
+  var cName=(document.getElementById('contactName').value||'').trim();
+  var cPhone=(document.getElementById('contactPhone').value||'').trim();
+  var seats=selectedSeats.slice().sort(function(a,b){return a-b;});
+  var total=seats.length*(currentRoute?currentRoute.price:0);
+  var dt=new Date(date+'T00:00:00');
+  var ds=dt.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
 
-  /* 1. Write to Firebase (all users see blocked immediately) */
-  if (fbReady) {
-    var F = window._fb;
-    var updates = {};
-    seats.forEach(function(n) {
-      updates[fbPath(currentBus.id, date, n)] = { gender: selectedGender, name: name, phone: phone, ts: Date.now() };
+  if(fbReady){
+    var F=window.__FB, updates={};
+    seats.forEach(function(n){
+      var pd=passengerData[n]||{name:cName,gender:'M'};
+      updates[fbPath(currentBus.id,date,n)]={gender:pd.gender,name:pd.name||cName,phone:cPhone,ts:Date.now()};
     });
-    F.update(F.ref(F.db), updates).catch(function(err) {
-      showToast('\u26A0\uFE0F Firebase error: ' + err.message);
-    });
+    F.update(F.ref(F.db),updates).catch(function(e){showToast('Firebase error: '+e.message);});
   }
 
-  /* 2. Build WhatsApp message */
-  var msg =
-    '\uD83D\uDE8C *REWA KRIPA TRAVELS \u2014 SEAT BOOKING*\n\n' +
-    '\uD83D\uDC64 *Name:* ' + name + '\n' +
-    '\uD83D\uDCF1 *Mobile:* ' + phone + '\n' +
-    gIcon + ' *Gender:* ' + gLabel + '\n\n' +
-    '\uD83D\uDDFA\uFE0F *Route:* ' + currentRoute.label + '\n' +
-    '\uD83D\uDE8C *Bus:* ' + currentBus.plate + ' (' + currentBus.title + ')\n' +
-    '\uD83D\uDCC5 *Date:* ' + dateStr + '\n' +
-    '\u23F0 *Departure:* ' + currentRoute.firstBus + '\n' +
-    '\uD83D\uDCBA *Seat(s):* ' + seats.map(function(s){return 'Seat '+s;}).join(', ') + '\n' +
-    '\uD83C\uDFAB *No. of Seats:* ' + seats.length + '\n\n' +
-    '\uD83D\uDCB0 *Fare/Seat:* ' + formatINR(currentRoute.price) + '\n' +
-    '\uD83D\uDCB3 *Total:* ' + formatINR(total) + '\n\n' +
+  var seatLines=seats.map(function(n){
+    var pd=passengerData[n]||{name:cName,gender:'M'};
+    return '   Seat '+n+': '+(pd.name||cName)+' ('+(pd.gender==='F'?'Female':'Male')+')';
+  }).join('\n');
+
+  var msg=
+    '\uD83D\uDE8C *REWA KRIPA TRAVELS \u2014 SEAT BOOKING*\n\n'+
+    '\uD83D\uDC64 *Contact:* '+cName+'\n\uD83D\uDCF1 *Mobile:* '+cPhone+'\n\n'+
+    '\uD83D\uDDFA\uFE0F *Route:* '+currentRoute.label+'\n'+
+    '\uD83D\uDE8C *Bus:* '+currentBus.plate+' ('+currentBus.title+')\n'+
+    '\uD83D\uDCC5 *Date:* '+ds+'\n\u23F0 *Departure:* '+currentRoute.firstBus+'\n\n'+
+    '\uD83D\uDCBA *Seats & Travellers:*\n'+seatLines+'\n\n'+
+    '\uD83C\uDFAB *Total Seats:* '+seats.length+'\n\uD83D\uDCB3 *Total:* '+formatINR(total)+'\n\n'+
     '_Seats are now BLOCKED for all customers. Please confirm and share payment details._';
 
-  window.open('https://wa.me/' + CONFIG.company.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+  window.open('https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent(msg),'_blank');
 
-  /* 3. Reset selection (Firebase listener re-renders map) */
-  selectedSeats = [];
-  document.getElementById('passengerName').value  = '';
-  document.getElementById('passengerPhone').value = '';
-  updateSummary();
+  selectedSeats=[];passengerData={};
+  document.getElementById('contactName').value='';
+  document.getElementById('contactPhone').value='';
+  renderPassengerRows();updateSummary();renderSeatMap();
   showToast('\u2705 Seats blocked for ALL customers! Complete booking on WhatsApp.');
 }
-window.confirmBooking = confirmBooking;
+window.confirmBooking=confirmBooking;
 
-/* ═══════════════════════════════════════
-   ADMIN — password protected
-   ═══════════════════════════════════════ */
-function showAdminPanel() {
-  var pw = prompt('Enter Admin Password:');
-  if (pw === (window._fb ? window._fb.ADMIN_PASSWORD : 'Swift@8606')) {
-    isAdminMode = true;
-    document.getElementById('adminPanel').style.display    = 'block';
-    document.getElementById('adminUnlockBtn').style.display = 'none';
-    renderSeatMap();
-    showToast('\uD83D\uDD13 Admin ON \u2014 click any booked seat to unblock.');
-  } else {
-    alert('Incorrect password.');
-  }
-}
-window.showAdminPanel = showAdminPanel;
-
-function adminUnblock(num) {
-  if (!confirm('Unblock Seat ' + num + '?')) return;
-  if (fbReady) {
-    var F = window._fb;
-    F.remove(F.ref(F.db, fbPath(currentBus.id, currentDate, num)))
-      .then(function(){ showToast('Seat ' + num + ' unblocked.'); })
-      .catch(function(e){ showToast('Error: ' + e.message); });
-  } else {
-    showToast('Firebase not set up — cannot unblock from server.');
-  }
-}
-
-function adminClearToday() {
-  if (!confirm('Clear ALL seats for ' + currentDate + ' on bus ' + currentBus.plate + '?')) return;
-  if (fbReady) {
-    var F = window._fb;
-    F.remove(F.ref(F.db, fbDay(currentBus.id, currentDate)))
-      .then(function(){ showToast('All seats cleared for today.'); })
-      .catch(function(e){ showToast('Error: ' + e.message); });
-  }
-}
-window.adminClearToday = adminClearToday;
-
-function adminClearAll() {
-  if (!confirm('FULL RESET: Delete ALL seat data for ALL buses and ALL dates?')) return;
-  if (fbReady) {
-    var F = window._fb;
-    F.remove(F.ref(F.db, 'seats'))
-      .then(function(){ showToast('Full reset done.'); })
-      .catch(function(e){ showToast('Error: ' + e.message); });
-  }
-}
-window.adminClearAll = adminClearAll;
-
-/* ═══════════════════════════════════════
-   DRIVER INFO MODAL
-   ═══════════════════════════════════════ */
-function openDriverModal() {
-  var d = currentBus && currentBus.driver;
-  if (!d) { showToast('Driver info not available for this bus.'); return; }
-
-  var wrap = document.getElementById('driverPhotoWrap');
-  wrap.innerHTML = '<div class="driver-placeholder">\uD83D\uDC68\u200D\u2708\uFE0F</div>';
-  var img = new Image();
-  img.onload = function() { wrap.innerHTML = '<img src="' + d.photo + '" class="driver-photo" alt="' + d.name + '">'; };
-  img.src = d.photo;
-
-  document.getElementById('driverName').textContent    = d.name;
-  document.getElementById('driverExp').textContent     = d.exp;
-  document.getElementById('driverPhone').textContent   = d.phone;
-  document.getElementById('driverLicence').textContent = d.licence;
-  document.getElementById('driverBusNo').textContent   = currentBus.plate + ' \u2014 ' + currentBus.title;
-  document.getElementById('driverRoute').textContent   = currentBus.route;
-  document.getElementById('driverCallBtn').onclick     = function() {
-    window.open('tel:' + d.phone.replace(/[\s\-\(\)]/g, ''));
-  };
+function openDriverModal(){
+  var d=currentBus&&currentBus.driver;
+  if(!d){showToast('Driver info not available.');return;}
+  var wrap=document.getElementById('driverPhotoWrap');
+  wrap.innerHTML='<div class="driver-placeholder">&#128104;&#8205;&#9992;&#65039;</div>';
+  var img=new Image();
+  img.onload=function(){wrap.innerHTML='<img src="'+d.photo+'" class="driver-photo" alt="'+d.name+'">';};
+  img.src=d.photo;
+  document.getElementById('driverName').textContent    =d.name;
+  document.getElementById('driverExp').textContent     =d.exp;
+  document.getElementById('driverPhone').textContent   =d.phone;
+  document.getElementById('driverLicence').textContent =d.licence;
+  document.getElementById('driverBusNo').textContent   =currentBus.plate+' \u2014 '+currentBus.title;
+  document.getElementById('driverRoute').textContent   =currentBus.route;
+  document.getElementById('driverCallBtn').onclick=function(){window.open('tel:'+d.phone.replace(/[\s\-]/g,''));};
   document.getElementById('driverModal').classList.add('open');
 }
-window.openDriverModal = openDriverModal;
+window.openDriverModal=openDriverModal;
 
-function closeDriverModal(e) {
-  if (!e || e.target === document.getElementById('driverModal') ||
-      (e.target && e.target.classList.contains('modal-close')))
+function closeDriverModal(e){
+  if(!e||e.target===document.getElementById('driverModal')||(e.target&&e.target.classList.contains('modal-close')))
     document.getElementById('driverModal').classList.remove('open');
 }
-window.closeDriverModal = closeDriverModal;
+window.closeDriverModal=closeDriverModal;
 
-/* ── Helpers ── */
-function showNotice(msg, type) {
-  var el = document.getElementById('statusNotice');
-  el.textContent = 'ℹ️ ' + msg;
-  el.className = 'status-notice ' + (type === 'warn' ? 'notice-warn' : 'notice-info');
-  el.style.display = 'block';
+function showNotice(msg,type){
+  var el=document.getElementById('statusNotice');
+  el.textContent='Info: '+msg;
+  el.className='status-notice '+(type==='warn'?'notice-warn':'notice-info');
+  el.style.display='block';
 }
-function hideNotice() { document.getElementById('statusNotice').style.display = 'none'; }
-function showToast(msg) {
-  var t = document.getElementById('bk-toast');
-  t.textContent = msg; t.style.display = 'block';
-  clearTimeout(t._t);
-  t._t = setTimeout(function(){ t.style.display = 'none'; }, 4500);
+function hideNotice(){document.getElementById('statusNotice').style.display='none';}
+function showToast(msg){
+  var t=document.getElementById('bk-toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},4500);
 }
 </script>
 </body>
