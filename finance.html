@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance Manager — Rewa Kripa Travels</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+
+/* LOGIN */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#012738 0%,#024a6e 60%,#7EC8C9 100%);}
+.login-card{background:white;border-radius:20px;padding:52px 44px;width:400px;text-align:center;
+  box-shadow:0 32px 80px rgba(0,0,0,.3);}
+.login-logo{font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#94a3b8;margin-bottom:8px;}
+.login-brand{font-size:28px;font-weight:700;color:#012738;margin-bottom:4px;}
+.login-title{font-size:15px;color:#64748b;margin-bottom:36px;}
+.login-input{width:100%;padding:14px 16px;border:1.5px solid #e5e7eb;border-radius:10px;
+  font-size:15px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;
+  text-align:center;letter-spacing:3px;margin-bottom:14px;}
+.login-input:focus{border-color:#7EC8C9;}
+.login-btn{width:100%;padding:14px;background:#012738;color:white;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;transition:.2s;}
+.login-btn:hover{background:#024a6e;}
+.login-err{color:#dc2626;font-size:13px;margin-top:10px;min-height:18px;}
+.login-back{display:block;margin-top:18px;font-size:13px;color:#94a3b8;}
+.login-back:hover{color:#012738;}
+
+/* LAYOUT */
+.app{display:none;}
+.topbar{background:#012738;color:white;padding:0 28px;display:flex;align-items:center;
+  justify-content:space-between;height:60px;position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 12px rgba(0,0,0,.3);}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.topbar-brand{font-size:16px;font-weight:700;letter-spacing:.5px;}
+.topbar-badge{font-size:11px;background:rgba(126,200,201,.2);border:1px solid rgba(126,200,201,.4);
+  color:#7EC8C9;padding:3px 10px;border-radius:100px;font-weight:600;letter-spacing:1px;}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.topbar-btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+  border:none;font-family:'Poppins',sans-serif;transition:.2s;}
+.btn-ghost{background:rgba(255,255,255,.1);color:white;}
+.btn-ghost:hover{background:rgba(255,255,255,.2);}
+.btn-teal{background:#7EC8C9;color:#012738;}
+.btn-teal:hover{background:#5fb8b9;}
+.btn-orange{background:#f59e0b;color:#fff;}
+.btn-orange:hover{background:#d97706;}
+
+/* Tab nav */
+.tab-nav{background:white;border-bottom:1px solid #e5e7eb;display:flex;gap:0;padding:0 28px;
+  position:sticky;top:60px;z-index:100;overflow-x:auto;}
+.tab-nav-item{padding:14px 18px;font-size:13px;font-weight:500;color:#64748b;
+  border-bottom:3px solid transparent;cursor:pointer;transition:.2s;white-space:nowrap;}
+.tab-nav-item:hover{color:#012738;}
+.tab-nav-item.active{color:#012738;border-bottom-color:#7EC8C9;font-weight:600;}
+
+.main{padding:24px;max-width:1500px;margin:0 auto;}
+
+/* CARDS */
+.card{background:white;border-radius:14px;padding:22px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid #e5e7eb;}
+.card-title{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.card-title span{font-size:12px;font-weight:400;color:#94a3b8;}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;}
+.mb16{margin-bottom:16px;}
+.mb24{margin-bottom:24px;}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
+.kpi{background:white;border-radius:14px;padding:18px 20px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:6px;}
+.kpi-value{font-size:22px;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-sub{font-size:11px;color:#94a3b8;}
+.kpi-income .kpi-value{color:#16a34a;}
+.kpi-expense .kpi-value{color:#dc2626;}
+.kpi-profit .kpi-value{color:#0369a1;}
+.kpi-trips .kpi-value{color:#f59e0b;}
+.kpi-pax .kpi-value{color:#7c3aed;}
+
+/* FORMS */
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;
+  border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;
+  font-family:'Poppins',sans-serif;outline:none;transition:.2s;color:#0f172a;background:white;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#7EC8C9;box-shadow:0 0 0 3px rgba(126,200,201,.15);}
+.field textarea{resize:vertical;min-height:60px;}
+.field-hint{font-size:11px;color:#94a3b8;margin-top:4px;}
+
+/* Type toggle */
+.type-toggle{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1.5px solid #e5e7eb;margin-bottom:18px;}
+.type-btn{flex:1;padding:11px;text-align:center;font-size:14px;font-weight:600;cursor:pointer;
+  border:none;font-family:'Poppins',sans-serif;background:white;color:#64748b;transition:.2s;}
+.type-btn.inc.active{background:#dcfce7;color:#16a34a;}
+.type-btn.exp.active{background:#fee2e2;color:#dc2626;}
+
+/* Buttons */
+.btn{padding:9px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;transition:.2s;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:#012738;color:white;} .btn-primary:hover{background:#024a6e;}
+.btn-green{background:#16a34a;color:white;} .btn-green:hover{background:#15803d;}
+.btn-red{background:#dc2626;color:white;} .btn-red:hover{background:#b91c1c;}
+.btn-outline{background:white;color:#012738;border:1.5px solid #e5e7eb;} .btn-outline:hover{border-color:#7EC8C9;}
+.btn-excel{background:#217346;color:white;} .btn-excel:hover{background:#1a5c38;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-icon{width:30px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;font-size:13px;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid #e5e7eb;}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{text-align:left;padding:10px 13px;background:#f8fafc;color:#64748b;
+  font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid #e5e7eb;white-space:nowrap;}
+.tbl td{padding:11px 13px;border-bottom:1px solid #f1f5f9;color:#0f172a;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#f8fafc;}
+.tbl-footer td{background:#f8fafc;font-weight:700;border-top:2px solid #e5e7eb;}
+
+/* Amount badges */
+.amt-inc{color:#16a34a;font-weight:700;}
+.amt-exp{color:#dc2626;font-weight:700;}
+.amt-prof{color:#0369a1;font-weight:700;}
+.badge{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;}
+.badge-inc{background:#dcfce7;color:#16a34a;}
+.badge-exp{background:#fee2e2;color:#dc2626;}
+.badge-route{background:#e0f2fe;color:#0369a1;}
+.badge-cr{background:#dcfce7;color:#16a34a;}
+.badge-dr{background:#fee2e2;color:#dc2626;}
+
+/* BUS TABS */
+.bus-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.bus-tab{padding:8px 16px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;color:#64748b;font-size:13px;font-weight:500;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
+.bus-tab:hover{border-color:#7EC8C9;}
+.bus-tab.active{background:#012738;color:white;border-color:#012738;}
+
+/* PROFIT BAR */
+.chart-bar-wrap{display:flex;flex-direction:column;gap:8px;}
+.chart-bar-row{display:flex;align-items:center;gap:10px;}
+.chart-bar-label{font-size:11px;font-weight:600;color:#64748b;width:110px;flex-shrink:0;text-align:right;}
+.chart-bar-track{flex:1;height:26px;background:#f1f5f9;border-radius:6px;overflow:hidden;}
+.chart-bar-fill{height:100%;border-radius:6px;transition:width .6s ease;display:flex;align-items:center;padding-left:10px;}
+.chart-bar-fill.inc{background:linear-gradient(90deg,#bbf7d0,#16a34a);}
+.chart-bar-fill.exp{background:linear-gradient(90deg,#fecaca,#dc2626);}
+.chart-bar-fill.prof{background:linear-gradient(90deg,#7EC8C9,#012738);}
+.chart-bar-val{font-size:11px;font-weight:700;white-space:nowrap;color:white;}
+
+/* FILTER ROW */
+.filter-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px;}
+.filter-row .field{margin-bottom:0;flex:1;min-width:130px;}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.chip{padding:5px 11px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;
+  border:1.5px solid #e5e7eb;background:white;color:#475569;transition:.2s;font-family:'Poppins',sans-serif;}
+.chip:hover,.chip.active{background:#012738;color:white;border-color:#012738;}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;right:28px;background:#012738;color:white;
+  padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;
+  z-index:9999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;
+  align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px;}
+.modal-box{background:white;border-radius:16px;padding:28px;width:100%;max-width:720px;
+  position:relative;margin:auto;animation:mpop .2s ease;}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;
+  background:#f1f5f9;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b;}
+@keyframes mpop{from{transform:scale(.88);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* SECTION DIVIDER */
+.section-divider{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  color:#94a3b8;padding:10px 0 6px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
+
+/* BUS PROFIT CARD */
+.bus-pl-card{background:white;border-radius:14px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:22px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.bus-pl-header{padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.bus-pl-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#e5e7eb;}
+.bus-pl-kpi{background:white;padding:14px 18px;text-align:center;}
+.bus-pl-kpi .val{font-size:18px;font-weight:700;}
+.bus-pl-kpi .lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-top:3px;}
+.bus-pl-body{padding:18px 22px;}
+.pl-profit-bar{height:10px;border-radius:100px;background:#f1f5f9;overflow:hidden;margin-top:8px;}
+.pl-profit-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,#7EC8C9,#012738);transition:width .6s;}
+
+/* ROUTE EXPENSE ROWS */
+.route-expense-row{background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid #e5e7eb;}
+.route-expense-row .re-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.expense-line{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px;}
+.add-expense-line{background:none;border:1.5px dashed #e5e7eb;border-radius:8px;width:100%;padding:8px;font-size:12px;font-weight:600;color:#94a3b8;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
+.add-expense-line:hover{border-color:#7EC8C9;color:#012738;}
+
+/* DR/CR ENTRY SPLIT */
+.dcr-wrap{background:#f8fafc;border-radius:12px;border:1px solid #e5e7eb;padding:16px;margin-bottom:16px;}
+.dcr-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.dcr-section-title.cr{color:#16a34a;}
+.dcr-section-title.dr{color:#dc2626;}
+.entry-line-row{display:grid;grid-template-columns:1fr 1fr 1fr 30px;gap:8px;align-items:end;margin-bottom:8px;}
+
+/* STATUS PILLS */
+.pill-profit{background:#dcfce7;color:#16a34a;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;}
+.pill-loss{background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;}
+
+/* RESPONSIVE */
+@media(max-width:1000px){.kpi-row{grid-template-columns:repeat(3,1fr);}
+  .g4{grid-template-columns:1fr 1fr;}.bus-pl-kpis{grid-template-columns:1fr 1fr;}}
+@media(max-width:700px){.kpi-row{grid-template-columns:1fr 1fr;}.g2,.g3{grid-template-columns:1fr;}
+  .topbar-badge{display:none;}.main{padding:14px;}.entry-line-row{grid-template-columns:1fr 1fr 30px;}}
+@media(max-width:450px){.kpi-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Rewa Kripa Travels</div>
+    <div class="login-brand">Finance Manager</div>
+    <div class="login-title">Income · Expenses · Profit · Reports</div>
+    <input type="password" id="pwInput" class="login-input" placeholder="Admin Password"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="loginErr"></div>
+    <a href="index.html" class="login-back">← Back to Website</a>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">🚌 Rewa Kripa Travels</div>
+      <div class="topbar-badge">Finance Manager</div>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn btn-ghost" onclick="window.open('admin.html','_blank')">⚙️ Admin Panel</button>
+      <button class="topbar-btn btn-ghost" onclick="showExportModal()">📥 Export</button>
+      <button class="topbar-btn btn-teal" onclick="openEntryModal()">+ Add Entry</button>
+      <button class="topbar-btn btn-ghost" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Tab nav -->
+  <div class="tab-nav">
+    <div class="tab-nav-item active" onclick="switchTab('dashboard',this)">📊 Dashboard</div>
+    <div class="tab-nav-item" onclick="switchTab('ledger',this)">📒 Full Ledger</div>
+    <div class="tab-nav-item" onclick="switchTab('income',this)">💰 Income</div>
+    <div class="tab-nav-item" onclick="switchTab('expenses',this)">💸 Expenses</div>
+    <div class="tab-nav-item" onclick="switchTab('buswise',this)">🚌 Bus-wise P&L</div>
+    <div class="tab-nav-item" onclick="switchTab('add',this)">➕ Add Entry</div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD TAB -->
+    <div id="tab-dashboard">
+      <div class="filter-row mb24">
+        <div class="field" style="min-width:130px"><label>Period</label>
+          <select id="dash-period" onchange="onPeriodChange()">
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month" selected>This Month</option>
+            <option value="year">This Year</option>
+            <option value="all">All Time</option>
+            <option value="custom">Custom Range</option>
+          </select>
+        </div>
+        <div class="field" id="dash-from-wrap" style="display:none;min-width:140px"><label>From</label>
+          <input type="date" id="dash-from" onchange="renderDashboard()"></div>
+        <div class="field" id="dash-to-wrap" style="display:none;min-width:140px"><label>To</label>
+          <input type="date" id="dash-to" onchange="renderDashboard()"></div>
+        <div class="field" style="min-width:170px"><label>Bus</label>
+          <select id="dash-bus" onchange="renderDashboard()">
+            <option value="all">All Buses</option>
+          </select>
+        </div>
+      </div>
+      <div class="kpi-row" id="kpiRow"></div>
+      <div class="g2 mb24">
+        <div class="card">
+          <div class="card-title">Income vs Expense — By Bus</div>
+          <div id="busChart"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Expense Breakdown</div>
+          <div id="expBreakdown"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent Entries <span>Last 20 transactions</span></div>
+        <div class="tbl-wrap" id="recentTable"></div>
+      </div>
+    </div>
+
+    <!-- FULL LEDGER TAB -->
+    <div id="tab-ledger" style="display:none">
+      <div class="filter-row mb24">
+        <div class="field"><label>From Date</label><input type="date" id="led-from"></div>
+        <div class="field"><label>To Date</label><input type="date" id="led-to"></div>
+        <div class="field"><label>Bus</label>
+          <select id="led-bus"><option value="all">All Buses</option></select></div>
+        <div class="field"><label>Type</label>
+          <select id="led-type"><option value="all">All</option><option value="income">Income (CR)</option><option value="expense">Expense (DR)</option></select></div>
+        <div class="field"><label>Category</label>
+          <select id="led-cat"><option value="all">All Categories</option></select></div>
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <button class="btn btn-primary" onclick="renderLedger()">Filter</button>
+          <button class="btn btn-excel" onclick="exportLedger()">📥 Excel</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" id="ledger-title">Full Ledger</div>
+        <div class="tbl-wrap" id="ledgerTable"></div>
+      </div>
+    </div>
+
+    <!-- INCOME TAB -->
+    <div id="tab-income" style="display:none">
+      <div class="filter-row mb24">
+        <div class="field"><label>From</label><input type="date" id="inc-from"></div>
+        <div class="field"><label>To</label><input type="date" id="inc-to"></div>
+        <div class="field"><label>Bus</label>
+          <select id="inc-bus"><option value="all">All Buses</option></select></div>
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <button class="btn btn-primary" onclick="renderIncomeTable()">Filter</button>
+          <button class="btn btn-excel" onclick="exportIncome()">📥 Excel</button>
+          <button class="btn btn-green" onclick="openEntryModal('income')">+ Add Income</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" id="inc-title">Income Records</div>
+        <div class="tbl-wrap" id="incTable"></div>
+      </div>
+    </div>
+
+    <!-- EXPENSES TAB -->
+    <div id="tab-expenses" style="display:none">
+      <div class="filter-row mb24">
+        <div class="field"><label>From</label><input type="date" id="exp-from"></div>
+        <div class="field"><label>To</label><input type="date" id="exp-to"></div>
+        <div class="field"><label>Bus</label>
+          <select id="exp-bus"><option value="all">All Buses</option></select></div>
+        <div class="field"><label>Category</label>
+          <select id="exp-cat"><option value="all">All</option></select></div>
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <button class="btn btn-primary" onclick="renderExpenseTable()">Filter</button>
+          <button class="btn btn-excel" onclick="exportExpenses()">📥 Excel</button>
+          <button class="btn btn-red" onclick="openEntryModal('expense')">+ Add Expense</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" id="exp-title">Expense Records</div>
+        <div class="tbl-wrap" id="expTable"></div>
+      </div>
+    </div>
+
+    <!-- BUS-WISE P&L TAB -->
+    <div id="tab-buswise" style="display:none">
+      <div class="filter-row mb24">
+        <div class="field"><label>Period</label>
+          <select id="bw-period" onchange="renderBuswise()">
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month" selected>This Month</option>
+            <option value="year">This Year</option>
+            <option value="all">All Time</option>
+          </select>
+        </div>
+        <button class="btn btn-excel" style="align-self:flex-end" onclick="exportBuswise()">📥 Export All Buses</button>
+      </div>
+      <div id="buswisePanels"></div>
+    </div>
+
+    <!-- ADD ENTRY TAB -->
+    <div id="tab-add" style="display:none">
+      <div style="max-width:760px">
+        <div class="card">
+          <div class="card-title">Add New Entry</div>
+          <div id="inlineEntryForm"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /app -->
+
+<!-- ADD ENTRY MODAL -->
+<div class="modal-overlay" id="entryModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeEntryModal()">✕</button>
+    <div id="modalEntryForm"></div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal-box" style="max-width:480px">
+    <button class="modal-close" onclick="closeExportModal()">✕</button>
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:18px;color:#0f172a">📥 Export to Excel</h3>
+    <div class="field"><label>Report Type</label>
+      <select id="exp-type">
+        <option value="full">Full Ledger (Income + Expenses)</option>
+        <option value="income">Income Only</option>
+        <option value="expense">Expense Only</option>
+        <option value="summary">Profit Summary by Bus</option>
+        <option value="daily">Daily Summary</option>
+        <option value="route">Route-wise Summary</option>
+      </select>
+    </div>
+    <div class="g2">
+      <div class="field"><label>From Date</label><input type="date" id="exp-modal-from"></div>
+      <div class="field"><label>To Date</label><input type="date" id="exp-modal-to"></div>
+    </div>
+    <div class="field"><label>Bus</label>
+      <select id="exp-modal-bus"><option value="all">All Buses</option></select></div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-excel" onclick="doExport()" style="flex:1">📥 Download Excel</button>
+      <button class="btn btn-outline" onclick="closeExportModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════════════
+   CONSTANTS — pulled from config.js
+════════════════════════════════════════════════════ */
+let ADMIN_PASSWORD, BUSES, INCOME_CATEGORIES, EXPENSE_CATEGORIES, QUICK_AMOUNTS, ROUTES;
+
+try {
+  ADMIN_PASSWORD      = CONFIG.finance.adminPassword;
+  INCOME_CATEGORIES   = CONFIG.finance.incomeCategories;
+  EXPENSE_CATEGORIES  = CONFIG.finance.expenseCategories;
+  QUICK_AMOUNTS       = CONFIG.finance.quickAmounts;
+  BUSES               = CONFIG.buses.map(b => ({ id:b.id, plate:b.plate, title:b.title, capacity:b.capacity||40 }));
+  ROUTES              = CONFIG.routes || [];
+} catch(e) {
+  ADMIN_PASSWORD    = 'Swift@8606';
+  INCOME_CATEGORIES = ['Daily Route','Tour Package','Marriage Booking','Party Booking','Charter / Private Hire','Festival Special','School Trip','Corporate Booking','Other Income'];
+  EXPENSE_CATEGORIES= ['Fuel','Driver Salary','Conductor Salary','Helper Salary','Bus Repair','Tyre Puncture','Tyre Replacement','Engine Repair','Oil & Lubricants','Bus Wash','Toll Tax','Parking','Insurance','Road Tax / Permit','Fitness Certificate','Spare Parts','AC Repair','Electrical Repair','Driver Food / Allowance','Other Expense'];
+  QUICK_AMOUNTS     = [100,200,500,1000,2000,5000,10000,15000,20000,50000];
+  BUSES             = [{id:'bus1',plate:'MP09CY8606',title:'Luxury Seater',capacity:40},{id:'bus2',plate:'MP09CY7782',title:'AC Seater',capacity:44},{id:'bus3',plate:'MP09CY9911',title:'Premium Coach',capacity:36},{id:'bus4',plate:'MP09CY4455',title:'Budget Seater',capacity:52}];
+  ROUTES            = [];
+}
+
+const LS_KEY = 'rk_finance_entries_v2';
+
+/* ════════════════════════════════════════════════════
+   DATA LAYER
+════════════════════════════════════════════════════ */
+function loadEntries() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)||'[]'); } catch(e){ return []; }
+}
+function saveEntries(e) { localStorage.setItem(LS_KEY, JSON.stringify(e)); }
+function addEntry(entry) {
+  const entries = loadEntries();
+  entry.id = 'e_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  entry.created = new Date().toISOString();
+  entries.unshift(entry);
+  saveEntries(entries);
+  return entry;
+}
+function addEntries(list) {
+  const entries = loadEntries();
+  list.forEach(entry => {
+    entry.id = 'e_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+    entry.created = new Date().toISOString();
+    entries.unshift(entry);
+  });
+  saveEntries(entries);
+}
+function deleteEntry(id) { saveEntries(loadEntries().filter(e=>e.id!==id)); }
+
+function filterEntries({ busId, type, category, fromDate, toDate }={}) {
+  return loadEntries().filter(e => {
+    if (busId && busId!=='all' && e.busId!==busId) return false;
+    if (type && type!=='all' && e.type!==type) return false;
+    if (category && category!=='all' && e.category!==category) return false;
+    if (fromDate && e.date<fromDate) return false;
+    if (toDate && e.date>toDate) return false;
+    return true;
+  });
+}
+
+function sumEntries(entries) {
+  const inc = entries.filter(e=>e.type==='income').reduce((s,e)=>s+(+e.amount||0),0);
+  const exp = entries.filter(e=>e.type==='expense').reduce((s,e)=>s+(+e.amount||0),0);
+  return { income:inc, expense:exp, profit:inc-exp };
+}
+
+function dateRange(period) {
+  const now=new Date(), pad=n=>String(n).padStart(2,'0');
+  const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const today=fmt(now);
+  if (period==='today') return {from:today,to:today};
+  if (period==='week') { const d=new Date(now); d.setDate(d.getDate()-d.getDay()); return {from:fmt(d),to:today}; }
+  if (period==='month') return {from:`${now.getFullYear()}-${pad(now.getMonth()+1)}-01`,to:today};
+  if (period==='year') return {from:`${now.getFullYear()}-01-01`,to:today};
+  return {from:null,to:null};
+}
+
+/* ════════════════════════════════════════════════════
+   AUTH
+════════════════════════════════════════════════════ */
+function doLogin() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PASSWORD) {
+    sessionStorage.setItem('rk_fin_auth','1');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('loginErr').textContent='Incorrect password.';
+    document.getElementById('pwInput').value='';
+  }
+}
+document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+function doLogout() {
+  sessionStorage.removeItem('rk_fin_auth');
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('pwInput').value='';
+  document.getElementById('loginErr').textContent='';
+}
+if (sessionStorage.getItem('rk_fin_auth')==='1') {
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.addEventListener('DOMContentLoaded',initApp);
+}
+
+/* ════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════ */
+function initApp() {
+  ['dash-bus','led-bus','inc-bus','exp-bus','exp-modal-bus'].forEach(sid=>{
+    const sel=document.getElementById(sid); if(!sel)return;
+    BUSES.forEach(b=>{ const o=document.createElement('option'); o.value=b.id; o.textContent=`${b.plate} — ${b.title}`; sel.appendChild(o); });
+  });
+  const expCatSel=document.getElementById('exp-cat');
+  if(expCatSel) EXPENSE_CATEGORIES.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; expCatSel.appendChild(o); });
+  const ledCatSel=document.getElementById('led-cat');
+  if(ledCatSel) [...INCOME_CATEGORIES,...EXPENSE_CATEGORIES].sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; ledCatSel.appendChild(o); });
+
+  const today=new Date().toISOString().split('T')[0];
+  const monthStart=today.slice(0,7)+'-01';
+  ['led-from','inc-from','exp-from','exp-modal-from'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=monthStart; });
+  ['led-to','inc-to','exp-to','exp-modal-to'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=today; });
+  document.getElementById('dash-from').value=monthStart;
+  document.getElementById('dash-to').value=today;
+
+  renderDashboard();
+  buildInlineForm();
+}
+
+function onPeriodChange() {
+  const isCustom=document.getElementById('dash-period').value==='custom';
+  document.getElementById('dash-from-wrap').style.display=isCustom?'block':'none';
+  document.getElementById('dash-to-wrap').style.display=isCustom?'block':'none';
+  renderDashboard();
+}
+
+/* ════════════════════════════════════════════════════
+   TAB SWITCHING
+════════════════════════════════════════════════════ */
+function switchTab(name,el) {
+  document.querySelectorAll('.tab-nav-item').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['dashboard','ledger','income','expenses','buswise','add'].forEach(t=>{
+    const p=document.getElementById('tab-'+t); if(p) p.style.display=t===name?'block':'none';
+  });
+  if(name==='ledger')    renderLedger();
+  if(name==='income')    renderIncomeTable();
+  if(name==='expenses')  renderExpenseTable();
+  if(name==='buswise')   renderBuswise();
+  if(name==='dashboard') renderDashboard();
+}
+
+/* ════════════════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════════════════ */
+function renderDashboard() {
+  const period=document.getElementById('dash-period').value;
+  const busId=document.getElementById('dash-bus').value;
+  let fromDate, toDate;
+  if (period==='custom') { fromDate=document.getElementById('dash-from').value; toDate=document.getElementById('dash-to').value; }
+  else { const r=dateRange(period); fromDate=r.from; toDate=r.to; }
+  const entries=filterEntries({busId,fromDate,toDate});
+  const {income,expense,profit}=sumEntries(entries);
+  const totalPax=entries.filter(e=>e.type==='income').reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
+  const routeCount=new Set(entries.filter(e=>e.route).map(e=>e.route)).size;
+
+  document.getElementById('kpiRow').innerHTML=`
+    <div class="kpi kpi-income"><div class="kpi-label">Total Income (CR)</div><div class="kpi-value">${fmtINR(income)}</div><div class="kpi-sub">${entries.filter(e=>e.type==='income').length} entries</div></div>
+    <div class="kpi kpi-expense"><div class="kpi-label">Total Expenses (DR)</div><div class="kpi-value">${fmtINR(expense)}</div><div class="kpi-sub">${entries.filter(e=>e.type==='expense').length} entries</div></div>
+    <div class="kpi kpi-profit"><div class="kpi-label">Net Profit</div><div class="kpi-value" style="color:${profit>=0?'#0369a1':'#dc2626'}">${fmtINR(profit)}</div><div class="kpi-sub">Margin: ${income>0?((profit/income)*100).toFixed(1)+'%':'—'}</div></div>
+    <div class="kpi kpi-trips"><div class="kpi-label">Routes Used</div><div class="kpi-value">${routeCount||'—'}</div><div class="kpi-sub">${busId==='all'?'All buses':'Selected bus'}</div></div>
+    <div class="kpi kpi-pax"><div class="kpi-label">Total Passengers</div><div class="kpi-value">${totalPax||'—'}</div><div class="kpi-sub">Across all trips</div></div>`;
+
+  // Bus chart
+  const busData=BUSES.map(b=>{ const be=filterEntries({busId:b.id,fromDate,toDate}); return {...b,...sumEntries(be)}; });
+  const maxInc=Math.max(...busData.map(b=>b.income),1);
+  const maxExp=Math.max(...busData.map(b=>b.expense),1);
+  document.getElementById('busChart').innerHTML=`<div class="chart-bar-wrap">${busData.map(b=>`
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:5px">${b.plate} <span style="font-weight:400;color:#94a3b8;font-size:11px">${b.title}</span></div>
+      <div class="chart-bar-row"><div class="chart-bar-label" style="color:#16a34a;width:55px">CR</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill inc" style="width:${(b.income/maxInc*100).toFixed(1)}%"><span class="chart-bar-val">${fmtINR(b.income)}</span></div></div></div>
+      <div class="chart-bar-row" style="margin-top:3px"><div class="chart-bar-label" style="color:#dc2626;width:55px">DR</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill exp" style="width:${(b.expense/maxExp*100).toFixed(1)}%"><span class="chart-bar-val">${fmtINR(b.expense)}</span></div></div></div>
+      <div style="font-size:12px;margin-top:3px;padding-left:65px">Net: <strong style="color:${b.profit>=0?'#16a34a':'#dc2626'}">${fmtINR(b.profit)}</strong></div>
+    </div>`).join('')}</div>`;
+
+  // Expense breakdown
+  const catTotals={};
+  entries.filter(e=>e.type==='expense').forEach(e=>{ catTotals[e.category]=(catTotals[e.category]||0)+(+e.amount||0); });
+  const cats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const maxCat=cats[0]?cats[0][1]:1;
+  document.getElementById('expBreakdown').innerHTML=cats.length
+    ?`<div class="chart-bar-wrap">${cats.map(([cat,amt])=>`
+        <div class="chart-bar-row"><div class="chart-bar-label" style="font-size:11px;width:130px">${cat}</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill exp" style="width:${(amt/maxCat*100).toFixed(1)}%"><span class="chart-bar-val">${fmtINR(amt)}</span></div></div></div>`).join('')}</div>`
+    :'<p style="color:#94a3b8;font-size:13px;padding:12px 0">No expenses in this period.</p>';
+
+  // Recent
+  document.getElementById('recentTable').innerHTML=entries.length
+    ?buildTable(entries.slice(0,20),true)
+    :'<p style="padding:20px;color:#94a3b8;font-size:13px">No entries in this period.</p>';
+}
+
+/* ════════════════════════════════════════════════════
+   LEDGER
+════════════════════════════════════════════════════ */
+function renderLedger() {
+  const entries=filterEntries({busId:document.getElementById('led-bus').value,type:document.getElementById('led-type').value,category:document.getElementById('led-cat').value,fromDate:document.getElementById('led-from').value,toDate:document.getElementById('led-to').value});
+  const {income,expense,profit}=sumEntries(entries);
+  document.getElementById('ledger-title').innerHTML=`Full Ledger <span>${entries.length} entries | CR: ${fmtINR(income)} | DR: ${fmtINR(expense)} | Net: <strong style="color:${profit>=0?'#16a34a':'#dc2626'}">${fmtINR(profit)}</strong></span>`;
+  document.getElementById('ledgerTable').innerHTML=entries.length?buildTable(entries,true,true):'<p style="padding:20px;color:#94a3b8;font-size:13px">No records found.</p>';
+}
+function exportLedger() { exportToExcel(filterEntries({busId:document.getElementById('led-bus').value,type:document.getElementById('led-type').value,category:document.getElementById('led-cat').value,fromDate:document.getElementById('led-from').value,toDate:document.getElementById('led-to').value}),'Full_Ledger','Ledger'); }
+
+/* ════════════════════════════════════════════════════
+   INCOME TABLE
+════════════════════════════════════════════════════ */
+function renderIncomeTable() {
+  const entries=filterEntries({busId:document.getElementById('inc-bus').value,type:'income',fromDate:document.getElementById('inc-from').value,toDate:document.getElementById('inc-to').value});
+  const total=entries.reduce((s,e)=>s+(+e.amount||0),0);
+  document.getElementById('inc-title').innerHTML=`Income Records <span>${entries.length} entries | Total CR: <strong class="amt-inc">${fmtINR(total)}</strong></span>`;
+  document.getElementById('incTable').innerHTML=entries.length?buildTable(entries,true,true):'<p style="padding:20px;color:#94a3b8;font-size:13px">No income records found.</p>';
+}
+function exportIncome() { exportToExcel(filterEntries({busId:document.getElementById('inc-bus').value,type:'income',fromDate:document.getElementById('inc-from').value,toDate:document.getElementById('inc-to').value}),'Income_Report','Income'); }
+
+/* ════════════════════════════════════════════════════
+   EXPENSE TABLE
+════════════════════════════════════════════════════ */
+function renderExpenseTable() {
+  const entries=filterEntries({busId:document.getElementById('exp-bus').value,type:'expense',category:document.getElementById('exp-cat').value,fromDate:document.getElementById('exp-from').value,toDate:document.getElementById('exp-to').value});
+  const total=entries.reduce((s,e)=>s+(+e.amount||0),0);
+  document.getElementById('exp-title').innerHTML=`Expense Records <span>${entries.length} entries | Total DR: <strong class="amt-exp">${fmtINR(total)}</strong></span>`;
+  document.getElementById('expTable').innerHTML=entries.length?buildTable(entries,true,true):'<p style="padding:20px;color:#94a3b8;font-size:13px">No expense records found.</p>';
+}
+function exportExpenses() { exportToExcel(filterEntries({busId:document.getElementById('exp-bus').value,type:'expense',category:document.getElementById('exp-cat').value,fromDate:document.getElementById('exp-from').value,toDate:document.getElementById('exp-to').value}),'Expense_Report','Expenses'); }
+
+/* ════════════════════════════════════════════════════
+   BUS-WISE P&L  (Enhanced)
+════════════════════════════════════════════════════ */
+function renderBuswise() {
+  const period=document.getElementById('bw-period').value;
+  const {from:fromDate,to:toDate}=period!=='all'?dateRange(period):{};
+  const panels=document.getElementById('buswisePanels');
+  panels.innerHTML='';
+
+  BUSES.forEach(bus=>{
+    const entries=filterEntries({busId:bus.id,fromDate,toDate});
+    const {income,expense,profit}=sumEntries(entries);
+    const margin=income>0?((profit/income)*100).toFixed(1):0;
+    const profitPct=income>0?Math.max(0,Math.min(100,(profit/income)*100)):0;
+    const totalPax=entries.filter(e=>e.type==='income').reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
+    const incomeEntries=entries.filter(e=>e.type==='income');
+    const tripCount=incomeEntries.length;
+
+    // Route breakdown
+    const routeTotals={};
+    incomeEntries.forEach(e=>{
+      const k=e.route||e.category||'Unspecified';
+      if(!routeTotals[k]) routeTotals[k]={income:0,pax:0,trips:0};
+      routeTotals[k].income+=(+e.amount||0);
+      routeTotals[k].pax+=(+e.pax1||0)+(+e.pax2||0);
+      routeTotals[k].trips++;
+    });
+
+    const catTotals={};
+    entries.filter(e=>e.type==='expense').forEach(e=>{catTotals[e.category]=(catTotals[e.category]||0)+(+e.amount||0);});
+
+    const div=document.createElement('div');
+    div.className='bus-pl-card';
+    div.innerHTML=`
+      <div class="bus-pl-header" style="background:${profit>=0?'#f0fdf4':'#fff1f2'}">
+        <div>
+          <div style="font-size:17px;font-weight:700;color:#0f172a">🚌 ${bus.plate}</div>
+          <div style="font-size:13px;color:#64748b;margin-top:2px">${bus.title}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="${profit>=0?'pill-profit':'pill-loss'}">${profit>=0?'✅ Profit':'❌ Loss'}: ${fmtINR(Math.abs(profit))}</span>
+          <span style="font-size:12px;color:#64748b">Margin: ${margin}%</span>
+          <button class="btn btn-excel btn-sm" onclick="exportBuswiseSingle('${bus.id}','${bus.plate}')">📥 Export</button>
+        </div>
+      </div>
+
+      <div class="bus-pl-kpis">
+        <div class="bus-pl-kpi"><div class="val amt-inc">${fmtINR(income)}</div><div class="lbl">Total Income (CR)</div></div>
+        <div class="bus-pl-kpi"><div class="val amt-exp">${fmtINR(expense)}</div><div class="lbl">Total Expenses (DR)</div></div>
+        <div class="bus-pl-kpi"><div class="val" style="color:${profit>=0?'#0369a1':'#dc2626'}">${fmtINR(profit)}</div><div class="lbl">Net Profit / Loss</div></div>
+        <div class="bus-pl-kpi"><div class="val" style="color:#7c3aed">${totalPax||'—'}</div><div class="lbl">Total Passengers</div></div>
+      </div>
+
+      <div class="bus-pl-body">
+        <div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px">
+            <span>Profit margin</span><span style="font-weight:700;color:${profit>=0?'#16a34a':'#dc2626'}">${margin}%</span>
+          </div>
+          <div class="pl-profit-bar"><div class="pl-profit-fill" style="width:${profitPct}%;background:${profit>=0?'linear-gradient(90deg,#7EC8C9,#012738)':'linear-gradient(90deg,#fca5a5,#dc2626)'}"></div></div>
+        </div>
+
+        <div class="g2" style="margin-top:18px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:10px;display:flex;align-items:center;gap:6px">💰 Income by Route</div>
+            ${Object.keys(routeTotals).length?Object.entries(routeTotals).sort((a,b)=>b[1].income-a[1].income).map(([k,v])=>`
+              <div style="padding:8px 0;border-bottom:1px solid #f1f5f9;">
+                <div style="display:flex;justify-content:space-between;font-size:13px">
+                  <span style="font-weight:600">${k}</span><span class="amt-inc">${fmtINR(v.income)}</span>
+                </div>
+                <div style="font-size:11px;color:#94a3b8;margin-top:2px">${v.trips} trip${v.trips!==1?'s':''} · ${v.pax} passengers</div>
+              </div>`).join('')
+            :'<p style="color:#94a3b8;font-size:13px">No income entries</p>'}
+            <div style="padding:8px 0;font-size:13px;font-weight:700;color:#0f172a">Total: <span class="amt-inc">${fmtINR(income)}</span></div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:10px;display:flex;align-items:center;gap:6px">💸 Expenses by Category</div>
+            ${Object.keys(catTotals).length?Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px">
+                <span>${k}</span><span class="amt-exp">${fmtINR(v)}</span>
+              </div>`).join('')
+            :'<p style="color:#94a3b8;font-size:13px">No expense entries</p>'}
+            <div style="padding:8px 0;font-size:13px;font-weight:700;color:#0f172a">Total: <span class="amt-exp">${fmtINR(expense)}</span></div>
+          </div>
+        </div>
+
+        ${entries.length?`
+        <div style="margin-top:18px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#0f172a">Recent Entries (${tripCount} trips)</div>
+          <div class="tbl-wrap">${buildTable(entries.slice(0,8),false)}</div>
+        </div>`:''}
+      </div>`;
+    panels.appendChild(div);
+  });
+
+  if (!document.getElementById('buswisePanels').children.length) {
+    panels.innerHTML='<p style="padding:40px;text-align:center;color:#94a3b8">No data found for selected period.</p>';
+  }
+}
+
+function exportBuswise() {
+  const period=document.getElementById('bw-period').value;
+  const {from:fromDate,to:toDate}=period!=='all'?dateRange(period):{};
+  const allRows=[];
+  BUSES.forEach(bus=>{ filterEntries({busId:bus.id,fromDate,toDate}).forEach(e=>allRows.push(toExcelRow(e))); });
+  exportToExcel(null,'BusWise_PL','P&L',allRows);
+}
+function exportBuswiseSingle(busId,plate) {
+  const period=document.getElementById('bw-period').value;
+  const {from:fromDate,to:toDate}=period!=='all'?dateRange(period):{};
+  exportToExcel(filterEntries({busId,fromDate,toDate}),`${plate}_Report`,plate);
+}
+
+/* ════════════════════════════════════════════════════
+   ADD ENTRY FORM — DR/CR + Multiple Expenses per Route
+════════════════════════════════════════════════════ */
+// Each "entry session" can have:
+//   - Multiple CR (income) lines: route, trip 1 pax, trip 2 pax, fare, total
+//   - Multiple DR (expense) lines: category, amount, vendor
+
+let formType = 'income';
+
+function buildEntryForm(defaultType, targetId) {
+  formType = defaultType || 'income';
+  const today = new Date().toISOString().split('T')[0];
+  return `
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:16px;color:#0f172a">
+      ${formType==='income'?'💰 Add Income Entry':'💸 Add Expense Entry'}
+    </h3>
+    <div class="type-toggle">
+      <button class="type-btn inc ${formType==='income'?'active':''}" onclick="rebuildForm('income','${targetId}')">💰 CR — Income</button>
+      <button class="type-btn exp ${formType==='expense'?'active':''}" onclick="rebuildForm('expense','${targetId}')">💸 DR — Expense</button>
+    </div>
+    <div class="g2 mb16">
+      <div class="field"><label>Bus *</label>
+        <select id="ef-bus" required>
+          <option value="">— Select Bus —</option>
+          ${BUSES.map(b=>`<option value="${b.id}">${b.plate} — ${b.title}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Date *</label>
+        <input type="date" id="ef-date" value="${today}" required>
+      </div>
+    </div>
+    ${formType==='income' ? buildIncomeLines(targetId) : buildExpenseLines(targetId)}
+    <div class="field"><label>Notes / Description</label>
+      <textarea id="ef-notes" rows="2" placeholder="Any additional details..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn ${formType==='income'?'btn-green':'btn-red'}" onclick="submitAllEntries('${targetId}')" style="flex:1">
+        ✓ Save All ${formType==='income'?'Income':'Expense'} Entries
+      </button>
+      ${targetId==='modalEntryForm'?`<button class="btn btn-outline" onclick="closeEntryModal()">Cancel</button>`:''}
+    </div>`;
+}
+
+function buildIncomeLines(targetId) {
+  return `
+    <div class="dcr-wrap">
+      <div class="dcr-section-title cr">💰 CR — Income Lines (Route-wise)</div>
+      <div id="income-lines-${targetId}">
+        ${incomeLineHTML(0, targetId)}
+      </div>
+      <button class="add-expense-line" onclick="addIncomeLine('${targetId}')">+ Add Another Route / Income Line</button>
+    </div>`;
+}
+
+function incomeLineHTML(idx, targetId) {
+  const routeOptions = ROUTES.length
+    ? ROUTES.map(r=>`<option value="${r.shortName||r.name}">${r.shortName||r.name}</option>`).join('')
+    : '';
+  return `
+    <div class="route-expense-row" id="il-${targetId}-${idx}">
+      <div class="re-header">
+        <span style="font-size:12px;font-weight:700;color:#16a34a">Line ${idx+1}</span>
+        ${idx>0?`<button class="btn btn-icon" style="background:#fee2e2;color:#dc2626;font-size:12px" onclick="removeIncomeLine('${targetId}',${idx})">✕</button>`:''}
+      </div>
+      <div class="g2">
+        <div class="field"><label>Category *</label>
+          <select id="il-cat-${targetId}-${idx}" required>
+            <option value="">— Select —</option>
+            ${INCOME_CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>Route / Booking Name</label>
+          <select id="il-route-${targetId}-${idx}" onchange="ilFareHint('${targetId}',${idx})">
+            <option value="">— Select Route —</option>
+            ${routeOptions}
+            <option value="__custom__">Custom / Other</option>
+          </select>
+        </div>
+      </div>
+      <div id="il-custom-route-wrap-${targetId}-${idx}" style="display:none" class="field">
+        <label>Custom Route / Booking Name</label>
+        <input type="text" id="il-custom-route-${targetId}-${idx}" placeholder="e.g. Barwani→Indore or Wedding Vikram Patel">
+      </div>
+      <div class="g3">
+        <div class="field">
+          <label>Trip 1 Passengers</label>
+          <input type="number" id="il-pax1-${targetId}-${idx}" placeholder="0" min="0" oninput="ilCalc('${targetId}',${idx})">
+          <div class="field-hint">Morning trip</div>
+        </div>
+        <div class="field">
+          <label>Trip 2 Passengers</label>
+          <input type="number" id="il-pax2-${targetId}-${idx}" placeholder="0" min="0" oninput="ilCalc('${targetId}',${idx})">
+          <div class="field-hint">Evening trip (if applicable)</div>
+        </div>
+        <div class="field">
+          <label>Fare per Seat (₹)</label>
+          <input type="number" id="il-fare-${targetId}-${idx}" placeholder="0" min="0" oninput="ilCalc('${targetId}',${idx})" id="il-fare-${targetId}-${idx}">
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label>Total Amount (₹) *</label>
+          <input type="number" id="il-amt-${targetId}-${idx}" placeholder="Auto-calculated or enter manually" min="0" required>
+          <div class="field-hint" id="il-hint-${targetId}-${idx}"></div>
+        </div>
+        <div class="field"><label>Quick Amount</label>
+          <div class="chips">${QUICK_AMOUNTS.slice(0,6).map(a=>`<button class="chip" onclick="setILAmount(${a},'${targetId}',${idx})">${fmtINR(a)}</button>`).join('')}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildExpenseLines(targetId) {
+  return `
+    <div class="dcr-wrap">
+      <div class="dcr-section-title dr">💸 DR — Expense Lines</div>
+      <div id="expense-lines-${targetId}">
+        ${expenseLineHTML(0, targetId)}
+      </div>
+      <button class="add-expense-line" onclick="addExpenseLine('${targetId}')">+ Add Another Expense Line</button>
+    </div>`;
+}
+
+function expenseLineHTML(idx, targetId) {
+  return `
+    <div class="route-expense-row" id="el-${targetId}-${idx}">
+      <div class="re-header">
+        <span style="font-size:12px;font-weight:700;color:#dc2626">DR Line ${idx+1}</span>
+        ${idx>0?`<button class="btn btn-icon" style="background:#fee2e2;color:#dc2626;font-size:12px" onclick="removeExpenseLine('${targetId}',${idx})">✕</button>`:''}
+      </div>
+      <div class="g2">
+        <div class="field"><label>Category *</label>
+          <select id="el-cat-${targetId}-${idx}" required>
+            <option value="">— Select —</option>
+            ${EXPENSE_CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>Amount (₹) *</label>
+          <input type="number" id="el-amt-${targetId}-${idx}" placeholder="0" min="0" required>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field"><label>Paid To / Vendor</label>
+          <input type="text" id="el-vendor-${targetId}-${idx}" placeholder="e.g. Ram Petroleum">
+        </div>
+        <div class="field"><label>Bill / Ref No.</label>
+          <input type="text" id="el-ref-${targetId}-${idx}" placeholder="Optional">
+        </div>
+      </div>
+      <div class="chips">${QUICK_AMOUNTS.slice(0,6).map(a=>`<button class="chip" onclick="setELAmount(${a},'${targetId}',${idx})">${fmtINR(a)}</button>`).join('')}</div>
+    </div>`;
+}
+
+// Income line helpers
+let incomeLineCount = {};
+let expenseLineCount = {};
+
+function addIncomeLine(targetId) {
+  if (!incomeLineCount[targetId]) incomeLineCount[targetId] = 1;
+  const idx = incomeLineCount[targetId]++;
+  const container = document.getElementById(`income-lines-${targetId}`);
+  const div = document.createElement('div');
+  div.innerHTML = incomeLineHTML(idx, targetId);
+  container.appendChild(div.firstElementChild);
+  // wire route dropdown
+  wireRouteDropdown(targetId, idx);
+}
+
+function removeIncomeLine(targetId, idx) {
+  const el = document.getElementById(`il-${targetId}-${idx}`);
+  if (el) el.remove();
+}
+
+function addExpenseLine(targetId) {
+  if (!expenseLineCount[targetId]) expenseLineCount[targetId] = 1;
+  const idx = expenseLineCount[targetId]++;
+  const container = document.getElementById(`expense-lines-${targetId}`);
+  const div = document.createElement('div');
+  div.innerHTML = expenseLineHTML(idx, targetId);
+  container.appendChild(div.firstElementChild);
+}
+
+function removeExpenseLine(targetId, idx) {
+  const el = document.getElementById(`el-${targetId}-${idx}`);
+  if (el) el.remove();
+}
+
+function ilCalc(targetId, idx) {
+  const pax1 = +document.getElementById(`il-pax1-${targetId}-${idx}`)?.value || 0;
+  const pax2 = +document.getElementById(`il-pax2-${targetId}-${idx}`)?.value || 0;
+  const fare  = +document.getElementById(`il-fare-${targetId}-${idx}`)?.value || 0;
+  const total = (pax1 + pax2) * fare;
+  const amtEl = document.getElementById(`il-amt-${targetId}-${idx}`);
+  const hintEl= document.getElementById(`il-hint-${targetId}-${idx}`);
+  if (total > 0 && amtEl) amtEl.value = total;
+  if (hintEl) {
+    if (pax1||pax2) hintEl.textContent = `Trip1: ${pax1} pax + Trip2: ${pax2} pax = ${pax1+pax2} total × ₹${fare} = ${fmtINR(total)}`;
+    else hintEl.textContent = '';
+  }
+}
+
+function ilFareHint(targetId, idx) {
+  const sel = document.getElementById(`il-route-${targetId}-${idx}`);
+  const customWrap = document.getElementById(`il-custom-route-wrap-${targetId}-${idx}`);
+  if (sel && sel.value === '__custom__') {
+    customWrap.style.display = 'block';
+  } else if (customWrap) {
+    customWrap.style.display = 'none';
+  }
+  // Auto-fill fare from routes config
+  if (sel && sel.value && sel.value !== '__custom__') {
+    const route = ROUTES.find(r=>(r.shortName||r.name)===sel.value);
+    if (route && route.fare) {
+      const fareEl = document.getElementById(`il-fare-${targetId}-${idx}`);
+      if (fareEl && !fareEl.value) fareEl.value = route.fare;
+    }
+  }
+}
+
+function setILAmount(amt, targetId, idx) {
+  const el=document.getElementById(`il-amt-${targetId}-${idx}`); if(el) el.value=amt;
+}
+function setELAmount(amt, targetId, idx) {
+  const el=document.getElementById(`el-amt-${targetId}-${idx}`); if(el) el.value=amt;
+}
+
+function wireRouteDropdown(targetId, idx) {
+  const sel = document.getElementById(`il-route-${targetId}-${idx}`);
+  if (sel) sel.addEventListener('change', ()=>ilFareHint(targetId, idx));
+}
+
+/* ════════════════════════════════════════════════════
+   SUBMIT
+════════════════════════════════════════════════════ */
+function submitAllEntries(targetId) {
+  const busId = document.getElementById('ef-bus')?.value;
+  const date  = document.getElementById('ef-date')?.value;
+  const notes = document.getElementById('ef-notes')?.value || '';
+  if (!busId) { toast('Please select a bus.'); return; }
+  if (!date)  { toast('Please select a date.'); return; }
+  const bus = BUSES.find(b=>b.id===busId)||{};
+
+  if (formType === 'income') {
+    // Collect all income lines
+    const containers = document.querySelectorAll(`#income-lines-${targetId} > .route-expense-row`);
+    const toSave = [];
+    let valid = true;
+    containers.forEach(row => {
+      const idParts = row.id.split('-'); // il-targetId-idx
+      const idx = idParts[idParts.length-1];
+      const cat   = document.getElementById(`il-cat-${targetId}-${idx}`)?.value;
+      const amt   = +document.getElementById(`il-amt-${targetId}-${idx}`)?.value || 0;
+      const pax1  = +document.getElementById(`il-pax1-${targetId}-${idx}`)?.value || 0;
+      const pax2  = +document.getElementById(`il-pax2-${targetId}-${idx}`)?.value || 0;
+      const fare  = +document.getElementById(`il-fare-${targetId}-${idx}`)?.value || 0;
+      let routeSel= document.getElementById(`il-route-${targetId}-${idx}`)?.value || '';
+      if (routeSel === '__custom__') routeSel = document.getElementById(`il-custom-route-${targetId}-${idx}`)?.value || '';
+
+      if (!cat) { toast(`Line ${+idx+1}: Please select a category.`); valid=false; return; }
+      if (!amt) { toast(`Line ${+idx+1}: Please enter an amount.`); valid=false; return; }
+      toSave.push({ type:'income', busId, busPlate:bus.plate, busTitle:bus.title, date, category:cat, amount:amt, route:routeSel, pax1, pax2, fare, notes });
+    });
+    if (!valid) return;
+    if (!toSave.length) { toast('Please add at least one income line.'); return; }
+    addEntries(toSave);
+    toast(`✅ ${toSave.length} income ${toSave.length===1?'entry':'entries'} saved for ${bus.plate}`);
+  } else {
+    // Collect all expense lines
+    const containers = document.querySelectorAll(`#expense-lines-${targetId} > .route-expense-row`);
+    const toSave = [];
+    let valid = true;
+    containers.forEach(row => {
+      const idParts = row.id.split('-');
+      const idx = idParts[idParts.length-1];
+      const cat    = document.getElementById(`el-cat-${targetId}-${idx}`)?.value;
+      const amt    = +document.getElementById(`el-amt-${targetId}-${idx}`)?.value || 0;
+      const vendor = document.getElementById(`el-vendor-${targetId}-${idx}`)?.value || '';
+      const refNo  = document.getElementById(`el-ref-${targetId}-${idx}`)?.value || '';
+      if (!cat) { toast(`Line ${+idx+1}: Please select a category.`); valid=false; return; }
+      if (!amt) { toast(`Line ${+idx+1}: Please enter an amount.`); valid=false; return; }
+      toSave.push({ type:'expense', busId, busPlate:bus.plate, busTitle:bus.title, date, category:cat, amount:amt, vendor, refNo, notes });
+    });
+    if (!valid) return;
+    if (!toSave.length) { toast('Please add at least one expense line.'); return; }
+    addEntries(toSave);
+    toast(`✅ ${toSave.length} expense ${toSave.length===1?'entry':'entries'} saved for ${bus.plate}`);
+  }
+
+  if (targetId==='modalEntryForm') { closeEntryModal(); }
+  else { rebuildForm(formType, targetId); }
+  renderDashboard();
+}
+
+function rebuildForm(type, targetId) {
+  formType = type;
+  incomeLineCount[targetId] = 1;
+  expenseLineCount[targetId] = 1;
+  document.getElementById(targetId).innerHTML = buildEntryForm(type, targetId);
+  // Wire initial route dropdown
+  wireRouteDropdown(targetId, 0);
+}
+
+function buildInlineForm() {
+  const el=document.getElementById('inlineEntryForm');
+  if (el) { el.innerHTML=buildEntryForm('income','inlineEntryForm'); wireRouteDropdown('inlineEntryForm',0); }
+}
+
+/* ════════════════════════════════════════════════════
+   MODALS
+════════════════════════════════════════════════════ */
+function openEntryModal(type) {
+  const modal=document.getElementById('entryModal');
+  const form=document.getElementById('modalEntryForm');
+  formType = type || 'income';
+  incomeLineCount['modalEntryForm'] = 1;
+  expenseLineCount['modalEntryForm'] = 1;
+  form.innerHTML = buildEntryForm(formType, 'modalEntryForm');
+  wireRouteDropdown('modalEntryForm', 0);
+  modal.style.display='flex';
+}
+function closeEntryModal() { document.getElementById('entryModal').style.display='none'; }
+function showExportModal() { document.getElementById('exportModal').style.display='flex'; }
+function closeExportModal() { document.getElementById('exportModal').style.display='none'; }
+
+document.getElementById('entryModal').addEventListener('click',function(e){ if(e.target===this) closeEntryModal(); });
+document.getElementById('exportModal').addEventListener('click',function(e){ if(e.target===this) closeExportModal(); });
+
+function doExport() {
+  const type=document.getElementById('exp-type').value;
+  const busId=document.getElementById('exp-modal-bus').value;
+  const from=document.getElementById('exp-modal-from').value;
+  const to=document.getElementById('exp-modal-to').value;
+  if(type==='summary') { exportSummary(busId,from,to); return; }
+  if(type==='daily')   { exportDaily(busId,from,to); return; }
+  if(type==='route')   { exportRoute(busId,from,to); return; }
+  const filter={busId,fromDate:from,toDate:to};
+  if(type==='income')  filter.type='income';
+  if(type==='expense') filter.type='expense';
+  exportToExcel(filterEntries(filter),type==='income'?'Income_Report':type==='expense'?'Expense_Report':'Full_Ledger','Report');
+  closeExportModal();
+}
+
+/* ════════════════════════════════════════════════════
+   TABLE BUILDER
+════════════════════════════════════════════════════ */
+function buildTable(entries, showDelete=true, showFooter=false) {
+  const {income,expense,profit}=sumEntries(entries);
+  const rows=entries.map(e=>{
+    const bus=BUSES.find(b=>b.id===e.busId)||{plate:e.busId||'—',title:''};
+    const paxStr = (e.pax1||e.pax2) ? `T1:${e.pax1||0} T2:${e.pax2||0}` : (e.pax?`${e.pax}`:'—');
+    return `<tr>
+      <td>${e.date}</td>
+      <td><span class="badge ${e.type==='income'?'badge-cr':'badge-dr'}">${e.type==='income'?'CR':'DR'}</span></td>
+      <td><strong>${bus.plate}</strong><br><span style="font-size:11px;color:#94a3b8">${bus.title}</span></td>
+      <td>${e.category}</td>
+      <td style="font-size:12px;color:#0369a1">${e.route||e.workType||e.tripRef||'—'}</td>
+      <td class="${e.type==='income'?'amt-inc':'amt-exp'}" style="font-size:14px">${fmtINR(e.amount)}</td>
+      <td style="font-size:12px;color:#64748b">${paxStr}</td>
+      <td style="max-width:160px;font-size:11px;color:#64748b">${e.notes||e.vendor||'—'}</td>
+      ${showDelete?`<td><button class="btn btn-icon" style="background:#fee2e2;color:#dc2626" onclick="delEntry('${e.id}')">🗑</button></td>`:''}
+    </tr>`;
+  }).join('');
+  const footer=showFooter?`<tr class="tbl-footer">
+    <td colspan="5">Total</td>
+    <td><span class="amt-inc">${fmtINR(income)}</span> CR / <span class="amt-exp">${fmtINR(expense)}</span> DR → <strong style="color:${profit>=0?'#16a34a':'#dc2626'}">${fmtINR(profit)}</strong></td>
+    <td colspan="${showDelete?3:2}"></td>
+  </tr>`:'';
+  return `<table class="tbl"><thead><tr>
+    <th>Date</th><th>Type</th><th>Bus</th><th>Category</th><th>Route/Trip</th>
+    <th>Amount</th><th>Pax</th><th>Notes/Vendor</th>${showDelete?'<th></th>':''}
+  </tr></thead><tbody>${rows}</tbody>${footer}</table>`;
+}
+
+function delEntry(id) {
+  if(!confirm('Delete this entry?')) return;
+  deleteEntry(id); renderDashboard(); renderLedger(); renderIncomeTable(); renderExpenseTable(); renderBuswise();
+  toast('Entry deleted.');
+}
+
+/* ════════════════════════════════════════════════════
+   EXCEL EXPORT
+════════════════════════════════════════════════════ */
+function toExcelRow(e) {
+  const bus=BUSES.find(b=>b.id===e.busId)||{plate:e.busId||'',title:''};
+  return {
+    'Date': e.date, 'Type': e.type==='income'?'CR — Income':'DR — Expense',
+    'Bus Number': bus.plate, 'Bus Name': bus.title,
+    'Category': e.category, 'Route / Trip': e.route||e.workType||e.tripRef||'',
+    'Amount (₹)': +e.amount||0,
+    'Trip 1 Passengers': e.pax1||'', 'Trip 2 Passengers': e.pax2||'',
+    'Fare/Seat': e.fare||'', 'Paid To': e.vendor||'',
+    'Bill / Ref No': e.refNo||'', 'Notes': e.notes||''
+  };
+}
+
+function exportToExcel(entries, filename, sheetName, prebuiltRows) {
+  const rows=prebuiltRows||entries.map(toExcelRow);
+  if(!rows.length){ toast('No data to export.'); return; }
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,sheetName);
+  const colWidths=Object.keys(rows[0]||{}).map(k=>({wch:Math.max(k.length,14)}));
+  ws['!cols']=colWidths;
+  XLSX.writeFile(wb,`${filename}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('📥 Excel downloaded!');
+}
+
+function exportSummary(busId,from,to) {
+  const rows=BUSES.filter(b=>busId==='all'||b.id===busId).map(bus=>{
+    const e=filterEntries({busId:bus.id,fromDate:from,toDate:to});
+    const {income,expense,profit}=sumEntries(e);
+    const pax=e.filter(x=>x.type==='income').reduce((s,x)=>s+(+x.pax1||0)+(+x.pax2||0),0);
+    return {'Bus Number':bus.plate,'Bus Name':bus.title,'Total Income CR (₹)':income,'Total Expense DR (₹)':expense,'Net Profit (₹)':profit,'Margin %':income>0?((profit/income)*100).toFixed(1)+'%':'—','Total Passengers':pax,'Entries':e.length};
+  });
+  exportToExcel(null,'Profit_Summary','Summary',rows);
+  closeExportModal();
+}
+
+function exportDaily(busId,from,to) {
+  const entries=filterEntries({busId,fromDate:from,toDate:to});
+  const byDay={};
+  entries.forEach(e=>{ if(!byDay[e.date])byDay[e.date]=[]; byDay[e.date].push(e); });
+  const rows=Object.entries(byDay).sort().map(([date,es])=>{
+    const {income,expense,profit}=sumEntries(es);
+    return {'Date':date,'Income CR (₹)':income,'Expense DR (₹)':expense,'Profit (₹)':profit,'Entries':es.length};
+  });
+  exportToExcel(null,'Daily_Summary','Daily',rows);
+  closeExportModal();
+}
+
+function exportRoute(busId,from,to) {
+  const entries=filterEntries({busId,fromDate:from,toDate:to,type:'income'});
+  const byRoute={};
+  entries.forEach(e=>{ const k=e.route||e.category||'Unspecified'; if(!byRoute[k])byRoute[k]={income:0,pax:0,trips:0}; byRoute[k].income+=(+e.amount||0); byRoute[k].pax+=(+e.pax1||0)+(+e.pax2||0); byRoute[k].trips++; });
+  const rows=Object.entries(byRoute).sort((a,b)=>b[1].income-a[1].income).map(([route,v])=>({'Route/Booking':route,'Total Income (₹)':v.income,'Total Passengers':v.pax,'Trips':v.trips,'Avg per Trip':v.trips>0?Math.round(v.income/v.trips):0}));
+  exportToExcel(null,'Route_Summary','Routes',rows);
+  closeExportModal();
+}
+
+/* ════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════ */
+function fmtINR(n) { return '₹'+Number(n).toLocaleString('en-IN'); }
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none',3500);
+}
+</script>
+</body>
+</html>

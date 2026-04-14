@@ -1,530 +1,877 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel — Rewa Kripa Travels</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Poppins',sans-serif;background:#f1f5f9;color:#0f172a;}
-
-/* ── Login screen ── */
-.login-screen{position:fixed;inset:0;background:#012738;display:flex;align-items:center;justify-content:center;z-index:9999;}
-.login-box{background:white;border-radius:20px;padding:48px 40px;width:380px;max-width:92vw;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.4);}
-.login-logo{font-size:28px;font-weight:800;color:#012738;letter-spacing:2px;margin-bottom:6px;}
-.login-sub{font-size:13px;color:#94a3b8;margin-bottom:32px;}
-.login-label{font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;text-align:left;margin-bottom:6px;}
-.login-input{width:100%;padding:13px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;margin-bottom:16px;}
-.login-input:focus{border-color:#7EC8C9;}
-.login-btn{width:100%;padding:14px;background:#012738;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;transition:.2s;}
-.login-btn:hover{background:#024a6e;}
-.login-error{color:#dc2626;font-size:13px;margin-top:12px;display:none;}
-
-/* ── App layout ── */
-.app{display:none;}
-.topbar{background:#012738;color:white;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3);}
-.topbar-brand{font-size:18px;font-weight:700;letter-spacing:1px;}
-.topbar-right{display:flex;align-items:center;gap:16px;}
-.topbar-right a{color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;}
-.topbar-right a:hover{color:white;}
-.logout-btn{background:rgba(255,255,255,.1);color:white;border:none;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
-.logout-btn:hover{background:rgba(255,255,255,.2);}
-
-.page-body{padding:32px;}
-.section-card{background:white;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:24px;}
-.section-card h2{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:4px;}
-.section-card .desc{font-size:13px;color:#64748b;margin-bottom:20px;}
-
-/* ── Controls bar ── */
-.controls-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:24px;}
-.ctrl-group{display:flex;flex-direction:column;gap:5px;}
-.ctrl-group label{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;}
-.ctrl-select,.ctrl-date,.ctrl-input{padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;background:white;color:#0f172a;}
-.ctrl-select:focus,.ctrl-date:focus,.ctrl-input:focus{border-color:#7EC8C9;}
-.ctrl-btn{padding:10px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
-.btn-teal{background:#7EC8C9;color:#012738;} .btn-teal:hover{background:#5fb8b9;}
-.btn-red{background:#fee2e2;color:#dc2626;} .btn-red:hover{background:#fecaca;}
-.btn-navy{background:#012738;color:white;} .btn-navy:hover{background:#024a6e;}
-.btn-green{background:#dcfce7;color:#15803d;} .btn-green:hover{background:#bbf7d0;}
-
-/* ── Seat grid ── */
-.seat-grid-wrap{background:#f8fafc;border-radius:12px;padding:20px;overflow-x:auto;}
-.seat-front{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:2px dashed #e2e8f0;}
-.seat-front-label{font-size:12px;font-weight:600;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;}
-.driver-pill{background:#012738;color:white;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;}
-.seat-rows-adm{display:flex;flex-direction:column;gap:10px;}
-.seat-row-adm{display:flex;gap:8px;align-items:center;}
-.seat-row-num-adm{font-size:11px;color:#94a3b8;width:20px;text-align:center;flex-shrink:0;}
-.aisle-adm{width:24px;flex-shrink:0;}
-
-.seat-adm{
-  width:46px;height:46px;border-radius:8px 8px 4px 4px;
-  border:2px solid #d1d5db;background:#f9fafb;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-size:10px;font-weight:700;color:#64748b;
-  cursor:pointer;transition:.15s;position:relative;flex-shrink:0;
-  user-select:none;line-height:1.2;
-}
-.seat-adm::before{content:'';position:absolute;top:-6px;left:4px;right:4px;height:6px;background:inherit;border-radius:4px 4px 0 0;border:2px solid #d1d5db;border-bottom:none;}
-.seat-adm:hover{border-color:#7EC8C9;background:#e0f7f8;color:#012738;}
-.seat-adm.adm-m{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8;cursor:pointer;}
-.seat-adm.adm-m::before{background:#dbeafe;border-color:#93c5fd;}
-.seat-adm.adm-f{background:#fce7f3;border-color:#f9a8d4;color:#be185d;cursor:pointer;}
-.seat-adm.adm-f::before{background:#fce7f3;border-color:#f9a8d4;}
-.seat-adm.adm-sel{background:#012738;border-color:#012738;color:white;}
-.seat-adm.adm-sel::before{background:#012738;border-color:#012738;}
-.seat-name{font-size:8px;opacity:.75;max-width:40px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-
-/* ── Legend ── */
-.adm-legend{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;}
-.adm-leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;}
-.adm-leg-dot{width:14px;height:14px;border-radius:3px;}
-.aldot-free{background:#f9fafb;border:2px solid #d1d5db;}
-.aldot-m{background:#dbeafe;border:2px solid #93c5fd;}
-.aldot-f{background:#fce7f3;border:2px solid #f9a8d4;}
-.aldot-sel{background:#012738;}
-
-/* ── Manual block form ── */
-.block-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;margin-top:20px;padding-top:20px;border-top:1px solid #f1f5f9;}
-.block-form-title{grid-column:1/-1;font-size:13px;font-weight:600;color:#0f172a;margin-bottom:-4px;}
-
-/* ── Bookings table ── */
-.bookings-table-wrap{overflow-x:auto;}
-.bookings-table{width:100%;border-collapse:collapse;font-size:13px;}
-.bookings-table th{background:#f8fafc;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:10px 14px;text-align:left;border-bottom:2px solid #e5e7eb;}
-.bookings-table td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;vertical-align:middle;}
-.bookings-table tr:hover td{background:#fafafa;}
-.gender-pill-m{background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;}
-.gender-pill-f{background:#fce7f3;color:#be185d;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;}
-.unblock-btn{padding:5px 11px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;}
-.unblock-btn:hover{background:#fecaca;}
-.empty-state{text-align:center;color:#94a3b8;padding:32px;font-size:14px;}
-
-/* ── Toast ── */
-#adm-toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#012738;color:white;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.3);border:1px solid rgba(126,200,201,.4);}
-
-/* ── Stats ── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-.stat-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);}
-.stat-card .snum{font-size:32px;font-weight:700;color:#012738;}
-.stat-card .slbl{font-size:12px;color:#64748b;margin-top:4px;}
-.stat-card.blue .snum{color:#1d4ed8;}
-.stat-card.pink .snum{color:#be185d;}
-.stat-card.green .snum{color:#15803d;}
-
-@media(max-width:768px){
-  .page-body{padding:16px;}
-  .stats-row{grid-template-columns:1fr 1fr;}
-  .block-form{grid-template-columns:1fr 1fr;}
-  .controls-bar{flex-direction:column;align-items:stretch;}
-  .seat-adm{width:36px;height:36px;font-size:9px;}
-  .seat-row-adm{gap:4px;}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal — Rewa Kripa Travels</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Poppins',sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh;}
+    /* Login */
+    .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#012738 0%,#024a6e 100%);}
+    .login-card{background:white;border-radius:20px;padding:48px 40px;max-width:420px;width:90%;text-align:center;box-shadow:0 32px 64px rgba(0,0,0,.3);}
+    .login-logo{font-size:28px;font-weight:700;color:#012738;letter-spacing:1px;margin-bottom:6px;}
+    .login-sub{font-size:14px;color:#64748b;margin-bottom:32px;}
+    .login-input{width:100%;padding:13px 16px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;margin-bottom:14px;text-align:center;letter-spacing:2px;}
+    .login-input:focus{border-color:#7EC8C9;}
+    .login-btn{width:100%;padding:13px;background:#012738;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;transition:.2s;}
+    .login-btn:hover{background:#024a6e;}
+    .login-err{color:#dc2626;font-size:13px;margin-top:10px;display:none;}
+    /* Layout */
+    .adm-layout{display:flex;min-height:100vh;}
+    .adm-sidebar{width:240px;background:#012738;color:white;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .adm-sidebar-logo{padding:24px 20px;font-size:18px;font-weight:700;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,.1);}
+    .adm-nav a{display:flex;align-items:center;gap:10px;padding:12px 20px;color:rgba(255,255,255,.65);font-size:14px;font-weight:500;text-decoration:none;transition:.2s;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:'Poppins',sans-serif;}
+    .adm-nav a:hover,.adm-nav a.active{background:rgba(126,200,201,.15);color:#7EC8C9;}
+    .adm-nav .nav-section{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.3);padding:16px 20px 6px;}
+    .adm-sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);position:absolute;bottom:0;width:240px;}
+    .adm-logout{width:100%;padding:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:white;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .adm-main{flex:1;overflow-y:auto;}
+    .adm-topbar{background:white;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100;}
+    .adm-topbar h2{font-size:20px;font-weight:700;color:#0f172a;}
+    .adm-topbar-right{display:flex;gap:10px;align-items:center;}
+    .adm-content{padding:32px;}
+    /* Panels */
+    .panel{display:none;}
+    .panel.active{display:block;}
+    /* Cards */
+    .adm-card{background:white;border-radius:14px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:24px;}
+    .adm-card h3{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;}
+    .adm-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .adm-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+    .field{margin-bottom:14px;}
+    .field label{display:block;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+    .field input,.field select,.field textarea{width:100%;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;color:#0f172a;}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:#7EC8C9;}
+    .field textarea{resize:vertical;min-height:80px;}
+    /* Buttons */
+    .btn{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Poppins',sans-serif;}
+    .btn-primary{background:#012738;color:white;} .btn-primary:hover{background:#024a6e;}
+    .btn-teal{background:#7EC8C9;color:#012738;} .btn-teal:hover{background:#5fb8b9;}
+    .btn-danger{background:#fee2e2;color:#dc2626;} .btn-danger:hover{background:#fecaca;}
+    .btn-sm{padding:7px 14px;font-size:12px;}
+    /* Tabs */
+    .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+    .tab{padding:8px 16px;border:1.5px solid #e5e7eb;border-radius:8px;background:white;color:#64748b;font-size:13px;font-weight:500;cursor:pointer;transition:.2s;font-family:'Poppins',sans-serif;}
+    .tab.active{background:#012738;color:white;border-color:#012738;}
+    /* Table */
+    .adm-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .adm-table th{text-align:left;padding:10px 12px;background:#f8fafc;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+    .adm-table td{padding:12px;border-bottom:1px solid #f1f5f9;color:#0f172a;}
+    .adm-table tr:last-child td{border-bottom:none;}
+    .adm-table tr:hover td{background:#f8fafc;}
+    /* Seat grid for admin */
+    .adm-seat-grid{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+    .adm-seat-row{display:flex;gap:6px;align-items:center;}
+    .adm-row-num{font-size:11px;color:#94a3b8;width:18px;text-align:center;flex-shrink:0;}
+    .adm-seat{width:38px;height:38px;border-radius:7px 7px 3px 3px;border:2px solid #d1d5db;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#64748b;cursor:pointer;position:relative;flex-shrink:0;transition:.15s;}
+    .adm-seat::before{content:'';position:absolute;top:-5px;left:3px;right:3px;height:5px;background:inherit;border-radius:3px 3px 0 0;border:2px solid #d1d5db;border-bottom:none;}
+    .adm-seat:hover:not(.adm-sb-m):not(.adm-sb-f){border-color:#7EC8C9;background:#e0f7f8;}
+    .adm-seat.adm-sb-m{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8;cursor:pointer;}
+    .adm-seat.adm-sb-m::before{background:#dbeafe;border-color:#93c5fd;}
+    .adm-seat.adm-sb-f{background:#fce7f3;border-color:#f9a8d4;color:#be185d;cursor:pointer;}
+    .adm-seat.adm-sb-f::before{background:#fce7f3;border-color:#f9a8d4;}
+    .adm-aisle{width:20px;flex-shrink:0;}
+    /* Badge */
+    .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;}
+    .badge-open{background:#e6f7ec;color:#16a34a;}
+    .badge-closed{background:#fee2e2;color:#dc2626;}
+    /* Stats */
+    .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+    .stat-card{background:white;border-radius:12px;padding:20px;border:1px solid #e5e7eb;}
+    .stat-card .snum{font-size:28px;font-weight:700;color:#7EC8C9;line-height:1;}
+    .stat-card .slbl{font-size:13px;color:#64748b;margin-top:4px;}
+    /* Toast */
+    #adm-toast{position:fixed;bottom:28px;right:28px;background:#012738;color:white;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+    /* Supabase banner */
+    .setup-banner{background:#fef9c3;border:1px solid #fde68a;border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:13px;color:#92400e;display:flex;align-items:center;gap:10px;}
+    @media(max-width:900px){.adm-sidebar{display:none;}.stat-cards{grid-template-columns:1fr 1fr;}.adm-grid-2,.adm-grid-3{grid-template-columns:1fr;}}
+  </style>
 </head>
 <body>
 
-<!-- ── Login Screen ── -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-box">
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
     <div class="login-logo">REWA KRIPA</div>
-    <div class="login-sub">Admin Panel — Seat Management</div>
-    <label class="login-label">Password</label>
-    <input type="password" class="login-input" id="pwInput" placeholder="Enter admin password"
-      onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">Login</button>
-    <div class="login-error" id="loginError">Incorrect password. Please try again.</div>
+    <div class="login-sub">Admin Portal — Rewa Kripa Travels</div>
+    <input type="password" id="pwInput" class="login-input" placeholder="Enter admin password"
+      onkeydown="if(event.key==='Enter') doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="loginErr">Incorrect password. Please try again.</div>
   </div>
 </div>
 
-<!-- ── Admin App ── -->
-<div class="app" id="appRoot">
+<!-- ADMIN PORTAL (hidden until login) -->
+<div id="adminPortal" style="display:none" class="adm-layout">
+  <!-- Sidebar -->
+  <div class="adm-sidebar">
+    <div class="adm-sidebar-logo">🚌 RK Admin</div>
+    <nav class="adm-nav">
+      <div class="nav-section">Dashboard</div>
+      <a onclick="showPanel('dashboard')" class="active" data-panel="dashboard">📊 Overview</a>
 
-  <div class="topbar">
-    <div class="topbar-brand">&#128652; REWA KRIPA — Admin</div>
-    <div class="topbar-right">
-      <a href="index.html" target="_blank">View Website</a>
-      <a href="book-seat.html" target="_blank">Booking Page</a>
-      <button class="logout-btn" onclick="doLogout()">Logout</button>
+      <div class="nav-section">Seat Management</div>
+      <a onclick="showPanel('seats')" data-panel="seats">💺 Manage Seats</a>
+
+      <div class="nav-section">Content</div>
+      <a onclick="showPanel('company')" data-panel="company">🏢 Company Info</a>
+      <a onclick="showPanel('buses')" data-panel="buses">🚌 Buses & Drivers</a>
+      <a onclick="showPanel('routes')" data-panel="routes">🗺️ Routes</a>
+      <a onclick="showPanel('trips')" data-panel="trips">✈️ Trips & Packages</a>
+      <a onclick="showPanel('hero')" data-panel="hero">🖼️ Hero Banner</a>
+
+      <div class="nav-section">Settings</div>
+      <a onclick="showPanel('settings')" data-panel="settings">⚙️ Settings</a>
+    </nav>
+    <div class="adm-sidebar-footer">
+      <button class="adm-logout" onclick="doLogout()">Sign Out</button>
     </div>
   </div>
 
-  <div class="page-body">
-
-    <!-- Stats -->
-    <div class="stats-row" id="statsRow">
-      <div class="stat-card"><div class="snum" id="statTotal">0</div><div class="slbl">Total Booked Seats</div></div>
-      <div class="stat-card blue"><div class="snum" id="statMale">0</div><div class="slbl">Male Passengers</div></div>
-      <div class="stat-card pink"><div class="snum" id="statFemale">0</div><div class="slbl">Female Passengers</div></div>
-      <div class="stat-card green"><div class="snum" id="statFree">0</div><div class="slbl">Available Seats</div></div>
-    </div>
-
-    <!-- Seat Map Card -->
-    <div class="section-card">
-      <h2>&#128714; Seat Management</h2>
-      <p class="desc">Select bus, date, then click any seat to block/unblock it. Blue = Male, Pink = Female, White = Available.</p>
-
-      <div class="controls-bar">
-        <div class="ctrl-group">
-          <label>Bus</label>
-          <select class="ctrl-select" id="admBusSel" onchange="loadSeatMap()"></select>
-        </div>
-        <div class="ctrl-group">
-          <label>Travel Date</label>
-          <input type="date" class="ctrl-date" id="admDate" onchange="loadSeatMap()">
-        </div>
-        <button class="ctrl-btn btn-teal" onclick="loadSeatMap()">&#8635; Refresh</button>
-        <button class="ctrl-btn btn-red" onclick="clearAllToday()">&#128465; Clear All Today</button>
-        <button class="ctrl-btn btn-navy" onclick="clearAllDates()">&#9888;&#65039; Full Reset</button>
-      </div>
-
-      <div class="seat-grid-wrap">
-        <div class="seat-front">
-          <span class="seat-front-label">&#128652; Front of Bus</span>
-          <span class="driver-pill">&#128104;&#8205;&#9992;&#65039; Driver</span>
-        </div>
-        <div class="seat-rows-adm" id="admSeatMap">
-          <p style="color:#94a3b8;text-align:center;padding:20px;">Select a bus and date above</p>
-        </div>
-      </div>
-
-      <div class="adm-legend">
-        <div class="adm-leg-item"><div class="adm-leg-dot aldot-free"></div> Available — click to block</div>
-        <div class="adm-leg-item"><div class="adm-leg-dot aldot-m"></div> Male Booked — click to unblock</div>
-        <div class="adm-leg-item"><div class="adm-leg-dot aldot-f"></div> Female Booked — click to unblock</div>
-        <div class="adm-leg-item"><div class="adm-leg-dot aldot-sel"></div> Selected (in bulk block)</div>
-      </div>
-
-      <!-- Manual block form -->
-      <div class="block-form">
-        <div class="block-form-title">Manual Block — Enter seat numbers to block manually</div>
-        <div class="ctrl-group">
-          <label>Passenger Name</label>
-          <input type="text" class="ctrl-input" id="manualName" placeholder="e.g. Ramesh Patel">
-        </div>
-        <div class="ctrl-group">
-          <label>Mobile</label>
-          <input type="tel" class="ctrl-input" id="manualPhone" placeholder="+91 XXXXX XXXXX">
-        </div>
-        <div class="ctrl-group">
-          <label>Gender</label>
-          <select class="ctrl-select" id="manualGender">
-            <option value="M">Male</option>
-            <option value="F">Female</option>
-          </select>
-        </div>
-        <div class="ctrl-group">
-          <label>Seat Numbers (comma separated)</label>
-          <input type="text" class="ctrl-input" id="manualSeats" placeholder="e.g. 3,7,12">
-        </div>
-        <button class="ctrl-btn btn-navy" onclick="manualBlock()" style="align-self:flex-end;">Block Seats</button>
+  <!-- Main content -->
+  <div class="adm-main">
+    <div class="adm-topbar">
+      <h2 id="panelTitle">Dashboard</h2>
+      <div class="adm-topbar-right">
+        <a href="index.html" target="_blank" style="font-size:13px;color:#64748b;text-decoration:none">← View Website</a>
+        <a href="finance.html" target="_blank" class="btn btn-teal btn-sm">💰 Finance Manager</a>
+        <button class="btn btn-primary btn-sm" onclick="saveAllConfig()">💾 Save All Changes</button>
       </div>
     </div>
 
-    <!-- Bookings List -->
-    <div class="section-card">
-      <h2>&#128203; Current Bookings</h2>
-      <p class="desc">All seats currently blocked for the selected bus and date. Click Unblock to release any seat.</p>
-      <div class="bookings-table-wrap">
-        <table class="bookings-table">
-          <thead>
-            <tr>
-              <th>Seat</th>
-              <th>Name</th>
-              <th>Gender</th>
-              <th>Phone</th>
-              <th>Booked At</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="bookingsBody">
-            <tr><td colspan="6" class="empty-state">No bookings yet for this selection</td></tr>
-          </tbody>
-        </table>
+    <div class="adm-content">
+      <!-- Setup Banner -->
+      <div class="setup-banner" id="setupBanner" style="display:none">
+        ⚠️ <strong>Supabase not configured.</strong> Changes save to localStorage only (this device).
+        <a href="#" onclick="showPanel('settings')" style="color:#012738;font-weight:700;margin-left:6px">Set up Supabase →</a>
       </div>
-    </div>
 
-  </div><!-- /page-body -->
-</div><!-- /app -->
+      <!-- ═══════ DASHBOARD ═══════ -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="stat-cards">
+          <div class="stat-card"><div class="snum" id="ds-buses">4</div><div class="slbl">Buses</div></div>
+          <div class="stat-card"><div class="snum" id="ds-routes">4</div><div class="slbl">Routes</div></div>
+          <div class="stat-card"><div class="snum" id="ds-trips">4</div><div class="slbl">Trip Packages</div></div>
+          <div class="stat-card"><div class="snum" id="ds-booked">—</div><div class="slbl">Seats Booked Today</div></div>
+        </div>
+        <div class="adm-card">
+          <h3>Today's Bookings</h3>
+          <div id="todayBookings"><p style="color:#94a3b8;font-size:13px">Loading…</p></div>
+        </div>
+      </div>
+
+      <!-- ═══════ SEAT MANAGEMENT ═══════ -->
+      <div class="panel" id="panel-seats">
+        <div class="adm-card">
+          <h3>Seat Manager</h3>
+          <div class="adm-grid-3" style="margin-bottom:16px">
+            <div class="field">
+              <label>Select Bus</label>
+              <select id="smBus" onchange="loadAdminSeats()"></select>
+            </div>
+            <div class="field">
+              <label>Travel Date</label>
+              <input type="date" id="smDate" onchange="loadAdminSeats()">
+            </div>
+            <div class="field">
+              <label>Action</label>
+              <div style="display:flex;gap:8px;margin-top:2px">
+                <button class="btn btn-danger btn-sm" onclick="smClearAll()">🗑️ Clear All</button>
+                <button class="btn btn-teal btn-sm" onclick="loadAdminSeats()">🔄 Refresh</button>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:12px;color:#64748b;margin-bottom:12px">Click any booked seat (blue/pink) to unblock it. Click an empty seat to manually block it.</p>
+          <div id="smLegend" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:12px;color:#64748b">
+            <span>⬜ Available — click to block</span>
+            <span style="color:#1d4ed8">🔵 Male booked — click to unblock</span>
+            <span style="color:#be185d">🩷 Female booked — click to unblock</span>
+          </div>
+          <div id="smGrid"><p style="color:#94a3b8;font-size:13px">Select a bus and date above.</p></div>
+        </div>
+
+        <!-- Block/Unblock by WhatsApp message -->
+        <div class="adm-card">
+          <h3>Block / Unblock from WhatsApp Message</h3>
+          <p style="font-size:13px;color:#64748b;margin-bottom:14px">
+            Paste the WhatsApp booking message below. The system will extract the bus, date, seat numbers, and passenger details automatically.
+          </p>
+          <div class="field">
+            <label>WhatsApp Message Text</label>
+            <textarea id="waMsgPaste" rows="8" placeholder="Paste the WhatsApp booking message here…"></textarea>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="parseWAandBlock()">🔒 Parse & Block Seats</button>
+            <button class="btn btn-danger" onclick="parseWAandUnblock()">🔓 Parse & Unblock Seats</button>
+          </div>
+          <div id="waParsedResult" style="margin-top:14px"></div>
+        </div>
+      </div>
+
+      <!-- ═══════ COMPANY INFO ═══════ -->
+      <div class="panel" id="panel-company">
+        <div class="adm-card">
+          <h3>Company Information</h3>
+          <div class="adm-grid-2">
+            <div class="field"><label>Brand Name</label><input id="c-name" type="text"></div>
+            <div class="field"><label>Full Legal Name</label><input id="c-fullName" type="text"></div>
+          </div>
+          <div class="adm-grid-2">
+            <div class="field"><label>Tagline</label><input id="c-tagline" type="text"></div>
+            <div class="field"><label>Established Year</label><input id="c-established" type="text"></div>
+          </div>
+          <div class="adm-grid-2">
+            <div class="field"><label>WhatsApp Number (with country code, no +)</label><input id="c-whatsapp" type="text"></div>
+            <div class="field"><label>Display Phone</label><input id="c-phone" type="text"></div>
+          </div>
+          <div class="adm-grid-2">
+            <div class="field"><label>Support Email</label><input id="c-email" type="email"></div>
+            <div class="field"><label>Business Email</label><input id="c-emailBiz" type="email"></div>
+          </div>
+          <div class="field"><label>Instagram URL</label><input id="c-instagram" type="text"></div>
+          <div class="adm-grid-2">
+            <div class="field"><label>Address Line 1</label><input id="c-addr1" type="text"></div>
+            <div class="field"><label>City</label><input id="c-city" type="text"></div>
+          </div>
+          <div class="adm-grid-3">
+            <div class="field"><label>State</label><input id="c-state" type="text"></div>
+            <div class="field"><label>PIN Code</label><input id="c-pin" type="text"></div>
+            <div class="field"><label>Country</label><input id="c-country" type="text"></div>
+          </div>
+          <div class="adm-grid-2">
+            <div class="field"><label>Weekday Hours</label><input id="c-hwkd" type="text"></div>
+            <div class="field"><label>Sunday Hours</label><input id="c-hsun" type="text"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ BUSES ═══════ -->
+      <div class="panel" id="panel-buses">
+        <div class="tabs" id="busTabs"></div>
+        <div id="busForm"></div>
+      </div>
+
+      <!-- ═══════ ROUTES ═══════ -->
+      <div class="panel" id="panel-routes">
+        <div class="tabs" id="routeTabs"></div>
+        <div id="routeForm"></div>
+      </div>
+
+      <!-- ═══════ TRIPS ═══════ -->
+      <div class="panel" id="panel-trips">
+        <div class="tabs" id="tripTabs"></div>
+        <div id="tripForm"></div>
+      </div>
+
+      <!-- ═══════ HERO ═══════ -->
+      <div class="panel" id="panel-hero">
+        <div class="adm-card">
+          <h3>Hero Banner</h3>
+          <div class="field"><label>Eyebrow Text</label><input id="h-eyebrow" type="text"></div>
+          <div class="adm-grid-2">
+            <div class="field"><label>Heading Line 1</label><input id="h-h1" type="text"></div>
+            <div class="field"><label>Heading Line 2 (teal)</label><input id="h-h2" type="text"></div>
+          </div>
+          <div class="field"><label>Subtitle Text</label><input id="h-sub" type="text"></div>
+          <div class="adm-grid-2">
+            <div class="field"><label>Book Button Text</label><input id="h-btnBook" type="text"></div>
+            <div class="field"><label>Routes Button Text</label><input id="h-btnRoutes" type="text"></div>
+          </div>
+          <div class="field"><label>Slider Image Paths (one per line, e.g. images/bus1.jpeg)</label><textarea id="h-slides" rows="6"></textarea></div>
+        </div>
+        <div class="adm-card">
+          <h3>Stats Bar (4 numbers on homepage banner)</h3>
+          <div id="statsFields"></div>
+        </div>
+      </div>
+
+      <!-- ═══════ SETTINGS ═══════ -->
+      <div class="panel" id="panel-settings">
+        <div class="adm-card">
+          <h3>Supabase Database Setup</h3>
+          <p style="font-size:13px;color:#64748b;margin-bottom:16px;line-height:1.7">
+            Connect Supabase so seat bookings are shared across all customers in real-time.<br>
+            <strong>Free tier is more than enough</strong> — no credit card needed.
+          </p>
+          <div class="adm-grid-2">
+            <div class="field"><label>Supabase Project URL</label><input id="sb-url" type="text" placeholder="https://xxxx.supabase.co"></div>
+            <div class="field"><label>Supabase Anon Key</label><input id="sb-anon" type="text" placeholder="eyJhbGci..."></div>
+          </div>
+          <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;color:#64748b;line-height:1.8">
+            <strong style="color:#0f172a">Setup Steps:</strong><br>
+            1. Go to <a href="https://supabase.com" target="_blank" style="color:#7EC8C9">supabase.com</a> → Create free project<br>
+            2. Left menu: SQL Editor → paste the SQL from <code>README_SUPABASE.sql</code><br>
+            3. Left menu: Settings → API → copy Project URL and anon/public key above<br>
+            4. Click Save → refresh the page
+          </div>
+          <button class="btn btn-primary" onclick="saveSupabaseConfig()">💾 Save Supabase Config</button>
+        </div>
+        <div class="adm-card">
+          <h3>Admin Password</h3>
+          <div class="adm-grid-2">
+            <div class="field"><label>New Password</label><input type="password" id="newPw" placeholder="Enter new password"></div>
+            <div class="field"><label>Confirm Password</label><input type="password" id="confirmPw" placeholder="Confirm new password"></div>
+          </div>
+          <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+          <p style="font-size:12px;color:#94a3b8;margin-top:8px">Saved in supabase.js — update that file on your server too.</p>
+        </div>
+      </div>
+
+    </div><!-- adm-content -->
+  </div><!-- adm-main -->
+</div><!-- adminPortal -->
 
 <div id="adm-toast"></div>
 
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, remove, set }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-/* ── SAME Firebase config as book-seat.html ── */
-const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
-};
-
-const app = initializeApp(FIREBASE_CONFIG);
-const db  = getDatabase(app);
-window.__FB = { db, ref, onValue, update, remove, set };
-window.dispatchEvent(new Event('fb-ready'));
-</script>
-
 <script src="config.js"></script>
+<script src="supabase.js"></script>
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   ADMIN PANEL ENGINE
-   Password: Swift@8606 (change below)
-   All seat blocks/unblocks write to Firebase in real-time.
-   Customers on book-seat.html see changes instantly.
-   ═══════════════════════════════════════════════════════════════ */
+/* ═════════════════════════════════════════
+   ADMIN PORTAL LOGIC
+   ═════════════════════════════════════════ */
 
-const ADMIN_PASSWORD = "Swift@8606";  /* Change this password */
+var activeBusIdx   = 0;
+var activeRouteIdx = 0;
+var activeTripIdx  = 0;
+var workingConfig  = null;   // deep copy of CONFIG we edit in memory
 
-var isLoggedIn  = false;
-var fbReady     = false;
-var currentBus  = null;
-var currentDate = null;
-var liveSeats   = {};   /* Firebase snapshot */
-var fbUnsub     = null;
-var selectedAdmSeats = [];   /* Seats selected for bulk block */
-
-window.addEventListener('fb-ready', function(){ fbReady = true; });
-
-/* ── Login / Logout ── */
-function doLogin(){
+/* ── LOGIN ── */
+function doLogin() {
   var pw = document.getElementById('pwInput').value;
-  if(pw === ADMIN_PASSWORD){
-    isLoggedIn = true;
+  if (window.RK.adminLogin(pw)) {
     document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appRoot').style.display     = 'block';
-    document.getElementById('loginError').style.display  = 'none';
-    initApp();
+    document.getElementById('adminPortal').style.display = 'flex';
+    initPortal();
   } else {
-    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginErr').style.display = 'block';
     document.getElementById('pwInput').value = '';
     document.getElementById('pwInput').focus();
   }
 }
-window.doLogin = doLogin;
+document.getElementById('pwInput').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
 
-function doLogout(){
-  isLoggedIn = false;
+function doLogout() {
+  window.RK.adminLogout();
+  document.getElementById('adminPortal').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('appRoot').style.display     = 'none';
   document.getElementById('pwInput').value = '';
 }
-window.doLogout = doLogout;
 
-/* ── Init app after login ── */
-function initApp(){
-  /* Populate bus selector */
-  var sel = document.getElementById('admBusSel');
-  CONFIG.buses.forEach(function(b){
-    var o = document.createElement('option');
-    o.value = b.id;
-    o.textContent = b.plate + ' — ' + b.title;
+/* Check if already logged in */
+if (window.RK.isAdminLoggedIn()) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPortal').style.display = 'flex';
+  initPortal();
+}
+
+/* ── INIT ── */
+async function initPortal() {
+  workingConfig = JSON.parse(JSON.stringify(CONFIG));
+  if (!window.RK.SUPABASE_CONFIGURED) {
+    document.getElementById('setupBanner').style.display = 'flex';
+  }
+
+  // Try to load admin-saved config
+  var saved = await window.RK.getConfig();
+  if (saved) {
+    Object.assign(workingConfig, saved);
+    toast('Loaded config from Supabase');
+  } else {
+    var localSaved = localStorage.getItem('rk_admin_config');
+    if (localSaved) { try { workingConfig = JSON.parse(localSaved); } catch(e){} }
+  }
+
+  populateCompany();
+  populateBusTabs();
+  populateRouteTabs();
+  populateTripTabs();
+  populateHero();
+  initSeatManager();
+  loadDashboard();
+  updateStats();
+}
+
+/* ── PANEL SWITCHING ── */
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.adm-nav a').forEach(function(a){ a.classList.remove('active'); });
+  document.getElementById('panel-' + name).classList.add('active');
+  var link = document.querySelector('[data-panel="' + name + '"]');
+  if (link) link.classList.add('active');
+  var titles = { dashboard:'Dashboard', seats:'Seat Management', company:'Company Info',
+    buses:'Buses & Drivers', routes:'Routes', trips:'Trips & Packages', hero:'Hero Banner', settings:'Settings' };
+  document.getElementById('panelTitle').textContent = titles[name] || name;
+}
+
+/* ── SAVE ALL ── */
+async function saveAllConfig() {
+  collectAllFields();
+  var ok = await window.RK.saveConfig(workingConfig);
+  toast(ok ? '✅ Config saved to Supabase!' : '💾 Config saved locally (Supabase not configured)');
+}
+
+/* ── COMPANY ── */
+function populateCompany() {
+  var c = workingConfig.company;
+  set('c-name', c.name); set('c-fullName', c.fullName); set('c-tagline', c.tagline);
+  set('c-established', c.established); set('c-whatsapp', c.whatsapp); set('c-phone', c.phone);
+  set('c-email', c.email); set('c-emailBiz', c.emailBiz); set('c-instagram', c.instagram);
+  set('c-addr1', c.address.line1); set('c-city', c.address.city); set('c-state', c.address.state);
+  set('c-pin', c.address.pin); set('c-country', c.address.country);
+  set('c-hwkd', c.hours.weekdays); set('c-hsun', c.hours.sunday);
+}
+
+function collectCompany() {
+  var c = workingConfig.company;
+  c.name=get('c-name'); c.fullName=get('c-fullName'); c.tagline=get('c-tagline');
+  c.established=get('c-established'); c.whatsapp=get('c-whatsapp'); c.phone=get('c-phone');
+  c.email=get('c-email'); c.emailBiz=get('c-emailBiz'); c.instagram=get('c-instagram');
+  c.address.line1=get('c-addr1'); c.address.city=get('c-city'); c.address.state=get('c-state');
+  c.address.pin=get('c-pin'); c.address.country=get('c-country');
+  c.hours.weekdays=get('c-hwkd'); c.hours.sunday=get('c-hsun');
+}
+
+/* ── BUSES ── */
+function populateBusTabs() {
+  var tabs = document.getElementById('busTabs'); tabs.innerHTML = '';
+  workingConfig.buses.forEach(function(b, i) {
+    var t = document.createElement('button'); t.className = 'tab' + (i === activeBusIdx ? ' active' : '');
+    t.textContent = b.plate; t.onclick = function(){ activeBusIdx = i; populateBusTabs(); };
+    tabs.appendChild(t);
+  });
+  var addBtn = document.createElement('button'); addBtn.className = 'tab';
+  addBtn.textContent = '+ Add Bus'; addBtn.style.borderStyle = 'dashed';
+  addBtn.onclick = addBus; tabs.appendChild(addBtn);
+  renderBusForm(activeBusIdx);
+}
+
+function renderBusForm(idx) {
+  var b = workingConfig.buses[idx];
+  document.getElementById('busForm').innerHTML =
+  '<div class="adm-card"><h3>' + b.plate + ' — ' + b.title + '</h3>' +
+  '<div class="adm-grid-3"><div class="field"><label>Plate Number</label><input id="b-plate" value="' + esc(b.plate) + '"></div>' +
+  '<div class="field"><label>Title / Type</label><input id="b-title" value="' + esc(b.title) + '"></div>' +
+  '<div class="field"><label>Fare (₹ per seat)</label><input id="b-price" type="number" value="' + b.price + '"></div></div>' +
+  '<div class="adm-grid-3"><div class="field"><label>Layout</label><input id="b-layout" value="' + esc(b.layout||'') + '"></div>' +
+  '<div class="field"><label>Capacity (seats)</label><input id="b-capacity" type="number" value="' + b.capacity + '"></div>' +
+  '<div class="field"><label>Climate</label><input id="b-climate" value="' + esc(b.climate||'') + '"></div></div>' +
+  '<div class="adm-grid-2"><div class="field"><label>Departure Time</label><input id="b-departure" value="' + esc(b.departure||'') + '"></div>' +
+  '<div class="field"><label>Image Path</label><input id="b-image" value="' + esc(b.image||'') + '"></div></div>' +
+  '<div class="field"><label>Main Route Description</label><input id="b-route" value="' + esc(b.route||'') + '"></div>' +
+  '<div class="field"><label>Description</label><textarea id="b-desc">' + esc(b.description||'') + '</textarea></div>' +
+  '<div class="field"><label>Tags (comma separated, e.g. ❄️ AC, 📶 WiFi)</label><input id="b-tags" value="' + esc((b.tags||[]).join(', ')) + '"></div>' +
+  '<div class="field"><label>Features (one per line)</label><textarea id="b-features">' + esc((b.features||[]).join('\n')) + '</textarea></div>' +
+  '<h3 style="margin-top:20px;padding-top:16px;border-top:1px solid #f1f5f9">Driver Information</h3>' +
+  '<div class="adm-grid-2"><div class="field"><label>Driver Name</label><input id="d-name" value="' + esc((b.driver||{}).name||'') + '"></div>' +
+  '<div class="field"><label>Driver Phone</label><input id="d-phone" value="' + esc((b.driver||{}).phone||'') + '"></div></div>' +
+  '<div class="adm-grid-3"><div class="field"><label>Licence Number</label><input id="d-licence" value="' + esc((b.driver||{}).licence||'') + '"></div>' +
+  '<div class="field"><label>Experience</label><input id="d-exp" value="' + esc((b.driver||{}).exp||'') + '"></div>' +
+  '<div class="field"><label>Photo Path</label><input id="d-photo" value="' + esc((b.driver||{}).photo||'') + '"></div></div>' +
+  '<div style="display:flex;gap:10px;margin-top:8px"><button class="btn btn-primary" onclick="saveBusForm()">Save Bus</button>' +
+  '<button class="btn btn-danger btn-sm" onclick="deleteBus(' + idx + ')">Delete Bus</button></div>' +
+  '</div>';
+}
+
+function saveBusForm() {
+  var b = workingConfig.buses[activeBusIdx];
+  b.plate=get('b-plate'); b.title=get('b-title'); b.price=parseInt(get('b-price'))||0;
+  b.layout=get('b-layout'); b.capacity=parseInt(get('b-capacity'))||40;
+  b.climate=get('b-climate'); b.departure=get('b-departure');
+  b.image=get('b-image'); b.route=get('b-route'); b.description=get('b-desc');
+  b.tags = get('b-tags').split(',').map(function(s){return s.trim();}).filter(Boolean);
+  b.features = get('b-features').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  b.driver = { name:get('d-name'), phone:get('d-phone'), licence:get('d-licence'), exp:get('d-exp'), photo:get('d-photo') };
+  toast('Bus saved! Click "Save All Changes" to persist.');
+  populateBusTabs();
+}
+
+function addBus() {
+  workingConfig.buses.push({ id:'bus'+(workingConfig.buses.length+1), plate:'NEW-BUS', title:'New Bus', capacity:40, price:200,
+    layout:'2×2', climate:'AC', departure:'08:00 AM', image:'images/bus1.jpeg', route:'', description:'', tags:[], features:[], bookedSeats:[], driver:{} });
+  activeBusIdx = workingConfig.buses.length - 1;
+  populateBusTabs(); toast('New bus added. Fill in the details and save.');
+}
+
+function deleteBus(idx) {
+  if (!confirm('Delete bus ' + workingConfig.buses[idx].plate + '? This cannot be undone.')) return;
+  workingConfig.buses.splice(idx, 1);
+  activeBusIdx = 0;
+  populateBusTabs(); toast('Bus deleted.');
+}
+
+/* ── ROUTES ── */
+function populateRouteTabs() {
+  var tabs = document.getElementById('routeTabs'); tabs.innerHTML = '';
+  workingConfig.routes.forEach(function(r, i) {
+    var t = document.createElement('button'); t.className = 'tab' + (i === activeRouteIdx ? ' active' : '');
+    t.textContent = r.from + '→' + r.to; t.onclick = function(){ activeRouteIdx = i; populateRouteTabs(); };
+    tabs.appendChild(t);
+  });
+  var addBtn = document.createElement('button'); addBtn.className = 'tab';
+  addBtn.textContent = '+ Add Route'; addBtn.style.borderStyle = 'dashed';
+  addBtn.onclick = addRoute; tabs.appendChild(addBtn);
+  renderRouteForm(activeRouteIdx);
+}
+
+function renderRouteForm(idx) {
+  var r = workingConfig.routes[idx];
+  var busOptions = workingConfig.buses.map(function(b) {
+    return '<option value="' + b.id + '"' + (r.busId === b.id ? ' selected' : '') + '>' + b.plate + ' — ' + b.title + '</option>';
+  }).join('');
+  document.getElementById('routeForm').innerHTML =
+  '<div class="adm-card"><h3>' + (r.label||r.id) + '</h3>' +
+  '<div class="field"><label>Assigned Bus (one route = one bus)</label><select id="r-busId">' + busOptions + '</select></div>' +
+  '<div class="adm-grid-3"><div class="field"><label>From</label><input id="r-from" value="' + esc(r.from) + '"></div>' +
+  '<div class="field"><label>To</label><input id="r-to" value="' + esc(r.to) + '"></div>' +
+  '<div class="field"><label>Via (blank if none)</label><input id="r-via" value="' + esc(r.via||'') + '"></div></div>' +
+  '<div class="adm-grid-2"><div class="field"><label>Display Label</label><input id="r-label" value="' + esc(r.label) + '"></div>' +
+  '<div class="field"><label>Price (₹ per seat)</label><input id="r-price" type="number" value="' + r.price + '"></div></div>' +
+  '<div class="adm-grid-3"><div class="field"><label>Duration</label><input id="r-duration" value="' + esc(r.duration||'') + '"></div>' +
+  '<div class="field"><label>First Bus</label><input id="r-firstBus" value="' + esc(r.firstBus||'') + '"></div>' +
+  '<div class="field"><label>Last Bus</label><input id="r-lastBus" value="' + esc(r.lastBus||'') + '"></div></div>' +
+  '<div class="adm-grid-3"><div class="field"><label>Type / Description</label><input id="r-type" value="' + esc(r.type||'') + '"></div>' +
+  '<div class="field"><label>Rating</label><input id="r-rating" type="number" step="0.1" value="' + (r.rating||4.5) + '"></div>' +
+  '<div class="field"><label>Status</label><select id="r-status"><option value="open"' + (r.status==='open'?' selected':'') + '>Open</option><option value="closed"' + (r.status==='closed'?' selected':'') + '>Closed</option></select></div></div>' +
+  '<div class="field"><label>Image Path</label><input id="r-image" value="' + esc(r.image||'') + '"></div>' +
+  '<div style="display:flex;gap:10px;margin-top:8px"><button class="btn btn-primary" onclick="saveRouteForm()">Save Route</button>' +
+  '<button class="btn btn-danger btn-sm" onclick="deleteRoute(' + idx + ')">Delete Route</button></div>' +
+  '</div>';
+}
+
+function saveRouteForm() {
+  var r = workingConfig.routes[activeRouteIdx];
+  r.busId=get('r-busId'); r.from=get('r-from'); r.to=get('r-to'); r.via=get('r-via');
+  r.label=get('r-label'); r.price=parseInt(get('r-price'))||0; r.duration=get('r-duration');
+  r.firstBus=get('r-firstBus'); r.lastBus=get('r-lastBus'); r.type=get('r-type');
+  r.rating=parseFloat(get('r-rating'))||4.5; r.status=get('r-status'); r.image=get('r-image');
+  toast('Route saved! Click "Save All Changes" to persist.');
+  populateRouteTabs();
+}
+
+function addRoute() {
+  workingConfig.routes.push({ id:'route'+Date.now(), busId:workingConfig.buses[0].id, from:'From', to:'To', via:'',
+    label:'New Route', price:200, duration:'2 hrs', firstBus:'08:00 AM', lastBus:'06:00 PM',
+    type:'Daily Route', rating:4.5, reviews:'0', status:'open', image:'images/bus1.jpeg' });
+  activeRouteIdx = workingConfig.routes.length - 1;
+  populateRouteTabs(); toast('New route added.');
+}
+
+function deleteRoute(idx) {
+  if (!confirm('Delete route ' + workingConfig.routes[idx].label + '?')) return;
+  workingConfig.routes.splice(idx, 1);
+  activeRouteIdx = 0;
+  populateRouteTabs(); toast('Route deleted.');
+}
+
+/* ── TRIPS ── */
+function populateTripTabs() {
+  var tabs = document.getElementById('tripTabs'); tabs.innerHTML = '';
+  workingConfig.trips.forEach(function(t, i) {
+    var el = document.createElement('button'); el.className = 'tab' + (i === activeTripIdx ? ' active' : '');
+    el.textContent = t.shortTitle; el.onclick = function(){ activeTripIdx = i; populateTripTabs(); };
+    tabs.appendChild(el);
+  });
+  var addBtn = document.createElement('button'); addBtn.className = 'tab';
+  addBtn.textContent = '+ Add Trip'; addBtn.style.borderStyle = 'dashed';
+  addBtn.onclick = addTrip; tabs.appendChild(addBtn);
+  renderTripForm(activeTripIdx);
+}
+
+function renderTripForm(idx) {
+  var t = workingConfig.trips[idx];
+  document.getElementById('tripForm').innerHTML =
+  '<div class="adm-card"><h3>' + t.shortTitle + '</h3>' +
+  '<div class="adm-grid-2"><div class="field"><label>Full Title</label><input id="t-title" value="' + esc(t.title) + '"></div>' +
+  '<div class="field"><label>Short Title (tab label)</label><input id="t-short" value="' + esc(t.shortTitle) + '"></div></div>' +
+  '<div class="field"><label>Subtitle</label><input id="t-sub" value="' + esc(t.subtitle) + '"></div>' +
+  '<div class="adm-grid-3"><div class="field"><label>Price (₹ per person)</label><input id="t-price" type="number" value="' + t.price + '"></div>' +
+  '<div class="field"><label>Seats Left</label><input id="t-seats" type="number" value="' + (t.seatsLeft||0) + '"></div>' +
+  '<div class="field"><label>Duration</label><input id="t-dur" value="' + esc(t.duration) + '"></div></div>' +
+  '<div class="adm-grid-2"><div class="field"><label>Departure Date</label><input id="t-dep" value="' + esc(t.departure) + '"></div>' +
+  '<div class="field"><label>Return Date</label><input id="t-ret" value="' + esc(t.returnDate) + '"></div></div>' +
+  '<div class="adm-grid-2"><div class="field"><label>Meals</label><input id="t-meals" value="' + esc(t.meals||'') + '"></div>' +
+  '<div class="field"><label>Bus Type</label><input id="t-busType" value="' + esc(t.busType||'') + '"></div></div>' +
+  '<div class="adm-grid-2"><div class="field"><label>Badge Type</label><select id="t-badge"><option value="popular"' + (t.badge==='popular'?' selected':'') + '>Popular</option><option value="trending"' + (t.badge==='trending'?' selected':'') + '>Trending</option><option value="spiritual"' + (t.badge==='spiritual'?' selected':'') + '>Spiritual</option><option value="daily"' + (t.badge==='daily'?' selected':'') + '>Daily</option></select></div>' +
+  '<div class="field"><label>Badge Label</label><input id="t-badgeLbl" value="' + esc(t.badgeLabel) + '"></div></div>' +
+  '<div class="field"><label>Image Path</label><input id="t-img" value="' + esc(t.image) + '"></div>' +
+  '<div class="field"><label>Description</label><textarea id="t-desc">' + esc(t.description) + '</textarea></div>' +
+  '<div class="field"><label>Inclusions (one per line)</label><textarea id="t-inc" rows="5">' + esc((t.inclusions||[]).join('\n')) + '</textarea></div>' +
+  '<div class="field"><label>Exclusions (one per line)</label><textarea id="t-exc" rows="4">' + esc((t.exclusions||[]).join('\n')) + '</textarea></div>' +
+  '<div class="field"><label>Important Notes (one per line)</label><textarea id="t-notes" rows="4">' + esc((t.notes||[]).join('\n')) + '</textarea></div>' +
+  '<div style="display:flex;gap:10px;margin-top:8px"><button class="btn btn-primary" onclick="saveTripForm()">Save Trip</button>' +
+  '<button class="btn btn-danger btn-sm" onclick="deleteTrip(' + idx + ')">Delete Trip</button></div>' +
+  '</div>';
+}
+
+function saveTripForm() {
+  var t = workingConfig.trips[activeTripIdx];
+  t.title=get('t-title'); t.shortTitle=get('t-short'); t.subtitle=get('t-sub');
+  t.price=parseInt(get('t-price'))||0; t.seatsLeft=parseInt(get('t-seats'))||0;
+  t.duration=get('t-dur'); t.departure=get('t-dep'); t.returnDate=get('t-ret');
+  t.meals=get('t-meals'); t.busType=get('t-busType'); t.badge=get('t-badge');
+  t.badgeLabel=get('t-badgeLbl'); t.image=get('t-img'); t.description=get('t-desc');
+  t.inclusions = get('t-inc').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  t.exclusions  = get('t-exc').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  t.notes       = get('t-notes').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  toast('Trip saved! Click "Save All Changes" to persist.');
+  populateTripTabs();
+}
+
+function addTrip() {
+  workingConfig.trips.push({ id:'trip'+Date.now(), title:'New Trip', shortTitle:'New Trip',
+    subtitle:'Trip subtitle', image:'images/bus1.jpeg', badge:'popular', badgeLabel:'🔥 Popular',
+    price:2000, departure:'', returnDate:'', duration:'3 Days', seatsLeft:20,
+    meals:'', busType:'AC Coach', description:'', inclusions:[], exclusions:[], notes:[] });
+  activeTripIdx = workingConfig.trips.length - 1;
+  populateTripTabs(); toast('New trip added.');
+}
+
+function deleteTrip(idx) {
+  if (!confirm('Delete trip ' + workingConfig.trips[idx].title + '?')) return;
+  workingConfig.trips.splice(idx, 1);
+  activeTripIdx = 0;
+  populateTripTabs(); toast('Trip deleted.');
+}
+
+/* ── HERO ── */
+function populateHero() {
+  var h = workingConfig.hero;
+  set('h-eyebrow', h.eyebrow); set('h-h1', h.heading1); set('h-h2', h.heading2);
+  set('h-sub', h.subtext); set('h-btnBook', h.btnBook); set('h-btnRoutes', h.btnRoutes);
+  set('h-slides', (h.slides||[]).join('\n'));
+
+  var sf = document.getElementById('statsFields'); sf.innerHTML = '';
+  (workingConfig.stats || []).forEach(function(s, i) {
+    sf.innerHTML += '<div class="adm-grid-2" style="margin-bottom:8px">' +
+      '<div class="field"><label>Stat ' + (i+1) + ' — Number</label><input id="st-num-' + i + '" value="' + esc(s.num) + '"></div>' +
+      '<div class="field"><label>Stat ' + (i+1) + ' — Label</label><input id="st-lbl-' + i + '" value="' + esc(s.label) + '"></div>' +
+      '</div>';
+  });
+}
+
+function collectHero() {
+  workingConfig.hero.eyebrow   = get('h-eyebrow');
+  workingConfig.hero.heading1  = get('h-h1');
+  workingConfig.hero.heading2  = get('h-h2');
+  workingConfig.hero.subtext   = get('h-sub');
+  workingConfig.hero.btnBook   = get('h-btnBook');
+  workingConfig.hero.btnRoutes = get('h-btnRoutes');
+  workingConfig.hero.slides    = get('h-slides').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  (workingConfig.stats || []).forEach(function(s, i) {
+    s.num = get('st-num-' + i); s.label = get('st-lbl-' + i);
+  });
+}
+
+/* ── COLLECT ALL ── */
+function collectAllFields() {
+  try { collectCompany(); } catch(e){}
+  try { collectHero(); } catch(e){}
+}
+
+/* ── SEAT MANAGER ── */
+function initSeatManager() {
+  var sel = document.getElementById('smBus');
+  workingConfig.buses.forEach(function(b) {
+    var o = document.createElement('option'); o.value = b.id; o.textContent = b.plate + ' — ' + b.title;
     sel.appendChild(o);
   });
-  /* Set today as default date */
   var today = new Date().toISOString().split('T')[0];
-  document.getElementById('admDate').value = today;
-  currentDate = today;
-  currentBus  = CONFIG.buses[0];
-  loadSeatMap();
+  document.getElementById('smDate').value = today;
+  loadAdminSeats();
 }
 
-/* ── Load seat map (subscribe to Firebase) ── */
-function loadSeatMap(){
-  var busId = document.getElementById('admBusSel').value;
-  currentDate = document.getElementById('admDate').value;
-  currentBus  = CONFIG.buses.find(function(b){ return b.id===busId; }) || CONFIG.buses[0];
-  selectedAdmSeats = [];
+async function loadAdminSeats() {
+  var busId = document.getElementById('smBus').value;
+  var date  = document.getElementById('smDate').value;
+  if (!busId || !date) return;
 
-  if(fbUnsub){ fbUnsub(); fbUnsub = null; }
-  liveSeats = {};
+  var bus    = workingConfig.buses.find(function(b){ return b.id === busId; });
+  if (!bus) return;
+  var booked = await window.RK.getBookedSeats(busId, date);
+  var rows   = Math.ceil(bus.capacity / 4);
+  var grid   = document.getElementById('smGrid'); grid.innerHTML = '';
 
-  if(!fbReady){
-    renderAdmMap(); renderBookingsTable(); updateStats();
-    showToast('Firebase not configured. Showing empty map.');
-    return;
-  }
-  var F = window.__FB;
-  var dayRef = F.ref(F.db, 'seats/'+busId+'/'+currentDate);
-  fbUnsub = F.onValue(dayRef, function(snap){
-    liveSeats = snap.val() || {};
-    renderAdmMap();
-    renderBookingsTable();
-    updateStats();
-  });
-}
-window.loadSeatMap = loadSeatMap;
+  // Build booked map
+  var bMap = {};
+  (bus.bookedSeats || []).forEach(function(e) { var n=typeof e==='object'?e.num:e; bMap[n]={gender:typeof e==='object'?(e.gender||'M'):'M'}; });
+  booked.forEach(function(e) { bMap[e.seat_num] = { gender:e.gender||'M', name:e.passenger_name }; });
 
-/* ── Render seat map (admin view) ── */
-function renderAdmMap(){
-  var map = document.getElementById('admSeatMap'); map.innerHTML = '';
-  var rows = Math.ceil(currentBus.capacity / 4);
-  for(var row=1; row<=rows; row++){
-    var rowEl = document.createElement('div'); rowEl.className = 'seat-row-adm';
-    rowEl.innerHTML = '<span class="seat-row-num-adm">'+row+'</span>';
-    for(var c=1;c<=2;c++){ var n=(row-1)*4+c; if(n<=currentBus.capacity) rowEl.appendChild(mkAdmSeat(n)); }
-    var ai=document.createElement('div');ai.className='aisle-adm';rowEl.appendChild(ai);
-    for(var c=3;c<=4;c++){ var n=(row-1)*4+c; if(n<=currentBus.capacity) rowEl.appendChild(mkAdmSeat(n)); }
-    map.appendChild(rowEl);
+  // Bus front
+  grid.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed #e2e8f0"><span style="font-size:13px;color:#94a3b8;font-weight:600;letter-spacing:1px;text-transform:uppercase">🚌 Front of Bus</span></div>';
+
+  for (var row = 1; row <= rows; row++) {
+    var rowEl = document.createElement('div'); rowEl.className = 'adm-seat-row';
+    rowEl.innerHTML = '<span class="adm-row-num">' + row + '</span>';
+    for (var c = 1; c <= 2; c++) { var n=(row-1)*4+c; if(n<=bus.capacity) rowEl.appendChild(mkAdmSeat(n,bMap,busId,date,bus)); }
+    var ai = document.createElement('div'); ai.className = 'adm-aisle'; rowEl.appendChild(ai);
+    for (var c = 3; c <= 4; c++) { var n=(row-1)*4+c; if(n<=bus.capacity) rowEl.appendChild(mkAdmSeat(n,bMap,busId,date,bus)); }
+    grid.appendChild(rowEl);
   }
 }
 
-function mkAdmSeat(num){
-  var el = document.createElement('div'); el.className='seat-adm'; el.id='adm-s-'+num;
-  var d  = liveSeats[num] || liveSeats[String(num)];
-  var isSel = selectedAdmSeats.indexOf(num) !== -1;
-
-  if(isSel){
-    el.classList.add('adm-sel');
-    el.innerHTML = num+'<span class="seat-name">Selected</span>';
-    el.title = 'Seat '+num+' — Selected for block';
-    el.addEventListener('click', function(){ toggleAdmSelect(num); });
-  } else if(d){
-    var g = d.gender||'M';
-    el.classList.add(g==='F'?'adm-f':'adm-m');
-    el.innerHTML = num+'<span class="seat-name">'+(d.name||'')+'</span>';
-    el.title = (g==='F'?'Female':'Male')+': '+(d.name||'unknown')+' — Click to UNBLOCK';
-    el.addEventListener('click', function(){ confirmUnblock(num); });
+function mkAdmSeat(num, bMap, busId, date, bus) {
+  var el = document.createElement('div'); el.className = 'adm-seat'; el.textContent = num;
+  var info = bMap[num];
+  if (info) {
+    el.classList.add(info.gender === 'F' ? 'adm-sb-f' : 'adm-sb-m');
+    el.title = (info.gender==='F'?'♀ Female':'♂ Male') + ' — ' + (info.name||'Booked') + '\nClick to UNBLOCK';
+    (function(n){ el.addEventListener('click', async function(){
+      if (!confirm('Unblock Seat ' + n + '?')) return;
+      await window.RK.unblockSeat(busId, date, n);
+      await loadAdminSeats();
+      toast('Seat ' + n + ' unblocked.');
+    }); })(num);
   } else {
-    el.innerHTML = num;
-    el.title = 'Seat '+num+' — Available (click to select for blocking)';
-    el.addEventListener('click', function(){ toggleAdmSelect(num); });
+    el.title = 'Available — click to manually block';
+    (function(n){ el.addEventListener('click', async function(){
+      var name = prompt('Block seat ' + n + ' — Passenger name?');
+      if (!name) return;
+      var gender = prompt('Gender? (M = Male, F = Female)', 'M');
+      gender = (gender||'M').toUpperCase() === 'F' ? 'F' : 'M';
+      await window.RK.bookSeats(busId, date, [{num:n, gender:gender, passenger_name:name, passenger_phone:'(admin)'}]);
+      await loadAdminSeats();
+      toast('Seat ' + n + ' blocked for ' + name + '.');
+    }); })(num);
   }
   return el;
 }
 
-/* ── Toggle seat selection for bulk block ── */
-function toggleAdmSelect(num){
-  var idx = selectedAdmSeats.indexOf(num);
-  if(idx===-1) selectedAdmSeats.push(num);
-  else selectedAdmSeats.splice(idx,1);
-  renderAdmMap();
+async function smClearAll() {
+  var busId = document.getElementById('smBus').value;
+  var date  = document.getElementById('smDate').value;
+  if (!confirm('Clear ALL booked seats for ' + date + '?')) return;
+  await window.RK.unblockAllSeats(busId, date);
+  await loadAdminSeats();
+  toast('All seats cleared.');
 }
 
-/* ── Confirm unblock ── */
-function confirmUnblock(num){
-  var d = liveSeats[num] || liveSeats[String(num)];
-  var info = d ? (d.name||'unknown')+' ('+(d.gender==='F'?'Female':'Male')+')' : 'this seat';
-  if(!confirm('Unblock Seat '+num+' — '+info+'?')) return;
-  unblockSeat(num);
-}
+/* ── WhatsApp message parser ── */
+function parseWAandBlock() { parseWA(true); }
+function parseWAandUnblock() { parseWA(false); }
 
-function unblockSeat(num){
-  if(!fbReady){ showToast('Firebase not configured.'); return; }
-  var F = window.__FB;
-  F.remove(F.ref(F.db,'seats/'+currentBus.id+'/'+currentDate+'/'+num))
-    .then(function(){ showToast('Seat '+num+' unblocked.'); })
-    .catch(function(e){ showToast('Error: '+e.message); });
-}
-window.unblockSeat = unblockSeat;
+async function parseWA(isBlock) {
+  var text = document.getElementById('waMsgPaste').value;
+  var result = document.getElementById('waParsedResult');
 
-/* ── Manual block ── */
-function manualBlock(){
-  var name    = (document.getElementById('manualName').value||'').trim();
-  var phone   = (document.getElementById('manualPhone').value||'').trim();
-  var gender  = document.getElementById('manualGender').value;
-  var seatsRaw= document.getElementById('manualSeats').value;
-
-  /* Also include any seats selected on the map */
-  var seatsFromInput = seatsRaw.split(/[,\s]+/).map(function(s){ return parseInt(s); }).filter(function(n){ return !isNaN(n)&&n>0&&n<=currentBus.capacity; });
-  var allSeats = selectedAdmSeats.concat(seatsFromInput.filter(function(n){ return selectedAdmSeats.indexOf(n)===-1; }));
-
-  if(!allSeats.length){ showToast('Select seats on the map or enter seat numbers.'); return; }
-  if(!name){ showToast('Please enter passenger name.'); return; }
-
-  if(!fbReady){ showToast('Firebase not configured.'); return; }
-  var F = window.__FB, updates = {};
-  allSeats.forEach(function(n){
-    updates['seats/'+currentBus.id+'/'+currentDate+'/'+n] = {
-      gender:gender, name:name, phone:phone, ts:Date.now(), blockedByAdmin:true
-    };
+  // Extract bus plate
+  var busMatch = text.match(/Bus[:\s*]+([A-Z0-9]+)/i);
+  // Extract date
+  var dateMatch = text.match(/Date[:\s*]+(\w+\s+\d{1,2},?\s+\d{4}|\d{4}-\d{2}-\d{2})/i);
+  // Extract seat numbers with names and genders
+  var paxLines = [];
+  var seatLines = text.split('\n');
+  seatLines.forEach(function(line) {
+    var sm = line.match(/Seat\s+(\d+)\s*\((M|F|Male|Female|♂|♀)[^\)]*\)\s*[—\-]\s*([^·\n]+)/i);
+    if (sm) {
+      var gender = /F|Female|♀/i.test(sm[2]) ? 'F' : 'M';
+      paxLines.push({ num: parseInt(sm[1]), gender: gender, name: sm[3].trim() });
+    }
+    // Simpler pattern: Seat 5 — Name
+    var sm2 = line.match(/Seat\s+(\d+)[^:]*:\s*([A-Za-z\s]+)/i);
+    if (!sm && sm2) paxLines.push({ num: parseInt(sm2[1]), gender: 'M', name: sm2[2].trim() });
   });
-  F.update(F.ref(F.db),updates)
-    .then(function(){
-      showToast('Blocked seat(s): '+allSeats.join(', '));
-      selectedAdmSeats=[];
-      document.getElementById('manualName').value='';
-      document.getElementById('manualPhone').value='';
-      document.getElementById('manualSeats').value='';
-    })
-    .catch(function(e){ showToast('Error: '+e.message); });
-}
-window.manualBlock = manualBlock;
+  // Also handle lines like "💺 Seat 3 (♂ Male) — Ramesh Patel · +91..."
+  if (!paxLines.length) {
+    var matches = text.matchAll(/Seat\s+(\d+)/gi);
+    for (var m of matches) { paxLines.push({ num: parseInt(m[1]), gender: 'M', name: '' }); }
+  }
 
-/* ── Clear all seats for today ── */
-function clearAllToday(){
-  if(!confirm('Clear ALL booked seats for '+currentDate+' on bus '+currentBus.plate+'?')) return;
-  if(!fbReady){ showToast('Firebase not configured.'); return; }
-  var F = window.__FB;
-  F.remove(F.ref(F.db,'seats/'+currentBus.id+'/'+currentDate))
-    .then(function(){ showToast('All seats cleared for '+currentDate+'.'); })
-    .catch(function(e){ showToast('Error: '+e.message); });
-}
-window.clearAllToday = clearAllToday;
-
-/* ── Full reset — all buses, all dates ── */
-function clearAllDates(){
-  if(!confirm('FULL RESET: Delete ALL seat data for ALL buses and ALL dates? This cannot be undone.')) return;
-  if(!fbReady){ showToast('Firebase not configured.'); return; }
-  var F = window.__FB;
-  F.remove(F.ref(F.db,'seats'))
-    .then(function(){ showToast('Full reset complete.'); })
-    .catch(function(e){ showToast('Error: '+e.message); });
-}
-window.clearAllDates = clearAllDates;
-
-/* ── Render bookings table ── */
-function renderBookingsTable(){
-  var tbody = document.getElementById('bookingsBody');
-  var entries = Object.keys(liveSeats).map(function(k){
-    var v = liveSeats[k]; return {seat:parseInt(k), data:v};
-  }).sort(function(a,b){ return a.seat-b.seat; });
-
-  if(!entries.length){
-    tbody.innerHTML='<tr><td colspan="6" class="empty-state">No bookings for this bus and date</td></tr>';
+  if (!paxLines.length) {
+    result.innerHTML = '<p style="color:#dc2626;font-size:13px">Could not find any seat numbers in the message. Make sure you paste the full booking message.</p>';
     return;
   }
-  tbody.innerHTML = entries.map(function(e){
-    var d = e.data||{}, g=d.gender||'M';
-    var pill = g==='F'?'<span class="gender-pill-f">Female</span>':'<span class="gender-pill-m">Male</span>';
-    var ts   = d.ts ? new Date(d.ts).toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'}) : 'Admin';
-    var admin= d.blockedByAdmin ? ' <span style="font-size:10px;color:#94a3b8;">(admin)</span>':'';
-    return '<tr>'+
-      '<td><strong>Seat '+e.seat+'</strong></td>'+
-      '<td>'+(d.name||'—')+admin+'</td>'+
-      '<td>'+pill+'</td>'+
-      '<td>'+(d.phone||'—')+'</td>'+
-      '<td>'+ts+'</td>'+
-      '<td><button class="unblock-btn" onclick="unblockSeat('+e.seat+')">Unblock</button></td>'+
-    '</tr>';
-  }).join('');
+
+  // Find bus
+  var busId = null;
+  if (busMatch) {
+    var plate = busMatch[1].trim();
+    var found = workingConfig.buses.find(function(b){ return b.plate === plate || b.plate.includes(plate); });
+    if (found) busId = found.id;
+  }
+  if (!busId) busId = document.getElementById('smBus').value;
+
+  // Parse date
+  var useDate = document.getElementById('smDate').value;
+  if (dateMatch) {
+    try { var d = new Date(dateMatch[1]); if (!isNaN(d)) useDate = d.toISOString().split('T')[0]; } catch(e){}
+  }
+
+  var html = '<div style="background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e5e7eb">' +
+    '<p style="font-size:13px;font-weight:600;margin-bottom:8px">Parsed: ' + paxLines.length + ' seat(s) | Bus: ' + busId + ' | Date: ' + useDate + '</p>' +
+    '<table class="adm-table"><tr><th>Seat</th><th>Gender</th><th>Name</th><th>Action</th></tr>' +
+    paxLines.map(function(p){ return '<tr><td>Seat ' + p.num + '</td><td>' + (p.gender==='F'?'♀ Female':'♂ Male') + '</td><td>' + (p.name||'—') + '</td><td style="color:' + (isBlock?'#dc2626':'#16a34a') + '">' + (isBlock?'Will Block':'Will Unblock') + '</td></tr>'; }).join('') +
+    '</table></div>';
+  result.innerHTML = html;
+
+  for (var p of paxLines) {
+    if (isBlock) {
+      await window.RK.bookSeats(busId, useDate, [{ num:p.num, gender:p.gender, passenger_name:p.name||'(WA booking)', passenger_phone:'' }]);
+    } else {
+      await window.RK.unblockSeat(busId, useDate, p.num);
+    }
+  }
+  toast((isBlock ? '🔒 Blocked' : '🔓 Unblocked') + ' ' + paxLines.length + ' seat(s) from WhatsApp message.');
+  await loadAdminSeats();
+  showPanel('seats');
 }
 
-/* ── Update stats ── */
-function updateStats(){
-  var keys  = Object.keys(liveSeats);
-  var males = keys.filter(function(k){ return (liveSeats[k]&&liveSeats[k].gender)==='M'; }).length;
-  var fems  = keys.filter(function(k){ return (liveSeats[k]&&liveSeats[k].gender)==='F'; }).length;
-  var free  = currentBus ? currentBus.capacity - keys.length : 0;
-  document.getElementById('statTotal').textContent  = keys.length;
-  document.getElementById('statMale').textContent   = males;
-  document.getElementById('statFemale').textContent = fems;
-  document.getElementById('statFree').textContent   = Math.max(0,free);
+/* ── Dashboard ── */
+async function loadDashboard() {
+  var today = new Date().toISOString().split('T')[0];
+  var allBookings = [];
+  for (var b of workingConfig.buses) {
+    var seats = await window.RK.getBookedSeats(b.id, today);
+    seats.forEach(function(s){ s._bus = b.plate; });
+    allBookings = allBookings.concat(seats);
+  }
+  document.getElementById('ds-booked').textContent = allBookings.length;
+  var cont = document.getElementById('todayBookings');
+  if (!allBookings.length) {
+    cont.innerHTML = '<p style="color:#94a3b8;font-size:13px">No bookings today.</p>'; return;
+  }
+  cont.innerHTML = '<table class="adm-table"><tr><th>Bus</th><th>Seat</th><th>Gender</th><th>Passenger</th><th>Phone</th></tr>' +
+    allBookings.map(function(s) {
+      return '<tr><td>' + s._bus + '</td><td>Seat ' + s.seat_num + '</td>' +
+        '<td>' + (s.gender==='F'?'♀ Female':'♂ Male') + '</td>' +
+        '<td>' + (s.passenger_name||'—') + '</td><td>' + (s.passenger_phone||'—') + '</td></tr>';
+    }).join('') + '</table>';
 }
 
-/* ── Toast ── */
-function showToast(msg){
-  var t=document.getElementById('adm-toast');
-  t.textContent=msg; t.style.display='block';
-  clearTimeout(t._t); t._t=setTimeout(function(){t.style.display='none';},4000);
+function updateStats() {
+  document.getElementById('ds-buses').textContent  = workingConfig.buses.length;
+  document.getElementById('ds-routes').textContent = workingConfig.routes.length;
+  document.getElementById('ds-trips').textContent  = workingConfig.trips.length;
+}
+
+/* ── Supabase config save ── */
+function saveSupabaseConfig() {
+  var url  = get('sb-url').trim();
+  var anon = get('sb-anon').trim();
+  if (!url || !anon) { toast('Please enter both URL and Anon Key.'); return; }
+  // Write a note — in production they'd edit supabase.js
+  localStorage.setItem('rk_sb_url', url);
+  localStorage.setItem('rk_sb_anon', anon);
+  toast('Config saved. Update SUPABASE_URL and SUPABASE_ANON in supabase.js and re-deploy.');
+}
+
+function changePassword() {
+  var pw1 = document.getElementById('newPw').value;
+  var pw2 = document.getElementById('confirmPw').value;
+  if (!pw1) { toast('Please enter a new password.'); return; }
+  if (pw1 !== pw2) { toast('Passwords do not match.'); return; }
+  toast('Update ADMIN_PASSWORD in supabase.js to: ' + pw1);
+}
+
+/* ── Helpers ── */
+function set(id, val) { var el = document.getElementById(id); if(el) el.value = val || ''; }
+function get(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+function esc(s) { return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg) {
+  var t = document.getElementById('adm-toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(function(){ t.style.display='none'; }, 4000);
 }
 </script>
 </body>
