@@ -113,8 +113,7 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Our flagship Luxury Seater with premium 2×2 recliner seating, USB charging on every seat, free WiFi, and full AC. Ideal for the Barwani–Bokrata corridor.",
-      bookedSeats: [],  // Managed by Firebase — admin controls
-      driver: { name:"Ramesh Kumar Patel", phone:"+91 98765 43210", licence:"MP-09-20180045672", exp:"12 Years Experience", photo:"images/driver1.jpeg" }
+      bookedSeats: [3, 7, 12, 18, 24, 29]  // Seats already booked (shown in red on map)
     },
     {
       id:       "bus2",
@@ -138,8 +137,7 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Comfortable AC Seater with pushback reclining, cup holders, and reading lights. Great for medium-distance daily travel.",
-      bookedSeats: [],
-      driver: { name:"Suresh Yadav", phone:"+91 97654 32109", licence:"MP-09-20150034521", exp:"9 Years Experience", photo:"images/driver2.jpeg" }
+      bookedSeats: [2, 5, 11, 20, 31]
     },
     {
       id:       "bus3",
@@ -163,8 +161,7 @@ var CONFIG = {
         "📶 Free WiFi"
       ],
       description: "The ultimate travel experience on wheels. Entertainment system, complimentary snacks, LED displays, and spacious 2×1 premium seating.",
-      bookedSeats: [],
-      driver: { name:"Anil Kumar Sharma", phone:"+91 94321 87650", licence:"MP-09-20120023456", exp:"15 Years Experience", photo:"images/driver3.jpeg" }
+      bookedSeats: [1, 8, 15, 22]
     },
     {
       id:       "bus4",
@@ -186,8 +183,7 @@ var CONFIG = {
         "⏱️ On-time Service"
       ],
       description: "Reliable and economical. Clean, punctual, and ideal for budget-conscious travellers on shorter routes.",
-      bookedSeats: [],
-      driver: { name:"Mohan Singh Rawat", phone:"+91 93210 76543", licence:"MP-09-20170056789", exp:"7 Years Experience", photo:"images/driver4.jpeg" }
+      bookedSeats: [4, 9, 14, 19, 28, 35, 42]
     }
   ],
 
@@ -198,7 +194,6 @@ var CONFIG = {
   routes: [
     {
       id:        "barwani-bokrata",
-      busId:     "bus1",
       from:      "Barwani",
       to:        "Bokrata",
       via:       "Pati",                         // Leave blank "" if no via stop
@@ -215,7 +210,6 @@ var CONFIG = {
     },
     {
       id:        "indore-barwani",
-      busId:     "bus3",
       from:      "Indore",
       to:        "Barwani",
       via:       "",
@@ -232,7 +226,6 @@ var CONFIG = {
     },
     {
       id:        "barwani-indore",
-      busId:     "bus2",
       from:      "Barwani",
       to:        "Indore",
       via:       "",
@@ -249,7 +242,6 @@ var CONFIG = {
     },
     {
       id:        "anjad-indore",
-      busId:     "bus4",
       from:      "Anjad",
       to:        "Indore",
       via:       "",
@@ -454,6 +446,58 @@ var CONFIG = {
       { label: "Travel Stories",  href: "travel-stories.html" },
       { label: "Careers",         href: "careers.html"        }
     ]
+  },
+
+  /* ============================================================
+     8. FINANCE CONFIG
+     Settings for the Finance Manager (finance.html).
+     Edit only values — do not remove commas or brackets.
+     ============================================================ */
+  finance: {
+
+    // ── Password for Finance Manager login ──────────────────
+    adminPassword: "Swift@8606",   // Change this to your preferred password
+
+    // ── Income categories (shown in Add Entry form) ─────────
+    incomeCategories: [
+      "Daily Route",
+      "Tour Package",
+      "Marriage Booking",
+      "Party Booking",
+      "Charter / Private Hire",
+      "Festival Special",
+      "School Trip",
+      "Corporate Booking",
+      "Other Income"
+    ],
+
+    // ── Expense categories (shown in Add Entry form) ─────────
+    expenseCategories: [
+      "Fuel",
+      "Driver Salary",
+      "Conductor Salary",
+      "Helper Salary",
+      "Bus Repair",
+      "Tyre Puncture",
+      "Tyre Replacement",
+      "Engine Repair",
+      "Oil & Lubricants",
+      "Bus Wash",
+      "Toll Tax",
+      "Parking",
+      "Insurance",
+      "Road Tax / Permit",
+      "Fitness Certificate",
+      "Spare Parts",
+      "AC Repair",
+      "Electrical Repair",
+      "Driver Food / Allowance",
+      "Other Expense"
+    ],
+
+    // ── Quick-amount chips in the entry form ─────────────────
+    quickAmounts: [100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000, 50000]
+
   }
 
 };
@@ -476,12 +520,6 @@ function getRoute(id) {
 // Get a trip by ID
 function getTrip(id) {
   return CONFIG.trips.find(function(t){ return t.id === id; }) || CONFIG.trips[0];
-}
-
-// Get the bus for a route (1 route = 1 bus)
-function getBusForRoute(routeId) {
-  var r = getRoute(routeId);
-  return r.busId ? getBus(r.busId) : CONFIG.buses[0];
 }
 
 // Format Indian Rupees
@@ -557,6 +595,7 @@ function buildHeader(activePage) {
     return '<a href="'+l.href+'"'+cls+'>'+l.label+'</a>';
   }).join('');
   navHTML += '<a href="book-seat.html" class="btn-book">Book Now</a>';
+  navHTML += '<a href="admin.html" style="margin-left:4px;padding:7px 12px;background:rgba(255,255,255,.08);border-radius:6px;font-size:13px;color:rgba(255,255,255,.65);font-weight:500;transition:.2s;">⚙️ Admin</a>';
 
   document.getElementById('site-header').innerHTML =
     '<header>'+
