@@ -23,7 +23,7 @@ const ADMIN_PASSWORD = 'Swift@8606';
 // ═══════════════════════════════════════════════
 // INTERNAL — Do not edit below
 // ═══════════════════════════════════════════════
-const SUPABASE_CONFIGURED = (SUPABASE_URL !== 'https://wqxirssvjmilpkyszvml.supabase.co' && SUPABASE_ANON !== 'YOUR_SUPABASE_ANON');
+const SUPABASE_CONFIGURED = (SUPABASE_URL !== 'https://wqxirssvjmilpkyszvml.supabase.co' && SUPABASE_ANON !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxeGlyc3N2am1pbHBreXN6dm1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNjA3ODEsImV4cCI6MjA5MTYzNjc4MX0.XhC_DU2Z3H0n5zbcxiAjAgzhxczaNrnxXXfpPck-x-E');
 
 let _sb = null;
 let _sbReady = false;
