@@ -4,302 +4,791 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Book Your Seat — Rewa Kripa Travels</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Seat map styles */
-    .bus-info-bar{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 16px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-    .bus-info-left{display:flex;align-items:center;gap:12px;}
-    .bus-dep-div{margin-left:12px;padding-left:12px;border-left:1px solid #bae6fd;}
-    .driver-open-btn{background:#012738;color:white;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Poppins',sans-serif;transition:.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
-    .driver-open-btn:hover{background:#024a6e;}
-    .status-notice{border-radius:8px;padding:10px 14px;font-size:12px;margin-top:12px;display:none;line-height:1.6;}
-    .notice-info{background:#e0f7f8;border:1px solid #7EC8C9;color:#012738;}
-    .notice-warn{background:#fef9c3;border:1px solid #fde68a;color:#92400e;}
-    /* Seat styles */
-    .seat{width:42px;height:42px;border-radius:8px 8px 4px 4px;border:2px solid #d1d5db;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#64748b;cursor:pointer;transition:.18s;position:relative;flex-shrink:0;user-select:none;}
-    .seat::before{content:'';position:absolute;top:-6px;left:4px;right:4px;height:6px;background:inherit;border-radius:4px 4px 0 0;border:2px solid #d1d5db;border-bottom:none;}
-    .seat:hover:not(.sb-m):not(.sb-f):not(.sb-blk){border-color:#7EC8C9;background:#e0f7f8;color:#012738;}
-    .seat.selected{border-color:#012738;background:#012738;color:white;}
-    .seat.selected::before{background:#012738;border-color:#012738;}
-    .seat.sb-m{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8;cursor:not-allowed;}
-    .seat.sb-m::before{background:#dbeafe;border-color:#93c5fd;}
-    .seat.sb-f{background:#fce7f3;border-color:#f9a8d4;color:#be185d;cursor:not-allowed;}
-    .seat.sb-f::before{background:#fce7f3;border-color:#f9a8d4;}
-    .seat.sb-blk{background:repeating-linear-gradient(45deg,#fef9c3,#fef9c3 4px,#fef3c7 4px,#fef3c7 8px);border-color:#fde68a;color:#92400e;cursor:not-allowed;font-size:9px;}
-    .seat.sb-blk::before{background:#fef9c3;border-color:#fde68a;}
-    .seat.admin-clickable:hover{outline:2px solid #ef4444;cursor:pointer;}
-    .seat-legend{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;}
-    .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;}
-    .legend-dot{width:14px;height:14px;border-radius:3px;}
-    .leg-avail{background:#f9fafb;border:2px solid #d1d5db;}
-    .leg-sel{background:#012738;}
-    .leg-male{background:#dbeafe;border:2px solid #93c5fd;}
-    .leg-female{background:#fce7f3;border:2px solid #f9a8d4;}
-    .leg-blocked{background:repeating-linear-gradient(45deg,#fef9c3,#fef9c3 3px,#fef3c7 3px,#fef3c7 6px);border:2px solid #fde68a;}
-    /* Passenger rows */
-    .pax-row{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:10px;}
-    .pax-row-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-    .pax-seat-tag{font-size:13px;font-weight:700;color:#012738;}
-    .pax-remove{background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;}
-    .pax-remove:hover{background:#fee2e2;color:#dc2626;}
-    .pax-fields{display:grid;grid-template-columns:1fr 1fr 100px;gap:8px;}
-    .pax-input{padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;width:100%;transition:.2s;}
-    .pax-input:focus{border-color:#7EC8C9;}
-    .pax-select{padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;width:100%;background:white;cursor:pointer;transition:.2s;}
-    .pax-select:focus{border-color:#7EC8C9;}
-    .pax-select.male{border-color:#93c5fd;background:#dbeafe;color:#1d4ed8;}
-    .pax-select.female{border-color:#f9a8d4;background:#fce7f3;color:#be185d;}
-    /* Driver modal */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;align-items:center;justify-content:center;}
-    .modal-overlay.open{display:flex;}
-    .driver-modal{background:white;border-radius:20px;padding:36px;max-width:420px;width:90%;position:relative;animation:mpop .25s ease;}
-    @keyframes mpop{from{transform:scale(.85);opacity:0;}to{transform:scale(1);opacity:1;}}
-    .modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b;}
-    .modal-close:hover{background:#e2e8f0;}
-    .driver-photo{width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid #7EC8C9;margin:0 auto 14px;display:block;}
-    .driver-placeholder{width:88px;height:88px;border-radius:50%;background:#012738;color:#7EC8C9;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 14px;}
-    .driver-modal h3{text-align:center;font-size:20px;font-weight:700;color:#0f172a;margin-bottom:2px;}
-    .driver-exp{text-align:center;font-size:13px;color:#7EC8C9;font-weight:600;margin-bottom:18px;}
-    .d-row{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid #f1f5f9;}
-    .d-row:last-of-type{border-bottom:none;}
-    .d-icon{width:36px;height:36px;background:#f0f9ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-    .d-label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px;}
-    .d-val{font-size:14px;font-weight:600;color:#0f172a;}
-    .driver-call-btn{width:100%;margin-top:18px;padding:12px;border:none;border-radius:10px;background:#25D366;color:white;font-weight:700;font-size:14px;font-family:'Poppins',sans-serif;cursor:pointer;transition:.2s;}
-    .driver-call-btn:hover{background:#1ebc58;}
-    /* Admin bar */
-    .admin-bar{background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 16px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
-    .admin-bar-info{font-size:13px;color:#dc2626;font-weight:600;}
-    .admin-bar-btns{display:flex;gap:8px;}
-    .abtn{padding:7px 14px;border:none;border-radius:7px;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;transition:.2s;}
-    .abtn-danger{background:#fee2e2;color:#dc2626;} .abtn-danger:hover{background:#fecaca;}
-    .abtn-dark{background:#012738;color:white;} .abtn-dark:hover{background:#024a6e;}
-    /* Toast */
-    #bk-toast{display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#012738;color:white;padding:13px 26px;border-radius:12px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.3);border:1px solid rgba(126,200,201,.4);}
-    .selected-seat-tag{display:inline-block;background:#012738;color:white;font-size:12px;font-weight:600;padding:3px 10px;border-radius:100px;margin:2px;}
-    @media(max-width:768px){.seat{width:34px;height:34px;font-size:9px;}.seat-row{gap:4px;}.pax-fields{grid-template-columns:1fr;}}
+/* ── PAGE LAYOUT ── */
+.bk-page { background: #f0f4f8; min-height: 100vh; }
+.bk-wrap { max-width: 1280px; margin: 0 auto; padding: 32px 20px; }
+
+/* ── STEP INDICATOR ── */
+.steps-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; margin-bottom: 32px; background: white;
+  border-radius: 14px; padding: 18px 24px; box-shadow: 0 2px 12px rgba(0,0,0,.07);
+}
+.step-item { display: flex; align-items: center; gap: 10px; flex: 1; justify-content: center; }
+.step-num {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #e5e7eb; color: #94a3b8; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+  transition: all .3s; flex-shrink: 0;
+}
+.step-label { font-size: 13px; font-weight: 600; color: #94a3b8; transition: color .3s; white-space: nowrap; }
+.step-item.active .step-num { background: #012738; color: #7EC8C9; }
+.step-item.active .step-label { color: #012738; }
+.step-item.done .step-num { background: #7EC8C9; color: #012738; }
+.step-item.done .step-label { color: #64748b; }
+.step-line { width: 40px; height: 2px; background: #e5e7eb; flex-shrink: 0; margin: 0 4px; }
+.step-line.done { background: #7EC8C9; }
+
+/* ── LAYOUT ── */
+.bk-grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start; }
+
+/* ── STEP PANELS ── */
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* ── CARDS ── */
+.bk-card {
+  background: white; border-radius: 16px; padding: 28px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.06); margin-bottom: 20px;
+  border: 1px solid #e5e7eb;
+}
+.bk-card-title {
+  font-size: 16px; font-weight: 700; color: #0f172a;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+}
+.bk-card-title .icon {
+  width: 36px; height: 36px; background: #f0f9ff; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; font-size: 17px;
+}
+
+/* ── ROUTE PILLS ── */
+.route-pills { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.route-pill {
+  border: 2px solid #e5e7eb; border-radius: 12px; padding: 14px 16px;
+  cursor: pointer; transition: all .2s; background: white; text-align: left;
+}
+.route-pill:hover { border-color: #7EC8C9; background: #f0f9ff; }
+.route-pill.selected { border-color: #012738; background: #012738; }
+.route-pill.selected .rp-name { color: white; }
+.route-pill.selected .rp-meta { color: rgba(255,255,255,.55); }
+.route-pill.selected .rp-price { color: #7EC8C9; }
+.rp-name { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
+.rp-meta { font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+.rp-price { font-size: 18px; font-weight: 700; color: #012738; }
+
+/* ── DATE PICKER ── */
+.date-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.date-chip {
+  flex: 0 0 auto; padding: 10px 16px; border-radius: 10px;
+  border: 2px solid #e5e7eb; cursor: pointer; text-align: center;
+  transition: all .2s; background: white; min-width: 72px;
+}
+.date-chip:hover { border-color: #7EC8C9; }
+.date-chip.selected { background: #012738; border-color: #012738; }
+.date-chip.selected .dc-day,.date-chip.selected .dc-date { color: white; }
+.date-chip.selected .dc-dow { color: rgba(255,255,255,.55); }
+.dc-dow { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+.dc-date { font-size: 18px; font-weight: 700; color: #0f172a; line-height: 1; }
+.dc-day { font-size: 11px; color: #64748b; margin-top: 2px; }
+.date-input-alt { margin-top: 12px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #94a3b8; }
+.date-input-alt input { padding: 8px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; font-family: 'Poppins', sans-serif; outline: none; }
+.date-input-alt input:focus { border-color: #7EC8C9; }
+
+/* ── BUS INFO BAR ── */
+.bus-bar {
+  background: linear-gradient(135deg, #012738, #024a6e);
+  border-radius: 12px; padding: 16px 20px; color: white;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap; margin-top: 16px;
+}
+.bus-bar-left { display: flex; align-items: center; gap: 14px; }
+.bus-bar-icon { font-size: 28px; }
+.bus-bar-plate { font-size: 16px; font-weight: 700; }
+.bus-bar-sub { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 1px; }
+.bus-bar-dep { text-align: right; }
+.bus-bar-dep-label { font-size: 10px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .5px; }
+.bus-bar-dep-time { font-size: 20px; font-weight: 700; color: #7EC8C9; }
+.driver-btn {
+  background: rgba(126,200,201,.15); border: 1px solid rgba(126,200,201,.3);
+  color: #7EC8C9; padding: 8px 14px; border-radius: 8px; font-size: 12px;
+  font-weight: 600; cursor: pointer; border-style: solid; transition: .2s;
+  font-family: 'Poppins', sans-serif;
+}
+.driver-btn:hover { background: rgba(126,200,201,.25); }
+
+/* ── SEAT MAP ── */
+.seat-map-outer { background: #f8fafc; border-radius: 12px; padding: 20px; }
+.bus-nose {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 16px; margin-bottom: 16px;
+  border-bottom: 2px dashed #d1d5db;
+}
+.bus-nose-label { font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 2px; text-transform: uppercase; }
+.driver-badge {
+  background: #012738; color: white; padding: 6px 12px;
+  border-radius: 8px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 5px;
+}
+
+.seat-rows { display: flex; flex-direction: column; gap: 8px; }
+.seat-row { display: flex; gap: 6px; align-items: center; }
+.seat-row-num { width: 20px; font-size: 10px; color: #cbd5e1; text-align: right; flex-shrink: 0; }
+.aisle { width: 22px; flex-shrink: 0; }
+.aisle-label { text-align: center; font-size: 8px; color: #e2e8f0; writing-mode: vertical-rl; line-height: 22px; }
+
+/* The actual seat */
+.seat {
+  width: 44px; height: 44px; border-radius: 8px 8px 3px 3px;
+  border: 2px solid #d1d5db; background: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #94a3b8;
+  cursor: pointer; transition: all .18s;
+  position: relative; flex-shrink: 0; user-select: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,.04);
+}
+/* seat headrest */
+.seat::before {
+  content: ''; position: absolute; top: -7px; left: 5px; right: 5px;
+  height: 7px; background: inherit; border-radius: 4px 4px 0 0;
+  border: 2px solid #d1d5db; border-bottom: none;
+}
+.seat:hover:not(.sb-m):not(.sb-f):not(.sb-blk):not(.sb-sel) {
+  border-color: #7EC8C9; background: #f0fffe; color: #012738;
+  transform: scale(1.08); box-shadow: 0 4px 12px rgba(126,200,201,.3);
+}
+/* Selected */
+.seat.sb-sel { border-color: #012738; background: #012738; color: #7EC8C9; }
+.seat.sb-sel::before { background: #012738; border-color: #012738; }
+/* Male booked */
+.seat.sb-m { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; cursor: not-allowed; }
+.seat.sb-m::before { background: #dbeafe; border-color: #93c5fd; }
+/* Female booked */
+.seat.sb-f { background: #fce7f3; border-color: #f9a8d4; color: #be185d; cursor: not-allowed; }
+.seat.sb-f::before { background: #fce7f3; border-color: #f9a8d4; }
+/* Blocked (adj female) */
+.seat.sb-blk { 
+  background: repeating-linear-gradient(45deg,#fef9c3,#fef9c3 4px,#fde68a 4px,#fde68a 8px);
+  border-color: #fbbf24; color: #92400e; cursor: not-allowed; font-size: 10px;
+}
+.seat.sb-blk::before { background: #fef9c3; border-color: #fbbf24; }
+
+/* Seat legend */
+.seat-legend {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;
+  padding-top: 14px; border-top: 1px solid #e5e7eb;
+}
+.leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #64748b; }
+.leg-dot {
+  width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+  position: relative;
+}
+.leg-dot::before {
+  content: ''; position: absolute; top: -4px; left: 2px; right: 2px;
+  height: 4px; background: inherit; border-radius: 2px 2px 0 0;
+}
+.ld-avail { background: white; border: 2px solid #d1d5db; }
+.ld-sel { background: #012738; border: 2px solid #012738; }
+.ld-m { background: #dbeafe; border: 2px solid #93c5fd; }
+.ld-f { background: #fce7f3; border: 2px solid #f9a8d4; }
+.ld-blk { background: repeating-linear-gradient(45deg,#fef9c3,#fef9c3 3px,#fde68a 3px,#fde68a 6px); border: 2px solid #fbbf24; }
+
+/* ── SELECTED SEATS PILL BAR ── */
+.sel-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; min-height: 36px;
+  padding: 10px 14px; background: #f8fafc; border-radius: 10px;
+  border: 1.5px dashed #d1d5db;
+}
+.sel-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #012738; color: white; font-size: 12px; font-weight: 600;
+  padding: 4px 10px; border-radius: 100px; cursor: pointer; transition: .15s;
+}
+.sel-pill:hover { background: #dc2626; }
+.sel-pill .x { font-size: 10px; opacity: .7; }
+.sel-empty { color: #94a3b8; font-size: 13px; }
+
+/* ── PASSENGER FORM ── */
+.pax-list { display: flex; flex-direction: column; gap: 12px; }
+.pax-row {
+  border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 16px;
+  background: #fafafa; transition: border-color .2s;
+}
+.pax-row:focus-within { border-color: #7EC8C9; background: white; }
+.pax-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.pax-seat-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #012738; color: white; font-size: 12px; font-weight: 700;
+  padding: 4px 12px; border-radius: 100px;
+}
+.pax-remove {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #fee2e2; color: #dc2626; border: none;
+  cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
+  transition: .15s; font-family: 'Poppins', sans-serif;
+}
+.pax-remove:hover { background: #fecaca; }
+.pax-fields { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+.pax-inp {
+  padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  font-size: 13px; font-family: 'Poppins', sans-serif; outline: none; transition: .2s;
+  width: 100%;
+}
+.pax-inp:focus { border-color: #7EC8C9; box-shadow: 0 0 0 3px rgba(126,200,201,.12); }
+.gender-btns { display: flex; gap: 4px; align-items: center; }
+.gbtn {
+  width: 44px; height: 42px; border-radius: 8px; border: 1.5px solid #e5e7eb;
+  background: white; cursor: pointer; font-size: 16px; transition: .15s;
+  font-family: 'Poppins', sans-serif; display: flex; align-items: center; justify-content: center;
+}
+.gbtn:hover { border-color: #7EC8C9; }
+.gbtn.gm.active { background: #dbeafe; border-color: #93c5fd; }
+.gbtn.gf.active { background: #fce7f3; border-color: #f9a8d4; }
+
+/* ── SUMMARY SIDEBAR ── */
+.summary-box {
+  background: white; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,.1); position: sticky; top: 84px;
+  border: 1px solid #e5e7eb;
+}
+.summary-hdr {
+  background: #012738; color: white; padding: 20px 24px;
+}
+.summary-hdr h3 { font-size: 17px; margin-bottom: 2px; }
+.summary-hdr p { font-size: 12px; color: rgba(255,255,255,.45); }
+.summary-body { padding: 20px 24px; }
+.sum-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  font-size: 13px; padding: 9px 0; border-bottom: 1px solid #f1f5f9;
+}
+.sum-row:last-of-type { border-bottom: none; }
+.sum-k { color: #94a3b8; }
+.sum-v { font-weight: 600; color: #0f172a; text-align: right; max-width: 180px; }
+.sum-v.teal { color: #7EC8C9; }
+.total-section { padding: 16px 0 0; }
+.total-row { display: flex; justify-content: space-between; align-items: center; }
+.total-label { font-size: 13px; font-weight: 600; color: #0f172a; }
+.total-amount { font-size: 32px; font-weight: 800; color: #012738; }
+
+/* CTA Button */
+.wa-btn {
+  width: 100%; padding: 15px; margin-top: 16px;
+  background: #25D366; color: white; border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 700; font-family: 'Poppins', sans-serif;
+  cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.wa-btn:hover { background: #1ebc58; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,211,102,.35); }
+.wa-btn:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
+.book-note { font-size: 11px; color: #94a3b8; text-align: center; margin-top: 10px; line-height: 1.6; }
+
+/* Step nav buttons */
+.step-nav { display: flex; gap: 10px; margin-top: 20px; }
+.btn-next {
+  flex: 1; padding: 13px; background: #012738; color: white;
+  border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+  font-family: 'Poppins', sans-serif; cursor: pointer; transition: .2s;
+}
+.btn-next:hover { background: #024a6e; }
+.btn-back {
+  padding: 13px 20px; background: white; color: #64748b;
+  border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px;
+  font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer; transition: .2s;
+}
+.btn-back:hover { border-color: #94a3b8; color: #0f172a; }
+
+/* Status badge */
+.status-bar {
+  border-radius: 10px; padding: 10px 14px; font-size: 13px;
+  display: none; align-items: center; gap: 8px; margin-top: 14px; line-height: 1.5;
+}
+.status-info { background: #e0f7f8; border: 1px solid #7EC8C9; color: #012738; }
+.status-warn { background: #fef9c3; border: 1px solid #fbbf24; color: #92400e; }
+
+/* Online/offline indicator */
+.conn-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; padding: 4px 10px;
+  border-radius: 100px;
+}
+.conn-online { background: #dcfce7; color: #16a34a; }
+.conn-offline { background: #fee2e2; color: #dc2626; }
+.conn-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* Live count badge */
+.live-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fef9c3; color: #92400e; font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 100px; border: 1px solid #fbbf24;
+}
+
+/* Admin bar */
+.admin-strip {
+  background: #fff1f2; border: 1px solid #fca5a5; border-radius: 10px;
+  padding: 12px 16px; display: flex; justify-content: space-between;
+  align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 16px;
+}
+.admin-strip-info { font-size: 13px; color: #dc2626; font-weight: 600; }
+.admin-strip-btns { display: flex; gap: 8px; }
+.adm-btn {
+  padding: 7px 14px; border: none; border-radius: 7px; font-size: 12px;
+  font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: .2s;
+}
+.adm-btn-r { background: #fee2e2; color: #dc2626; }
+.adm-btn-r:hover { background: #fecaca; }
+.adm-btn-d { background: #012738; color: white; }
+.adm-btn-d:hover { background: #024a6e; }
+
+/* Driver modal */
+.overlay-modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.6); z-index: 2000;
+  align-items: center; justify-content: center; backdrop-filter: blur(4px);
+}
+.overlay-modal.open { display: flex; }
+.driver-card {
+  background: white; border-radius: 20px; padding: 36px;
+  max-width: 400px; width: 90%; position: relative;
+  animation: pop .25s ease;
+}
+@keyframes pop { from{transform:scale(.85);opacity:0;} to{transform:scale(1);opacity:1;} }
+.modal-x {
+  position: absolute; top: 14px; right: 14px;
+  width: 30px; height: 30px; border-radius: 50%; background: #f1f5f9;
+  border: none; cursor: pointer; font-size: 16px; color: #64748b;
+  display: flex; align-items: center; justify-content: center;
+}
+.driver-ava {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: #012738; color: #7EC8C9; display: flex; align-items: center;
+  justify-content: center; font-size: 36px; margin: 0 auto 14px;
+  border: 3px solid #7EC8C9;
+}
+.d-row { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f1f5f9; align-items: center; }
+.d-row:last-child { border-bottom: none; }
+.d-ico { width: 34px; height: 34px; background: #f0f9ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.d-lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; display: block; }
+.d-val { font-size: 14px; font-weight: 600; color: #0f172a; }
+.call-btn { width: 100%; margin-top: 16px; padding: 12px; background: #25D366; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: 'Poppins', sans-serif; }
+
+/* Toast */
+#bk-toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  background: #012738; color: white; padding: 13px 26px; border-radius: 12px;
+  font-size: 14px; font-weight: 600; z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3); display: none; white-space: nowrap;
+  border: 1px solid rgba(126,200,201,.3);
+}
+
+/* Confirmation screen */
+.confirm-screen {
+  text-align: center; padding: 60px 40px;
+  display: none;
+}
+.confirm-icon { font-size: 64px; margin-bottom: 16px; animation: bounce .6s ease; }
+@keyframes bounce { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
+.confirm-title { font-size: 26px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+.confirm-sub { font-size: 15px; color: #64748b; margin-bottom: 28px; }
+
+/* Seat count badge on summary */
+.seat-count-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; background: #7EC8C9; color: #012738;
+  border-radius: 50%; font-size: 11px; font-weight: 700; margin-left: 4px;
+}
+
+/* availability shimmer */
+.shimmer { background: linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size: 200%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+@keyframes shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
+
+@media(max-width:900px){
+  .bk-grid { grid-template-columns: 1fr; }
+  .summary-box { position: static; }
+  .steps-bar { padding: 12px 8px; }
+  .step-label { display: none; }
+  .seat { width: 36px; height: 36px; font-size: 10px; }
+  .aisle { width: 16px; }
+  .pax-fields { grid-template-columns: 1fr; }
+}
+@media(max-width:480px){
+  .route-pills { grid-template-columns: 1fr; }
+  .seat { width: 32px; height: 32px; font-size: 9px; }
+  .bk-wrap { padding: 16px 12px; }
+}
   </style>
 </head>
 <body>
 <div id="site-header"></div>
 
-<section class="page-hero">
+<section class="page-hero" style="padding:44px 0;">
   <div class="container">
-    <div class="page-eyebrow">Instant WhatsApp Booking</div>
-    <h1>Book Your Seat</h1>
-    <p>Pick seats for your whole group — each seat has its own passenger details</p>
+    <div class="page-eyebrow">Real-time Seat Booking</div>
+    <h1 style="font-size:34px;">Book Your Seat</h1>
+    <p>Pick your route, date and seats — done in under a minute</p>
   </div>
 </section>
 
-<section class="book-page-body">
-  <div class="container">
-    <div class="book-layout">
-      <!-- LEFT -->
-      <div>
-        <div class="route-selector">
-          <h3>Journey Details</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Route</label>
-              <select id="routeSelect" onchange="onRouteChange()"></select>
-            </div>
-            <div class="form-group">
-              <label>Travel Date</label>
-              <input type="date" id="travelDate">
-            </div>
+<div class="bk-page">
+<div class="bk-wrap">
+
+  <!-- STEP INDICATOR -->
+  <div class="steps-bar">
+    <div class="step-item active" id="si-1">
+      <div class="step-num">1</div>
+      <span class="step-label">Route & Date</span>
+    </div>
+    <div class="step-line" id="sl-1"></div>
+    <div class="step-item" id="si-2">
+      <div class="step-num">2</div>
+      <span class="step-label">Pick Seats</span>
+    </div>
+    <div class="step-line" id="sl-2"></div>
+    <div class="step-item" id="si-3">
+      <div class="step-num">3</div>
+      <span class="step-label">Passengers</span>
+    </div>
+    <div class="step-line" id="sl-3"></div>
+    <div class="step-item" id="si-4">
+      <div class="step-num">✓</div>
+      <span class="step-label">Confirm</span>
+    </div>
+  </div>
+
+  <div class="bk-grid">
+    <!-- LEFT MAIN -->
+    <div>
+
+      <!-- STEP 1: Route & Date -->
+      <div class="step-panel active" id="sp-1">
+        <div class="bk-card">
+          <div class="bk-card-title"><div class="icon">🗺️</div> Choose Your Route</div>
+          <div class="route-pills" id="routePills"></div>
+        </div>
+        <div class="bk-card" id="dateCard" style="display:none">
+          <div class="bk-card-title"><div class="icon">📅</div> Select Travel Date</div>
+          <div class="date-strip" id="dateStrip"></div>
+          <div class="date-input-alt">
+            or pick a date: <input type="date" id="customDate" onchange="pickCustomDate(this.value)">
           </div>
-          <div class="bus-info-bar">
-            <div class="bus-info-left">
-              <span style="font-size:22px">🚌</span>
+          <!-- Bus info -->
+          <div class="bus-bar" id="busBar">
+            <div class="bus-bar-left">
+              <span class="bus-bar-icon">🚌</span>
               <div>
-                <strong id="busInfoPlate" style="color:#012738;font-size:14px;display:block"></strong>
-                <span id="busInfoSub" style="font-size:12px;color:#64748b"></span>
-              </div>
-              <div class="bus-dep-div">
-                <span style="font-size:11px;color:#94a3b8;display:block;text-transform:uppercase;letter-spacing:.5px">Departure</span>
-                <strong id="busInfoDep" style="color:#012738;font-size:14px"></strong>
+                <div class="bus-bar-plate" id="bbPlate">—</div>
+                <div class="bus-bar-sub" id="bbSub">—</div>
               </div>
             </div>
-            <button class="driver-open-btn" onclick="openDriverModal()">👨‍✈️ Driver Info</button>
+            <div class="bus-bar-dep">
+              <div class="bus-bar-dep-label">Departure</div>
+              <div class="bus-bar-dep-time" id="bbDep">—</div>
+            </div>
+            <button class="driver-btn" onclick="openDriverModal()">👤 Driver Info</button>
           </div>
-          <div class="status-notice" id="statusNotice"></div>
+          <div class="status-bar" id="statusBar"></div>
         </div>
-
-        <div class="seat-map-box">
-          <h3>Select Seats</h3>
-          <p class="seat-map-subtitle">
-            Click seats to add them to your booking. Each seat gets its own passenger details.<br>
-            🔵 Blue = Male booked &nbsp;|&nbsp; 🩷 Pink = Female booked &nbsp;|&nbsp; 🚫 Blocked (male next to female)
-          </p>
-          <div class="bus-diagram">
-            <div class="bus-front">
-              <span class="bus-front-label">🚌 Front of Bus</span>
-              <span class="driver-icon">👨‍✈️ Driver</span>
-            </div>
-            <div class="seat-rows" id="seatMap">
-              <p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0">Loading…</p>
-            </div>
-          </div>
-          <div class="seat-legend">
-            <div class="legend-item"><div class="legend-dot leg-avail"></div> Available</div>
-            <div class="legend-item"><div class="legend-dot leg-sel"></div> Selected</div>
-            <div class="legend-item"><div class="legend-dot leg-male"></div> Male</div>
-            <div class="legend-item"><div class="legend-dot leg-female"></div> Female</div>
-            <div class="legend-item"><div class="legend-dot leg-blocked"></div> Blocked</div>
-          </div>
-        </div>
-
-        <!-- Admin bar (shown when admin logged in) -->
-        <div id="adminBar" style="display:none">
-          <div class="admin-bar">
-            <span class="admin-bar-info">🔧 Admin Mode — Click booked seats to unblock</span>
-            <div class="admin-bar-btns">
-              <button class="abtn abtn-danger" onclick="adminClearToday()">🗑️ Clear Today</button>
-              <button class="abtn abtn-dark" onclick="adminClearAll()">⚠️ Full Reset</button>
-            </div>
-          </div>
+        <div class="step-nav">
+          <button class="btn-next" id="nextStep1" onclick="goStep(2)" disabled>Continue to Seat Selection →</button>
         </div>
       </div>
 
-      <!-- RIGHT: Booking Summary -->
-      <div>
-        <div class="booking-summary">
-          <div class="booking-summary-header">
-            <h3>Booking Summary</h3>
-            <p>Add passengers for each selected seat</p>
+      <!-- STEP 2: Seat Map -->
+      <div class="step-panel" id="sp-2">
+        <div class="bk-card">
+          <div class="bk-card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <span style="display:flex;align-items:center;gap:10px;"><div class="icon">💺</div> Pick Your Seats</span>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <span class="live-badge" id="liveCount">🔴 Loading…</span>
+              <span class="conn-badge" id="connBadge"><span class="conn-dot"></span>Connecting…</span>
+            </div>
           </div>
-          <div class="booking-summary-body">
-            <div class="summary-row"><span class="sk">Route</span><span class="sv" id="sumRoute">—</span></div>
-            <div class="summary-row"><span class="sk">Bus No.</span><span class="sv" id="sumBus">—</span></div>
-            <div class="summary-row"><span class="sk">Date</span><span class="sv" id="sumDate">—</span></div>
-            <div class="summary-row"><span class="sk">Departure</span><span class="sv" id="sumDep">—</span></div>
-            <div class="summary-row"><span class="sk">Fare / Seat</span><span class="sv" id="sumFare">—</span></div>
 
-            <div style="margin-top:16px">
-              <p style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">
-                Passengers — <span id="paxCount">0 selected</span>
-              </p>
-              <div id="paxList">
-                <p style="font-size:13px;color:#94a3b8;text-align:center;padding:16px 0">
-                  Click seats on the map to add passengers
-                </p>
+          <div class="seat-map-outer">
+            <div class="bus-nose">
+              <span class="bus-nose-label">🚌 Front of Bus</span>
+              <div class="driver-badge">👨‍✈️ Driver</div>
+            </div>
+            <div class="seat-rows" id="seatMap">
+              <div style="text-align:center;padding:30px;color:#94a3b8">
+                <div style="font-size:36px;margin-bottom:8px">⌛</div>
+                Loading seat availability…
               </div>
             </div>
-
-            <div class="total-row">
-              <span class="tl">Total Amount</span>
-              <span class="tv" id="totalAmt">₹0</span>
-            </div>
-
-            <button class="wa-book-btn" id="waBtn" onclick="confirmBooking()" disabled style="margin-top:18px">
-              💬 Confirm on WhatsApp
-            </button>
-            <p class="book-note">
-              All seats blocked instantly for everyone when you tap Send.<br>
-              Auto-release 2 hrs after bus departure if unconfirmed.
-            </p>
           </div>
+
+          <!-- Selected pills -->
+          <div style="margin-top:14px">
+            <div style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
+              Selected Seats <span class="seat-count-chip" id="selCount">0</span>
+            </div>
+            <div class="sel-bar" id="selBar">
+              <span class="sel-empty">Click seats above to select them</span>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div class="seat-legend">
+            <div class="leg"><div class="leg-dot ld-avail"></div> Available</div>
+            <div class="leg"><div class="leg-dot ld-sel"></div> Selected</div>
+            <div class="leg"><div class="leg-dot ld-m"></div> Male booked</div>
+            <div class="leg"><div class="leg-dot ld-f"></div> Female booked</div>
+            <div class="leg"><div class="leg-dot ld-blk"></div> Next to female</div>
+          </div>
+
+          <!-- Admin strip -->
+          <div class="admin-strip" id="adminStrip" style="display:none">
+            <span class="admin-strip-info">🔧 Admin Mode — click booked seats to unblock</span>
+            <div class="admin-strip-btns">
+              <button class="adm-btn adm-btn-r" onclick="adminClearToday()">🗑️ Clear Today</button>
+              <button class="adm-btn adm-btn-d" onclick="adminClearAll()">⚠️ Full Reset</button>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-back" onclick="goStep(1)">← Back</button>
+          <button class="btn-next" id="nextStep2" onclick="goStep(3)" disabled>Add Passenger Details →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Passenger Details -->
+      <div class="step-panel" id="sp-3">
+        <div class="bk-card">
+          <div class="bk-card-title"><div class="icon">👥</div> Passenger Details</div>
+          <p style="font-size:13px;color:#94a3b8;margin-bottom:18px">Fill in name and phone for each seat. Gender determines seat adjacency rules.</p>
+          <div class="pax-list" id="paxList"></div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-back" onclick="goStep(2)">← Back</button>
+          <button class="btn-next" id="nextStep3" onclick="confirmBooking()" disabled>Confirm on WhatsApp 💬</button>
+        </div>
+      </div>
+
+      <!-- CONFIRMATION -->
+      <div class="step-panel confirm-screen" id="sp-confirm">
+        <div class="confirm-icon">✅</div>
+        <div class="confirm-title">Seats Blocked!</div>
+        <div class="confirm-sub">WhatsApp has opened with your booking details.<br>Send the message to complete your booking.</div>
+        <button class="btn-next" style="max-width:280px;margin:0 auto;display:block" onclick="resetBooking()">Book More Seats</button>
+      </div>
+    </div>
+
+    <!-- RIGHT SUMMARY -->
+    <div>
+      <div class="summary-box">
+        <div class="summary-hdr">
+          <h3>Booking Summary</h3>
+          <p id="sumStatus">Select a route to begin</p>
+        </div>
+        <div class="summary-body">
+          <div class="sum-row"><span class="sum-k">Route</span><span class="sum-v" id="sumRoute">—</span></div>
+          <div class="sum-row"><span class="sum-k">Date</span><span class="sum-v" id="sumDate">—</span></div>
+          <div class="sum-row"><span class="sum-k">Bus</span><span class="sum-v" id="sumBus">—</span></div>
+          <div class="sum-row"><span class="sum-k">Departure</span><span class="sum-v" id="sumDep">—</span></div>
+          <div class="sum-row"><span class="sum-k">Seats Selected</span><span class="sum-v teal" id="sumSeats">0</span></div>
+          <div class="sum-row"><span class="sum-k">Fare / Seat</span><span class="sum-v" id="sumFare">—</span></div>
+          <div class="total-section">
+            <div class="total-row">
+              <span class="total-label">Total</span>
+              <span class="total-amount" id="sumTotal">₹0</span>
+            </div>
+          </div>
+          <button class="wa-btn" id="waBtn" onclick="confirmBooking()" disabled>
+            💬 Confirm on WhatsApp
+          </button>
+          <p class="book-note">Seats are blocked for ALL customers instantly when you send the WhatsApp message. Auto-released 2 hrs after bus departure if unconfirmed.</p>
         </div>
       </div>
     </div>
   </div>
-</section>
+</div>
+</div>
 
 <!-- Driver Modal -->
-<div class="modal-overlay" id="driverModal" onclick="closeDriverModal(event)">
-  <div class="driver-modal">
-    <button class="modal-close" onclick="closeDriverModal()">✕</button>
-    <div id="driverPhotoWrap"></div>
-    <h3 id="driverName"></h3>
-    <div class="driver-exp" id="driverExp"></div>
-    <div class="d-row"><div class="d-icon">📱</div><div><span class="d-label">Phone</span><span class="d-val" id="driverPhone"></span></div></div>
-    <div class="d-row"><div class="d-icon">📋</div><div><span class="d-label">Driving Licence</span><span class="d-val" id="driverLicence"></span></div></div>
-    <div class="d-row"><div class="d-icon">🚌</div><div><span class="d-label">Bus Number</span><span class="d-val" id="driverBusNo"></span></div></div>
-    <div class="d-row"><div class="d-icon">🛣️</div><div><span class="d-label">Route</span><span class="d-val" id="driverRoute"></span></div></div>
-    <button class="driver-call-btn" id="driverCallBtn">📞 Call Driver</button>
+<div class="overlay-modal" id="driverModal" onclick="if(event.target===this)closeDriverModal()">
+  <div class="driver-card">
+    <button class="modal-x" onclick="closeDriverModal()">✕</button>
+    <div class="driver-ava" id="dAva">👨‍✈️</div>
+    <h3 style="text-align:center;font-size:20px;font-weight:700;color:#0f172a;margin-bottom:2px" id="dName"></h3>
+    <div style="text-align:center;font-size:13px;color:#7EC8C9;font-weight:600;margin-bottom:20px" id="dExp"></div>
+    <div class="d-row"><div class="d-ico">📱</div><div><span class="d-lbl">Phone</span><span class="d-val" id="dPhone"></span></div></div>
+    <div class="d-row"><div class="d-ico">📋</div><div><span class="d-lbl">Licence</span><span class="d-val" id="dLic"></span></div></div>
+    <div class="d-row"><div class="d-ico">🚌</div><div><span class="d-lbl">Bus</span><span class="d-val" id="dBus"></span></div></div>
+    <div class="d-row"><div class="d-ico">🛣️</div><div><span class="d-lbl">Route</span><span class="d-val" id="dRoute"></span></div></div>
+    <button class="call-btn" id="dCallBtn">📞 Call Driver</button>
   </div>
 </div>
 
 <div id="bk-toast"></div>
 <div id="site-footer"></div>
-
 <script src="config.js"></script>
 <script src="supabase.js"></script>
 <script src="script.js"></script>
 <script>
-/* ═══════════════════════════════════════════════════════
-   BOOKING ENGINE — Multi-passenger, gender-per-seat,
-   Supabase real-time shared state, admin unblock
-   ═══════════════════════════════════════════════════════ */
-
-var selectedSeats = [];   // [{num, paxName, paxPhone, gender}]
-var currentBus, currentRoute, currentDate;
-var liveBooked = [];      // [{seat_num, gender, passenger_name, passenger_phone}]
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+var currentStep = 1;
+var currentRoute = null;
+var currentBus = null;
+var currentDate = null;
+var selectedSeats = [];  // [{num, gender, paxName, paxPhone}]
+var liveBooked = [];
 var fbUnsub = null;
 
-/* ── Init ── */
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
 buildHeader('book-seat.html');
 buildFooter();
 
-var today = new Date().toISOString().split('T')[0];
-var dateEl = document.getElementById('travelDate');
-dateEl.min = today; dateEl.value = today; currentDate = today;
-dateEl.addEventListener('change', function() {
-  currentDate = this.value; selectedSeats = [];
-  hideNotice(); loadSeats();
-});
+// Build route pills
+document.getElementById('routePills').innerHTML = CONFIG.routes.map(function(r) {
+  return '<div class="route-pill" data-id="'+r.id+'" onclick="selectRoute(\''+r.id+'\')">'+
+    '<div class="rp-name">'+r.label+'</div>'+
+    '<div class="rp-meta">'+r.type+' · First: '+r.firstBus+'</div>'+
+    '<div class="rp-price">'+formatINR(r.price)+' / seat</div>'+
+  '</div>';
+}).join('');
 
-var routeSel = document.getElementById('routeSelect');
-CONFIG.routes.forEach(function(r) {
-  var o = document.createElement('option');
-  o.value = r.id; o.textContent = r.label + ' — ' + formatINR(r.price);
-  routeSel.appendChild(o);
-});
-
+// Pre-select from URL
 var urlRoute = new URLSearchParams(window.location.search).get('route');
-if (urlRoute) routeSel.value = urlRoute;
-onRouteChange();
+if (urlRoute) { selectRoute(urlRoute); }
 
-// Show admin bar if logged in
+// Admin bar
 if (window.RK && window.RK.isAdminLoggedIn()) {
-  document.getElementById('adminBar').style.display = 'block';
+  document.getElementById('adminStrip').style.display = 'flex';
 }
 
-/* ── Route change ── */
-function onRouteChange() {
-  currentRoute = getRoute(routeSel.value);
-  currentBus   = getBusForRoute ? getBusForRoute(currentRoute.id) : getBus(currentRoute.busId || CONFIG.buses[0].id);
-  selectedSeats = [];
+// Connection badge
+setTimeout(function() {
+  var badge = document.getElementById('connBadge');
+  if (window.RK && window.RK.isSupabaseActive()) {
+    badge.className = 'conn-badge conn-online';
+    badge.innerHTML = '<span class="conn-dot"></span>Live sync on';
+  } else {
+    badge.className = 'conn-badge conn-offline';
+    badge.innerHTML = '<span class="conn-dot"></span>Local only';
+  }
+}, 2000);
 
-  document.getElementById('busInfoPlate').textContent = currentBus.plate + ' — ' + currentBus.title;
-  document.getElementById('busInfoSub').textContent   = (currentBus.layout||'') + ' · ' + (currentBus.climate||'');
-  document.getElementById('busInfoDep').textContent   = currentBus.departure || '';
-  document.getElementById('sumRoute').textContent     = currentRoute.label;
-  document.getElementById('sumBus').textContent       = currentBus.plate;
-  document.getElementById('sumDep').textContent       = currentRoute.firstBus;
-  document.getElementById('sumFare').textContent      = formatINR(currentRoute.price);
+/* ═══════════════════════════════════════════
+   DATE STRIP
+═══════════════════════════════════════════ */
+function buildDateStrip() {
+  var strip = document.getElementById('dateStrip');
+  var today = new Date();
+  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  strip.innerHTML = '';
+  for (var i = 0; i < 10; i++) {
+    var d = new Date(today); d.setDate(d.getDate() + i);
+    var iso = d.toISOString().split('T')[0];
+    var chip = document.createElement('div');
+    chip.className = 'date-chip' + (i === 0 ? ' selected' : '');
+    chip.dataset.date = iso;
+    chip.innerHTML = '<div class="dc-dow">'+(i===0?'Today':days[d.getDay()])+'</div><div class="dc-date">'+d.getDate()+'</div><div class="dc-day">'+months[d.getMonth()]+'</div>';
+    chip.onclick = function() { pickDate(this.dataset.date); };
+    strip.appendChild(chip);
+  }
+  // Auto-pick today
+  var todayIso = today.toISOString().split('T')[0];
+  document.getElementById('customDate').min = todayIso;
+  document.getElementById('customDate').value = todayIso;
+  pickDate(todayIso, true);
+}
 
-  hideNotice();
+function pickDate(iso, silent) {
+  currentDate = iso;
+  document.querySelectorAll('.date-chip').forEach(function(c) {
+    c.classList.toggle('selected', c.dataset.date === iso);
+  });
+  document.getElementById('customDate').value = iso;
+  var dt = new Date(iso + 'T00:00:00');
+  var formatted = dt.toLocaleDateString('en-IN', {weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('sumDate').textContent = formatted;
+  document.getElementById('nextStep1').disabled = false;
+  if (!silent) loadSeats();
+}
+
+function pickCustomDate(iso) {
+  if (!iso) return;
+  currentDate = iso;
+  document.querySelectorAll('.date-chip').forEach(function(c) { c.classList.remove('selected'); });
+  var dt = new Date(iso + 'T00:00:00');
+  document.getElementById('sumDate').textContent = dt.toLocaleDateString('en-IN', {weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('nextStep1').disabled = false;
   loadSeats();
 }
 
-/* ── Load seats from Supabase + subscribe real-time ── */
+/* ═══════════════════════════════════════════
+   ROUTE SELECT
+═══════════════════════════════════════════ */
+function selectRoute(id) {
+  currentRoute = getRoute(id);
+  currentBus = getBus(currentRoute.busId || CONFIG.buses[0].id);
+  selectedSeats = [];
+
+  document.querySelectorAll('.route-pill').forEach(function(p) {
+    p.classList.toggle('selected', p.dataset.id === id);
+  });
+  document.getElementById('dateCard').style.display = 'block';
+
+  // Update bus bar
+  document.getElementById('bbPlate').textContent = currentBus.plate + ' — ' + currentBus.title;
+  document.getElementById('bbSub').textContent = (currentBus.layout||'') + ' · ' + (currentBus.climate||'') + ' · ' + currentBus.capacity + ' seats';
+  document.getElementById('bbDep').textContent = currentRoute.firstBus;
+
+  // Update summary
+  document.getElementById('sumRoute').textContent = currentRoute.label;
+  document.getElementById('sumBus').textContent = currentBus.plate;
+  document.getElementById('sumDep').textContent = currentRoute.firstBus;
+  document.getElementById('sumFare').textContent = formatINR(currentRoute.price);
+  document.getElementById('sumStatus').textContent = 'Step 1: Select date';
+
+  buildDateStrip();
+}
+
+/* ═══════════════════════════════════════════
+   STEP NAVIGATION
+═══════════════════════════════════════════ */
+function goStep(n) {
+  if (n === 2 && (!currentRoute || !currentDate)) { showToast('Please select route and date first'); return; }
+  if (n === 3 && selectedSeats.length === 0) { showToast('Please select at least one seat'); return; }
+
+  currentStep = n;
+  document.querySelectorAll('.step-panel').forEach(function(p) { p.classList.remove('active'); });
+  var panel = document.getElementById('sp-' + n);
+  if (panel) panel.classList.add('active');
+
+  // Update step indicator
+  for (var i = 1; i <= 4; i++) {
+    var si = document.getElementById('si-' + i);
+    var sl = document.getElementById('sl-' + i);
+    if (!si) continue;
+    si.classList.remove('active', 'done');
+    if (sl) sl.classList.remove('done');
+    if (i < n) { si.classList.add('done'); if(sl) sl.classList.add('done'); }
+    else if (i === n) si.classList.add('active');
+  }
+
+  if (n === 2) { loadSeats(); }
+  if (n === 3) { renderPaxForm(); }
+}
+
+/* ═══════════════════════════════════════════
+   SEAT MAP
+═══════════════════════════════════════════ */
 async function loadSeats() {
   if (!currentBus || !currentDate) return;
+  var map = document.getElementById('seatMap');
+  map.innerHTML = '<div style="text-align:center;padding:30px;color:#94a3b8"><div class="shimmer" style="height:120px;margin:0 auto;max-width:200px;"></div></div>';
 
   // Auto-reset check
   var status = window.RK.checkAutoReset(currentBus, currentDate);
+  var statusBar = document.getElementById('statusBar');
   if (status === 'reset') {
     liveBooked = [];
-    showNotice('Seats for ' + currentDate + ' auto-reset — bus departed 2+ hrs ago.', 'info');
+    statusBar.className = 'status-bar status-info'; statusBar.style.display = 'flex';
+    statusBar.textContent = 'ℹ️ Seats auto-reset — bus departed 2+ hours ago.';
   } else if (status === 'departed') {
-    showNotice('Bus has departed. Seats auto-release soon.', 'warn');
-  }
+    statusBar.className = 'status-bar status-warn'; statusBar.style.display = 'flex';
+    statusBar.textContent = '⚠️ Bus has departed. Seats will auto-release soon.';
+  } else { statusBar.style.display = 'none'; }
 
   liveBooked = await window.RK.getBookedSeats(currentBus.id, currentDate);
 
-  // Unsubscribe previous
+  // Subscribe for live updates
   if (typeof fbUnsub === 'function') fbUnsub();
   fbUnsub = await window.RK.subscribeSeats(currentBus.id, currentDate, async function() {
     liveBooked = await window.RK.getBookedSeats(currentBus.id, currentDate);
@@ -307,263 +796,307 @@ async function loadSeats() {
   });
 
   renderSeatMap();
+  updateConnBadge();
 }
 
-/* ── Seat map ── */
-function getBookedNums() {
-  // Merge config-level + live
+function getBookedInfo() {
   var nums = {}, genders = {};
   (currentBus.bookedSeats || []).forEach(function(e) {
     var n = typeof e === 'object' ? e.num : e;
-    var g = typeof e === 'object' ? (e.gender || 'M') : 'M';
-    nums[n] = true; genders[n] = g;
+    nums[n] = true; genders[n] = typeof e === 'object' ? (e.gender||'M') : 'M';
   });
-  liveBooked.forEach(function(e) {
-    nums[e.seat_num] = true; genders[e.seat_num] = e.gender || 'M';
-  });
-  return { nums: Object.keys(nums).map(Number), genders: genders };
+  liveBooked.forEach(function(e) { nums[e.seat_num] = true; genders[e.seat_num] = e.gender||'M'; });
+  // Also include selected (for adj calc)
+  selectedSeats.forEach(function(s) { if (!nums[s.num]) { nums['_s'+s.num] = true; genders['_s'+s.num] = s.gender; } });
+  return { nums: Object.keys(nums).filter(function(k){return !k.startsWith('_s');}).map(Number), genders: genders };
 }
 
-function getAdjBlocked(bookedNums, genders) {
-  var blocked = [];
+function adjBlocked(bookedNums, genders) {
+  var blk = [];
   bookedNums.forEach(function(n) {
     if (genders[n] === 'F') {
-      var adj = adjSeat(n);
-      if (adj && !bookedNums.includes(adj)) blocked.push(adj);
+      var adj = adjOf(n); if (adj && !bookedNums.includes(adj)) blk.push(adj);
     }
   });
-  return blocked;
+  // Also check selected female seats
+  selectedSeats.forEach(function(s) {
+    if (s.gender === 'F') {
+      var adj = adjOf(s.num);
+      if (adj && !bookedNums.includes(adj) && !selectedSeats.some(function(x){return x.num===adj;})) blk.push(adj);
+    }
+  });
+  return blk;
 }
 
-function adjSeat(num) {
-  var row = Math.ceil(num / 4), pos = num - (row - 1) * 4;
-  if (pos === 1) return (row - 1) * 4 + 2;
-  if (pos === 2) return (row - 1) * 4 + 1;
-  if (pos === 3) return (row - 1) * 4 + 4;
-  if (pos === 4) return (row - 1) * 4 + 3;
+function adjOf(num) {
+  var row = Math.ceil(num/4), pos = num - (row-1)*4;
+  if (pos === 1) return (row-1)*4+2;
+  if (pos === 2) return (row-1)*4+1;
+  if (pos === 3) return (row-1)*4+4;
+  if (pos === 4) return (row-1)*4+3;
   return null;
 }
 
 function renderSeatMap() {
-  var map = document.getElementById('seatMap'); map.innerHTML = '';
-  var b = getBookedNums();
-  var adjBlocked = getAdjBlocked(b.nums, b.genders);
+  var map = document.getElementById('seatMap');
+  map.innerHTML = '';
+  var b = getBookedInfo();
+  var blk = adjBlocked(b.nums, b.genders);
   var isAdmin = window.RK.isAdminLoggedIn();
   var rows = Math.ceil(currentBus.capacity / 4);
+
+  var bookedCount = b.nums.length;
+  document.getElementById('liveCount').innerHTML = '🔴 ' + bookedCount + ' booked, ' + (currentBus.capacity - bookedCount - selectedSeats.length) + ' free';
 
   for (var row = 1; row <= rows; row++) {
     var rowEl = document.createElement('div'); rowEl.className = 'seat-row';
     rowEl.innerHTML = '<span class="seat-row-num">' + row + '</span>';
-    for (var c = 1; c <= 2; c++) { var n = (row-1)*4+c; if (n <= currentBus.capacity) rowEl.appendChild(mkSeat(n, b, adjBlocked, isAdmin)); }
+    for (var c = 1; c <= 2; c++) {
+      var n = (row-1)*4+c; if (n <= currentBus.capacity) rowEl.appendChild(mkSeat(n, b, blk, isAdmin));
+    }
     var ai = document.createElement('div'); ai.className = 'aisle'; rowEl.appendChild(ai);
-    for (var c = 3; c <= 4; c++) { var n = (row-1)*4+c; if (n <= currentBus.capacity) rowEl.appendChild(mkSeat(n, b, adjBlocked, isAdmin)); }
+    for (var c = 3; c <= 4; c++) {
+      var n = (row-1)*4+c; if (n <= currentBus.capacity) rowEl.appendChild(mkSeat(n, b, blk, isAdmin));
+    }
     map.appendChild(rowEl);
   }
+  renderSelBar();
+  updateSummary();
 }
 
-function mkSeat(num, b, adjBlocked, isAdmin) {
-  var el = document.createElement('div'); el.className = 'seat'; el.id = 'seat-' + num; el.textContent = num;
-  var isBooked   = b.nums.includes(num);
-  var isAdj      = adjBlocked.includes(num);
-  var isSelected = selectedSeats.some(function(s){ return s.num === num; });
+function mkSeat(num, b, blk, isAdmin) {
+  var el = document.createElement('div'); el.className = 'seat'; el.textContent = num;
+  var isBooked = b.nums.includes(num);
+  var isAdj = blk.includes(num);
+  var isSel = selectedSeats.some(function(s){ return s.num === num; });
 
-  if (isBooked) {
+  if (isSel) {
+    el.classList.add('sb-sel');
+    el.title = 'Seat ' + num + ' — selected. Click to remove.';
+    (function(n){ el.addEventListener('click', function(){ removeSeat(n); }); })(num);
+  } else if (isBooked) {
     var g = b.genders[num] || 'M';
     el.classList.add(g === 'F' ? 'sb-f' : 'sb-m');
-    var pName = (liveBooked.find(function(e){ return e.seat_num === num; }) || {}).passenger_name || '';
-    el.title = (g === 'F' ? '♀ Female' : '♂ Male') + ' — Seat ' + num + (pName ? ' (' + pName + ')' : '');
+    var info = liveBooked.find(function(e){ return e.seat_num === num; }) || {};
+    el.title = (g==='F'?'♀ Female':'♂ Male') + ' — ' + (info.passenger_name || 'Booked');
     if (isAdmin) {
-      el.classList.add('admin-clickable');
+      el.style.cursor = 'pointer';
       el.title += ' — Click to UNBLOCK';
-      (function(n){ el.addEventListener('click', function(){ adminUnblockSeat(n); }); })(num);
+      (function(n){ el.addEventListener('click', function(){ adminUnblock(n); }); })(num);
     }
   } else if (isAdj) {
-    el.classList.add('sb-blk'); el.textContent = '🚫';
-    el.title = 'Blocked — next to female passenger. Females can still book this.';
-    // Females CAN book adj seats — we allow clicking and prompt if needed
-    (function(n){ el.addEventListener('click', function(){ addSeat(n); }); })(num);
-    el.classList.remove('sb-blk'); el.textContent = num; el.style.opacity = '.4';
     el.classList.add('sb-blk');
-  } else if (isSelected) {
-    el.classList.add('selected');
-    (function(n){ el.addEventListener('click', function(){ removeSeat(n); }); })(num);
-    el.title = 'Seat ' + num + ' — Click to deselect';
-  } else {
+    el.title = 'Blocked (adjacent to female). Females may still book.';
+    el.textContent = '🚫';
+    // Females can click to override
     (function(n){ el.addEventListener('click', function(){ addSeat(n); }); })(num);
-    el.title = 'Seat ' + num + ' — Click to select';
+  } else {
+    el.title = 'Seat ' + num + ' — click to select';
+    (function(n){ el.addEventListener('click', function(){ addSeat(n); }); })(num);
   }
   return el;
 }
 
-/* ── Add / remove seat from selection ── */
 function addSeat(num) {
   if (selectedSeats.some(function(s){ return s.num === num; })) return;
-  selectedSeats.push({ num: num, paxName: '', paxPhone: '', gender: 'M' });
-  renderSeatMap(); renderPaxList(); updateSummary();
+  selectedSeats.push({ num: num, gender: 'M', paxName: '', paxPhone: '' });
+  renderSeatMap();
+  document.getElementById('nextStep2').disabled = false;
+  showToast('✓ Seat ' + num + ' selected');
 }
 
 function removeSeat(num) {
   selectedSeats = selectedSeats.filter(function(s){ return s.num !== num; });
-  renderSeatMap(); renderPaxList(); updateSummary();
+  document.getElementById('nextStep2').disabled = selectedSeats.length === 0;
+  renderSeatMap();
 }
 
-/* ── Render passenger list ── */
-function renderPaxList() {
-  var list = document.getElementById('paxList');
-  document.getElementById('paxCount').textContent = selectedSeats.length + ' seat' + (selectedSeats.length !== 1 ? 's' : '') + ' selected';
-
+function renderSelBar() {
+  var bar = document.getElementById('selBar');
+  document.getElementById('selCount').textContent = selectedSeats.length;
+  document.getElementById('sumSeats').textContent = selectedSeats.length;
   if (!selectedSeats.length) {
-    list.innerHTML = '<p style="font-size:13px;color:#94a3b8;text-align:center;padding:16px 0">Click seats on the map to add passengers</p>';
+    bar.innerHTML = '<span class="sel-empty">Click seats above to select them</span>';
     return;
   }
-
-  list.innerHTML = selectedSeats.map(function(s, i) {
-    return '<div class="pax-row" id="pax-row-' + s.num + '">' +
-      '<div class="pax-row-header">' +
-        '<span class="pax-seat-tag">💺 Seat ' + s.num + '</span>' +
-        '<button class="pax-remove" onclick="removeSeat(' + s.num + ')">✕</button>' +
-      '</div>' +
-      '<div class="pax-fields">' +
-        '<input class="pax-input" placeholder="Passenger name *" value="' + escVal(s.paxName) + '"' +
-          ' oninput="updatePax(' + s.num + ',\'name\',this.value)">' +
-        '<input class="pax-input" placeholder="+91 XXXXX XXXXX *" value="' + escVal(s.paxPhone) + '"' +
-          ' oninput="updatePax(' + s.num + ',\'phone\',this.value)">' +
-        '<select class="pax-select ' + (s.gender === 'F' ? 'female' : 'male') + '"' +
-          ' onchange="updatePax(' + s.num + ',\'gender\',this.value)">' +
-          '<option value="M"' + (s.gender === 'M' ? ' selected' : '') + '>♂ Male</option>' +
-          '<option value="F"' + (s.gender === 'F' ? ' selected' : '') + '>♀ Female</option>' +
-        '</select>' +
-      '</div>' +
-    '</div>';
+  bar.innerHTML = selectedSeats.map(function(s) {
+    return '<span class="sel-pill" onclick="removeSeat('+s.num+')">Seat '+s.num+' <span class="x">✕</span></span>';
   }).join('');
 }
 
-function escVal(v) { return (v||'').replace(/"/g,'&quot;'); }
+/* ═══════════════════════════════════════════
+   PASSENGER FORM
+═══════════════════════════════════════════ */
+function renderPaxForm() {
+  var list = document.getElementById('paxList');
+  list.innerHTML = selectedSeats.map(function(s, i) {
+    return '<div class="pax-row" id="pr-'+s.num+'">'+
+      '<div class="pax-hdr">'+
+        '<span class="pax-seat-tag">💺 Seat '+s.num+'</span>'+
+        '<button class="pax-remove" onclick="removeSeat('+s.num+');goStep(2)" title="Remove seat">✕</button>'+
+      '</div>'+
+      '<div class="pax-fields">'+
+        '<input class="pax-inp" placeholder="Passenger name *" value="'+escV(s.paxName)+'" oninput="setPax('+s.num+',\'name\',this.value)">'+
+        '<input class="pax-inp" placeholder="+91 XXXXXXXXXX *" value="'+escV(s.paxPhone)+'" oninput="setPax('+s.num+',\'phone\',this.value)">'+
+        '<div class="gender-btns">'+
+          '<button class="gbtn gm'+(s.gender==='M'?' active':'')+'" title="Male" onclick="setPax('+s.num+',\'gender\',\'M\');rerenderGender('+s.num+')">♂</button>'+
+          '<button class="gbtn gf'+(s.gender==='F'?' active':'')+'" title="Female" onclick="setPax('+s.num+',\'gender\',\'F\');rerenderGender('+s.num+')">♀</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  checkPaxComplete();
+}
 
-function updatePax(num, field, val) {
+function escV(v) { return (v||'').replace(/"/g,'&quot;'); }
+
+function setPax(num, field, val) {
   var s = selectedSeats.find(function(s){ return s.num === num; });
   if (!s) return;
-  if (field === 'name')   { s.paxName = val; }
-  if (field === 'phone')  { s.paxPhone = val; }
-  if (field === 'gender') {
-    s.gender = val;
-    var sel = document.querySelector('#pax-row-' + num + ' .pax-select');
-    if (sel) sel.className = 'pax-select ' + (val === 'F' ? 'female' : 'male');
-    renderSeatMap(); // re-render to update adjacent blocking
-  }
-  updateSummary();
+  if (field === 'name') s.paxName = val;
+  if (field === 'phone') s.paxPhone = val;
+  if (field === 'gender') s.gender = val;
+  checkPaxComplete();
+}
+
+function rerenderGender(num) {
+  var s = selectedSeats.find(function(s){ return s.num === num; });
+  if (!s) return;
+  var row = document.getElementById('pr-' + num);
+  if (!row) return;
+  row.querySelectorAll('.gbtn').forEach(function(b) {
+    b.classList.remove('active');
+    if ((b.classList.contains('gm') && s.gender==='M') || (b.classList.contains('gf') && s.gender==='F')) b.classList.add('active');
+  });
+  renderSeatMap(); // re-render for adj blocking
+  checkPaxComplete();
+}
+
+function checkPaxComplete() {
+  var ok = selectedSeats.length > 0 && selectedSeats.every(function(s) {
+    return s.paxName.trim().length > 1 && s.paxPhone.trim().replace(/\D/g,'').length >= 10;
+  });
+  var btn = document.getElementById('nextStep3');
+  var waBtn = document.getElementById('waBtn');
+  if (btn) btn.disabled = !ok;
+  if (waBtn) waBtn.disabled = !ok;
 }
 
 function updateSummary() {
   var fare = currentRoute ? currentRoute.price : 0;
-  document.getElementById('totalAmt').textContent = formatINR(selectedSeats.length * fare);
-  if (currentDate) {
-    var dt = new Date(currentDate + 'T00:00:00');
-    document.getElementById('sumDate').textContent = dt.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'long', year:'numeric' });
-  }
-  var ok = selectedSeats.length > 0 && selectedSeats.every(function(s) {
-    return s.paxName.trim().length > 1 && s.paxPhone.trim().length >= 10;
-  });
-  document.getElementById('waBtn').disabled = !ok;
+  var total = selectedSeats.length * fare;
+  document.getElementById('sumTotal').textContent = formatINR(total);
+  checkPaxComplete();
 }
 
-/* ── Confirm booking ── */
+/* ═══════════════════════════════════════════
+   CONFIRM / BOOK
+═══════════════════════════════════════════ */
 async function confirmBooking() {
-  var date    = document.getElementById('travelDate').value;
-  var seats   = selectedSeats.slice().sort(function(a,b){ return a.num - b.num; });
-  var total   = seats.length * currentRoute.price;
-  var dt      = new Date(date + 'T00:00:00');
-  var dateStr = dt.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'long', year:'numeric' });
+  if (!currentRoute || !currentBus || !currentDate || !selectedSeats.length) return;
 
-  /* 1. Save to Supabase */
-  var saved = await window.RK.bookSeats(currentBus.id, date, seats.map(function(s) {
+  var sorted = selectedSeats.slice().sort(function(a,b){ return a.num - b.num; });
+  var total = sorted.length * currentRoute.price;
+
+  // 1. Save to Supabase/localStorage
+  var saved = await window.RK.bookSeats(currentBus.id, currentDate, sorted.map(function(s) {
     return { num: s.num, gender: s.gender, passenger_name: s.paxName, passenger_phone: s.paxPhone };
   }));
 
-  /* 2. WhatsApp message */
-  var paxLines = seats.map(function(s) {
-    return '💺 Seat ' + s.num + ' (' + (s.gender === 'F' ? '♀ Female' : '♂ Male') + ') — ' + s.paxName + ' · ' + s.paxPhone;
+  // 2. Build WhatsApp message
+  var dt = new Date(currentDate + 'T00:00:00');
+  var dateStr = dt.toLocaleDateString('en-IN', {weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  var paxLines = sorted.map(function(s) {
+    return '💺 Seat '+s.num+' ('+(s.gender==='F'?'♀ Female':'♂ Male')+') — '+s.paxName+' · '+s.paxPhone;
   }).join('\n');
 
   var msg =
-    '🚌 *REWA KRIPA TRAVELS — SEAT BOOKING*\n\n' +
-    '🗺️ *Route:* ' + currentRoute.label + '\n' +
-    '🚌 *Bus:* ' + currentBus.plate + ' (' + currentBus.title + ')\n' +
-    '📅 *Date:* ' + dateStr + '\n' +
-    '⏰ *Departure:* ' + currentRoute.firstBus + '\n\n' +
-    '*Passengers:*\n' + paxLines + '\n\n' +
-    '🎫 *Total Seats:* ' + seats.length + '\n' +
-    '💰 *Fare/Seat:* ' + formatINR(currentRoute.price) + '\n' +
-    '💳 *Total:* ' + formatINR(total) + '\n\n' +
-    '_Seats blocked for ALL customers. Please confirm and share payment details._';
+    '🚌 *REWA KRIPA TRAVELS — SEAT BOOKING*\n\n'+
+    '🗺️ *Route:* '+currentRoute.label+'\n'+
+    '🚌 *Bus:* '+currentBus.plate+' ('+currentBus.title+')\n'+
+    '📅 *Date:* '+dateStr+'\n'+
+    '⏰ *Departure:* '+currentRoute.firstBus+'\n\n'+
+    '*Passengers:*\n'+paxLines+'\n\n'+
+    '🎫 *Seats:* '+sorted.length+'\n'+
+    '💰 *Fare/Seat:* '+formatINR(currentRoute.price)+'\n'+
+    '💳 *Total:* '+formatINR(total)+'\n\n'+
+    '_Seats blocked instantly. Please confirm and share payment details._';
 
-  window.open('https://wa.me/' + CONFIG.company.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+  window.open('https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent(msg), '_blank');
 
-  selectedSeats = [];
-  renderPaxList(); updateSummary();
-  await loadSeats();
-  showToast('✅ ' + seats.length + ' seat' + (seats.length > 1 ? 's' : '') + ' blocked! Complete booking on WhatsApp.');
+  // 3. Show confirmation
+  document.querySelectorAll('.step-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('sp-confirm').style.display = 'block';
+  document.getElementById('sp-confirm').classList.add('active');
+
+  // Update step indicator to done
+  for (var i=1;i<=4;i++){ var si=document.getElementById('si-'+i); if(si){si.classList.remove('active');si.classList.add('done');} }
+
+  showToast('✅ '+sorted.length+' seat(s) blocked! Complete booking on WhatsApp.');
 }
 
-/* ── Admin ── */
-async function adminUnblockSeat(num) {
-  if (!confirm('Unblock Seat ' + num + '?')) return;
+function resetBooking() {
+  selectedSeats = [];
+  document.getElementById('sp-confirm').style.display = 'none';
+  goStep(1);
+}
+
+/* ═══════════════════════════════════════════
+   ADMIN
+═══════════════════════════════════════════ */
+async function adminUnblock(num) {
+  if (!confirm('Unblock seat '+num+'?')) return;
   await window.RK.unblockSeat(currentBus.id, currentDate, num);
   await loadSeats();
-  showToast('Seat ' + num + ' unblocked.');
+  showToast('Seat '+num+' unblocked.');
 }
-
 async function adminClearToday() {
-  if (!confirm('Clear ALL seats for ' + currentDate + ' on ' + currentBus.plate + '?')) return;
+  if (!confirm('Clear ALL seats for '+currentDate+'?')) return;
   await window.RK.unblockAllSeats(currentBus.id, currentDate);
-  await loadSeats();
-  showToast('All seats cleared for today.');
+  await loadSeats(); showToast('All seats cleared for today.');
 }
-
 async function adminClearAll() {
-  if (!confirm('FULL RESET: Delete ALL seat data for this bus across all dates?')) return;
+  if (!confirm('Full reset: delete ALL seat data for '+currentBus.plate+'?')) return;
   await window.RK.unblockAllBusSeats(currentBus.id);
-  await loadSeats();
-  showToast('Full reset done for ' + currentBus.plate + '.');
+  await loadSeats(); showToast('Full reset done.');
 }
 
-/* ── Driver modal ── */
+/* ═══════════════════════════════════════════
+   DRIVER MODAL
+═══════════════════════════════════════════ */
 function openDriverModal() {
   var d = currentBus && currentBus.driver;
-  if (!d) { showToast('Driver info not available.'); return; }
-  var wrap = document.getElementById('driverPhotoWrap');
-  wrap.innerHTML = '<div class="driver-placeholder">👨‍✈️</div>';
-  var img = new Image();
-  img.onload = function() { wrap.innerHTML = '<img src="' + d.photo + '" class="driver-photo" alt="' + d.name + '">'; };
-  img.src = d.photo;
-  document.getElementById('driverName').textContent    = d.name;
-  document.getElementById('driverExp').textContent     = d.exp;
-  document.getElementById('driverPhone').textContent   = d.phone;
-  document.getElementById('driverLicence').textContent = d.licence;
-  document.getElementById('driverBusNo').textContent   = currentBus.plate + ' — ' + currentBus.title;
-  document.getElementById('driverRoute').textContent   = currentBus.route || currentRoute.label;
-  document.getElementById('driverCallBtn').onclick = function() {
-    window.open('tel:' + (d.phone || '').replace(/[\s\-\(\)]/g, ''));
-  };
+  if (!d || !d.name) { showToast('Driver info not available.'); return; }
+  document.getElementById('dName').textContent = d.name || '—';
+  document.getElementById('dExp').textContent = d.exp || '—';
+  document.getElementById('dPhone').textContent = d.phone || '—';
+  document.getElementById('dLic').textContent = d.licence || '—';
+  document.getElementById('dBus').textContent = currentBus.plate+' — '+currentBus.title;
+  document.getElementById('dRoute').textContent = currentBus.route || (currentRoute ? currentRoute.label : '—');
+  document.getElementById('dCallBtn').onclick = function(){ window.open('tel:'+(d.phone||'').replace(/\D/g,'')); };
   document.getElementById('driverModal').classList.add('open');
 }
+function closeDriverModal() { document.getElementById('driverModal').classList.remove('open'); }
 
-function closeDriverModal(e) {
-  if (!e || e.target === document.getElementById('driverModal') || (e.target && e.target.classList.contains('modal-close')))
-    document.getElementById('driverModal').classList.remove('open');
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function updateConnBadge() {
+  var badge = document.getElementById('connBadge');
+  if (!badge) return;
+  if (window.RK && window.RK.isSupabaseActive && window.RK.isSupabaseActive()) {
+    badge.className = 'conn-badge conn-online';
+    badge.innerHTML = '<span class="conn-dot"></span>Live sync';
+  } else {
+    badge.className = 'conn-badge conn-offline';
+    badge.innerHTML = '<span class="conn-dot"></span>Device only';
+  }
 }
 
-function showNotice(msg, type) {
-  var el = document.getElementById('statusNotice');
-  el.textContent = 'ℹ️ ' + msg;
-  el.className = 'status-notice ' + (type === 'warn' ? 'notice-warn' : 'notice-info');
-  el.style.display = 'block';
-}
-function hideNotice() { document.getElementById('statusNotice').style.display = 'none'; }
 function showToast(msg) {
   var t = document.getElementById('bk-toast');
   t.textContent = msg; t.style.display = 'block';
-  clearTimeout(t._t); t._t = setTimeout(function(){ t.style.display = 'none'; }, 4500);
+  clearTimeout(t._t); t._t = setTimeout(function(){ t.style.display='none'; }, 4000);
 }
 </script>
 </body>
