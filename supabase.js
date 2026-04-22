@@ -23,7 +23,7 @@ const ADMIN_PASSWORD = 'Swift@8606';
 // ═══════════════════════════════════════════════
 // INTERNAL — Do not edit below
 // ═══════════════════════════════════════════════
-const SUPABASE_CONFIGURED = (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON !== 'YOUR_SUPABASE_ANON');
+const SUPABASE_CONFIGURED = (SUPABASE_URL !== 'https://wqxirssvjmilpkyszvml.supabase.co' && SUPABASE_ANON !== 'YOUR_SUPABASE_ANON');
 
 let _sb = null;
 let _sbReady = false;
