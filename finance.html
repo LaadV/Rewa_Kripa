@@ -243,8 +243,10 @@ a{text-decoration:none;color:inherit;}
       <div class="topbar-badge">Finance Manager</div>
     </div>
     <div class="topbar-right">
-      <button class="topbar-btn btn-ghost" onclick="window.open('admin.html','_blank')">⚙️ Admin Panel</button>
+      <button class="topbar-btn btn-ghost" onclick="window.open('admin.html','_blank')">⚙️ Admin</button>
       <button class="topbar-btn btn-ghost" onclick="showExportModal()">📥 Export</button>
+      <button class="topbar-btn" style="background:#25D366;color:white" onclick="quickDailyReport()">📲 Today's Report</button>
+      <button class="topbar-btn btn-orange" onclick="showWAModal()">📲 Share P&L</button>
       <button class="topbar-btn btn-teal" onclick="openEntryModal()">+ Add Entry</button>
       <button class="topbar-btn btn-ghost" onclick="doLogout()">Sign Out</button>
     </div>
@@ -426,6 +428,30 @@ a{text-decoration:none;color:inherit;}
     <div style="display:flex;gap:10px;margin-top:8px">
       <button class="btn btn-excel" onclick="doExport()" style="flex:1">📥 Download Excel</button>
       <button class="btn btn-outline" onclick="closeExportModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- WHATSAPP SHARE MODAL -->
+<div class="modal-overlay" id="waModal">
+  <div class="modal-box" style="max-width:480px">
+    <button class="modal-close" onclick="closeWAModal()">✕</button>
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:6px;color:#0f172a">📲 Share P&L on WhatsApp</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:18px">Choose report type and bus to share</p>
+    <div class="field"><label>Report Period</label>
+      <select id="wa-period">
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+        <option value="year">This Year</option>
+      </select>
+    </div>
+    <div class="field"><label>Bus</label>
+      <select id="wa-bus"><option value="all">All Buses (Summary)</option></select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn" style="background:#25D366;color:white;flex:1;font-size:14px" onclick="doShareWA()">📲 Open WhatsApp</button>
+      <button class="btn btn-outline" onclick="closeWAModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -713,6 +739,8 @@ function renderBuswise() {
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="${profit>=0?'pill-profit':'pill-loss'}">${profit>=0?'✅ Profit':'❌ Loss'}: ${fmtINR(Math.abs(profit))}</span>
           <span style="font-size:12px;color:#64748b">Margin: ${margin}%</span>
+          <button class="btn btn-sm" style="background:#25D366;color:white" onclick="shareWABusDaily('${bus.id}','${bus.plate}')">📲 Today</button>
+          <button class="btn btn-sm" style="background:#128C7E;color:white" onclick="shareWABusWeekly('${bus.id}','${bus.plate}')">📲 This Week</button>
           <button class="btn btn-excel btn-sm" onclick="exportBuswiseSingle('${bus.id}','${bus.plate}')">📥 Export</button>
         </div>
       </div>
@@ -1223,8 +1251,148 @@ function exportRoute(busId,from,to) {
 }
 
 /* ════════════════════════════════════════════════════
-   HELPERS
+   WHATSAPP SHARE
 ════════════════════════════════════════════════════ */
+function showWAModal() {
+  // Populate wa-bus dropdown once
+  const sel = document.getElementById('wa-bus');
+  if (sel.options.length === 1) {
+    BUSES.forEach(b => {
+      const o = document.createElement('option');
+      o.value = b.id; o.textContent = `${b.plate} — ${b.title}`;
+      sel.appendChild(o);
+    });
+  }
+  document.getElementById('waModal').style.display = 'flex';
+}
+function closeWAModal() { document.getElementById('waModal').style.display = 'none'; }
+document.getElementById('waModal').addEventListener('click', function(e){ if(e.target===this) closeWAModal(); });
+
+function doShareWA() {
+  const period = document.getElementById('wa-period').value;
+  const busId  = document.getElementById('wa-bus').value;
+  const msg = buildWAMessage(period, busId);
+  const wa  = (typeof CONFIG !== 'undefined' && CONFIG.company) ? CONFIG.company.whatsapp : '919977855338';
+  window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+  closeWAModal();
+}
+
+// Quick share buttons on each bus card
+function shareWABusDaily(busId, plate)  { _sendWA(buildWAMessage('today', busId)); }
+function shareWABusWeekly(busId, plate) { _sendWA(buildWAMessage('week',  busId)); }
+
+function _sendWA(msg) {
+  const wa = (typeof CONFIG !== 'undefined' && CONFIG.company) ? CONFIG.company.whatsapp : '919977855338';
+  window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function buildWAMessage(period, busId) {
+  const { from: fromDate, to: toDate } = period !== 'all' ? dateRange(period) : {};
+  const periodLabel = { today:'Today', week:'This Week', month:'This Month', year:'This Year', all:'All Time' }[period] || period;
+
+  const pad = n => String(n).padStart(2,'0');
+  const fmtDate = d => { if(!d) return '—'; const dt=new Date(d+'T00:00:00'); return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()}`; };
+
+  let msg = `🚌 *REWA KRIPA TRAVELS*\n`;
+  msg    += `💰 *Finance Report — ${periodLabel}*\n`;
+  if (fromDate && toDate) msg += `📅 ${fmtDate(fromDate)} to ${fmtDate(toDate)}\n`;
+  msg    += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  if (busId === 'all') {
+    // Summary for all buses
+    let totalInc = 0, totalExp = 0;
+    BUSES.forEach(bus => {
+      const entries = filterEntries({ busId: bus.id, fromDate, toDate });
+      const { income, expense, profit } = sumEntries(entries);
+      totalInc += income; totalExp += expense;
+      if (entries.length === 0) return;
+      msg += `🚌 *${bus.plate}* (${bus.title})\n`;
+      msg += `  💰 Income : ${fmtINR(income)}\n`;
+      msg += `  💸 Expense: ${fmtINR(expense)}\n`;
+      msg += `  ${profit>=0?'✅':'❌'} Net    : *${fmtINR(profit)}*\n\n`;
+    });
+    const totalProfit = totalInc - totalExp;
+    msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `📊 *TOTAL SUMMARY*\n`;
+    msg += `  💰 Total Income : *${fmtINR(totalInc)}*\n`;
+    msg += `  💸 Total Expense: *${fmtINR(totalExp)}*\n`;
+    msg += `  ${totalProfit>=0?'✅':'❌'} Net Profit  : *${fmtINR(totalProfit)}*\n`;
+    if (totalInc > 0) msg += `  📈 Margin: ${((totalProfit/totalInc)*100).toFixed(1)}%\n`;
+  } else {
+    // Single bus detailed report
+    const bus = BUSES.find(b => b.id === busId) || { plate: busId, title: '' };
+    const entries = filterEntries({ busId, fromDate, toDate });
+    const { income, expense, profit } = sumEntries(entries);
+    const totalPax = entries.filter(e=>e.type==='income').reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
+
+    msg += `🚌 *${bus.plate}* — ${bus.title}\n\n`;
+    msg += `💰 *Income (CR)*\n`;
+
+    // Route-wise income
+    const routeTotals = {};
+    entries.filter(e=>e.type==='income').forEach(e=>{
+      const k = e.route||e.category||'Other';
+      if (!routeTotals[k]) routeTotals[k] = { income:0, pax:0 };
+      routeTotals[k].income += (+e.amount||0);
+      routeTotals[k].pax   += (+e.pax1||0)+(+e.pax2||0);
+    });
+    Object.entries(routeTotals).forEach(([k,v]) => {
+      msg += `  • ${k}: ${fmtINR(v.income)}${v.pax ? ` (${v.pax} pax)` : ''}\n`;
+    });
+    msg += `  ─────────────────────\n`;
+    msg += `  Total Income: *${fmtINR(income)}*\n\n`;
+
+    msg += `💸 *Expenses (DR)*\n`;
+    const catTotals = {};
+    entries.filter(e=>e.type==='expense').forEach(e=>{
+      catTotals[e.category] = (catTotals[e.category]||0) + (+e.amount||0);
+    });
+    Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).forEach(([k,v]) => {
+      msg += `  • ${k}: ${fmtINR(v)}\n`;
+    });
+    msg += `  ─────────────────────\n`;
+    msg += `  Total Expense: *${fmtINR(expense)}*\n\n`;
+
+    msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `${profit>=0?'✅':'❌'} *Net P&L: ${fmtINR(profit)}*\n`;
+    if (income > 0) msg += `📈 Margin: ${((profit/income)*100).toFixed(1)}%\n`;
+    if (totalPax)   msg += `👥 Passengers: ${totalPax}\n`;
+  }
+
+  msg += `\n_Rewa Kripa Travels Finance Report_`;
+  return msg;
+}
+
+function quickDailyReport() {
+  const today = new Date().toISOString().split("T")[0];
+  const entries = filterEntries({ fromDate: today, toDate: today });
+  const { income, expense, profit } = sumEntries(entries);
+  const pad = n => String(n).padStart(2,"0");
+  const now = new Date();
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const dateLabel = now.toLocaleDateString("en-IN", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  let busLines = "";
+  BUSES.forEach(bus => {
+    const be = filterEntries({ busId: bus.id, fromDate: today, toDate: today });
+    if (!be.length) return;
+    const { income: bi, expense: bx, profit: bp } = sumEntries(be);
+    const bpax = be.filter(x=>x.type==="income").reduce((s,x)=>s+(+x.pax1||0)+(+x.pax2||0),0);
+    const routes = {};
+    be.filter(x=>x.type==="income").forEach(x=>{ const k=x.route||x.category||"Route"; if(!routes[k])routes[k]={amt:0,pax:0}; routes[k].amt+=(+x.amount||0); routes[k].pax+=(+x.pax1||0)+(+x.pax2||0); });
+    busLines += `\n\u{1F68C} *${bus.plate}* (${bus.title})\n`;
+    Object.entries(routes).forEach(([r,v]) => { busLines += `  \u2022 ${r}: \u20B9${Number(v.amt).toLocaleString("en-IN")}${v.pax ? " ("+v.pax+" pax)" : ""}\n`; });
+    const expCats = {};
+    be.filter(x=>x.type==="expense").forEach(x=>{ expCats[x.category]=(expCats[x.category]||0)+(+x.amount||0); });
+    Object.entries(expCats).forEach(([c,v]) => { busLines += `  \u{1F4B8} ${c}: \u20B9${Number(v).toLocaleString("en-IN")}\n`; });
+    busLines += `  ${bp>=0?"\u2705":"\u274C"} Net: *\u20B9${Number(bp).toLocaleString("en-IN")}*${bpax?" | \u{1F465} "+bpax+" pax":""}`;
+  });
+  const totalPax = entries.filter(e=>e.type==="income").reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
+  const msg = "\u{1F68C} *REWA KRIPA TRAVELS*\n\u{1F4CA} *Daily Report \u2014 "+dateLabel+"*\n\u{1F550} Generated at "+timeStr+"\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"+(busLines||"\n_No entries for today yet_\n")+"\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\u{1F4B0} *Total Income : \u20B9"+Number(income).toLocaleString("en-IN")+"*\n\u{1F4B8} *Total Expense: \u20B9"+Number(expense).toLocaleString("en-IN")+"*\n"+(profit>=0?"\u2705":"\u274C")+" *Net Profit  : \u20B9"+Number(profit).toLocaleString("en-IN")+"*\n"+(totalPax?"\u{1F465} *Passengers   : "+totalPax+"*\n":"")+(income>0?"\u{1F4C8} *Margin       : "+((profit/income)*100).toFixed(1)+"%*\n":"")+"\n_Rewa Kripa Travels \u2014 Daily Finance Report_";
+  const wa = (typeof CONFIG !== "undefined" && CONFIG.company) ? CONFIG.company.whatsapp : "919977855338";
+  window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(msg), "_blank");
+  toast("\u{1F4F2} Daily report sent to WhatsApp!");
+}
+
 function fmtINR(n) { return '₹'+Number(n).toLocaleString('en-IN'); }
 function toast(msg) {
   const t=document.getElementById('toast');
