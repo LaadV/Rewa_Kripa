@@ -12,8 +12,8 @@
 // ═══════════════════════════════════════════════
 // CONFIGURATION — Edit these 2 lines to enable Supabase
 // ═══════════════════════════════════════════════
-const SUPABASE_URL  = 'YOUR_SUPABASE_URL';   // e.g. https://xxxx.supabase.co
-const SUPABASE_ANON = 'YOUR_SUPABASE_ANON';  // eyJhbGci...
+const SUPABASE_URL  = 'https://wqxirssvjmilpkyszvml.supabase.co';   // e.g. https://xxxx.supabase.co
+const SUPABASE_ANON = 'sb_secret_Z6vmIAkXhjTHij7TB23pRQ_wfhpM7bM';  // eyJhbGci...
 
 // ═══════════════════════════════════════════════
 // AUTH — Change this password!
