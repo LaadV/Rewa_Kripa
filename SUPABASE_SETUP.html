@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supabase Setup Guide — Rewa Kripa Travels</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;}
+
+/* HEADER */
+.top-bar{background:linear-gradient(135deg,#012738,#024a6e);padding:28px 24px;text-align:center;border-bottom:1px solid rgba(126,200,201,.2);}
+.top-bar h1{font-size:26px;font-weight:800;color:white;margin-bottom:6px;}
+.top-bar p{font-size:14px;color:rgba(255,255,255,.5);}
+.top-badge{display:inline-block;background:rgba(126,200,201,.15);border:1px solid rgba(126,200,201,.3);color:#7EC8C9;font-size:11px;font-weight:700;padding:4px 14px;border-radius:100px;margin-bottom:12px;letter-spacing:2px;}
+
+/* LAYOUT */
+.main{max-width:900px;margin:0 auto;padding:40px 20px;}
+
+/* PROGRESS BAR */
+.progress-wrap{background:rgba(255,255,255,.05);border-radius:14px;padding:20px 24px;margin-bottom:32px;border:1px solid rgba(255,255,255,.08);}
+.progress-label{font-size:12px;color:#64748b;margin-bottom:10px;display:flex;justify-content:space-between;}
+.progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-bottom:16px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#7EC8C9,#5fb8b9);border-radius:3px;transition:width .5s ease;}
+.step-dots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.step-dot{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#64748b;cursor:pointer;transition:all .2s;}
+.step-dot.active{border-color:#7EC8C9;background:rgba(126,200,201,.15);color:#7EC8C9;}
+.step-dot.done{border-color:#16a34a;background:rgba(22,163,74,.15);color:#16a34a;}
+
+/* STEP CARD */
+.step-card{display:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;margin-bottom:24px;}
+.step-card.active{display:block;}
+.step-header{background:rgba(126,200,201,.08);border-bottom:1px solid rgba(126,200,201,.15);padding:24px 28px;display:flex;align-items:center;gap:16px;}
+.step-num-big{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#012738,#024a6e);border:2px solid #7EC8C9;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#7EC8C9;flex-shrink:0;}
+.step-header-text h2{font-size:19px;font-weight:700;color:white;margin-bottom:2px;}
+.step-header-text p{font-size:13px;color:rgba(255,255,255,.45);}
+.step-body{padding:28px;}
+
+/* VISUAL STEPS */
+.do-steps{display:flex;flex-direction:column;gap:14px;margin-bottom:20px;}
+.do-step{display:flex;gap:14px;align-items:flex-start;}
+.do-num{width:26px;height:26px;border-radius:50%;background:rgba(126,200,201,.15);border:1px solid rgba(126,200,201,.3);color:#7EC8C9;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.do-text{font-size:14px;color:#cbd5e1;line-height:1.7;}
+.do-text strong{color:white;}
+.do-text a{color:#7EC8C9;font-weight:600;text-decoration:none;}
+.do-text a:hover{text-decoration:underline;}
+
+/* SCREENSHOT MOCK */
+.screen-mock{background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;margin:16px 0;}
+.screen-mock-bar{background:#0f172a;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sb-dot{width:10px;height:10px;border-radius:50%;}
+.sb-dot.r{background:#ef4444;} .sb-dot.y{background:#f59e0b;} .sb-dot.g{background:#22c55e;}
+.screen-mock-url{flex:1;background:rgba(255,255,255,.05);border-radius:4px;padding:3px 10px;font-size:11px;color:#94a3b8;margin:0 8px;}
+.screen-mock-body{padding:20px;}
+.sm-nav-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.sm-nav-item{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;color:#94a3b8;cursor:pointer;}
+.sm-nav-item.active{background:rgba(126,200,201,.15);color:#7EC8C9;}
+.sm-highlight{background:rgba(234,179,8,.12);border:2px solid #eab308;border-radius:8px;padding:12px 16px;font-size:13px;color:#fef08a;display:flex;align-items:center;gap:10px;}
+.sm-field{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px 12px;font-size:12px;color:#94a3b8;margin-bottom:8px;font-family:monospace;}
+.sm-field.filled{border-color:rgba(126,200,201,.4);color:#7EC8C9;}
+.sm-btn{display:inline-block;padding:8px 18px;background:#3ecf8e;color:#1a1a1a;border-radius:6px;font-size:12px;font-weight:700;}
+
+/* CODE BLOCK */
+.code-wrap{position:relative;margin:14px 0;}
+.code-block{background:#0f172a;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:16px 18px;font-family:'Courier New',monospace;font-size:13px;line-height:1.8;overflow-x:auto;}
+.code-block .cm{color:#475569;}
+.code-block .ck{color:#7EC8C9;}
+.code-block .cv{color:#fbbf24;}
+.code-block .cs{color:#86efac;}
+.copy-btn{position:absolute;top:10px;right:10px;background:rgba(126,200,201,.15);border:1px solid rgba(126,200,201,.3);color:#7EC8C9;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
+.copy-btn:hover{background:rgba(126,200,201,.25);}
+.copy-btn.copied{background:rgba(22,163,74,.2);border-color:#86efac;color:#86efac;}
+
+/* CALLOUTS */
+.callout{border-radius:10px;padding:14px 16px;margin:14px 0;font-size:13px;line-height:1.7;display:flex;gap:10px;align-items:flex-start;}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.callout.tip{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.2);color:#fef9c3;}
+.callout.info{background:rgba(126,200,201,.08);border:1px solid rgba(126,200,201,.2);color:#e0f7f8;}
+.callout.error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fecaca;}
+.callout.success{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#bbf7d0;}
+
+/* TEST SECTION */
+.test-section{background:rgba(126,200,201,.06);border:1px solid rgba(126,200,201,.15);border-radius:12px;padding:22px;}
+.test-section h4{font-size:15px;font-weight:700;color:#7EC8C9;margin-bottom:14px;}
+.test-input-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.test-input{flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;color:#e2e8f0;outline:none;transition:.2s;}
+.test-input:focus{border-color:#7EC8C9;}
+.test-btn{padding:10px 20px;background:#7EC8C9;color:#012738;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;white-space:nowrap;}
+.test-btn:hover{background:#5fb8b9;}
+.test-btn:disabled{background:#475569;cursor:not-allowed;}
+.test-result{display:none;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;margin-top:10px;}
+.test-result.ok{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#86efac;}
+.test-result.fail{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+
+/* NAV BUTTONS */
+.step-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:12px;}
+.nav-btn{padding:12px 28px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .2s;}
+.nav-prev{background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid rgba(255,255,255,.1);}
+.nav-prev:hover{background:rgba(255,255,255,.1);color:white;}
+.nav-next{background:#7EC8C9;color:#012738;}
+.nav-next:hover{background:#5fb8b9;transform:translateY(-2px);}
+.nav-next:disabled{background:#475569;color:#94a3b8;cursor:not-allowed;transform:none;}
+.step-of{font-size:12px;color:#64748b;}
+
+/* SUCCESS SCREEN */
+.success-screen{display:none;text-align:center;padding:60px 40px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.15);border-radius:20px;}
+.success-icon{font-size:64px;margin-bottom:16px;animation:bounce .8s ease;}
+@keyframes bounce{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+.success-screen h2{font-size:28px;font-weight:800;color:#86efac;margin-bottom:8px;}
+.success-screen p{font-size:15px;color:#94a3b8;max-width:480px;margin:0 auto 28px;}
+.success-links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.slink{padding:12px 24px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;text-decoration:none;}
+.slink-primary{background:#7EC8C9;color:#012738;}
+.slink-ghost{background:rgba(255,255,255,.06);color:white;border:1px solid rgba(255,255,255,.1);}
+
+/* ERRORS TABLE */
+.errors-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px;}
+.errors-table th{text-align:left;padding:8px 12px;background:rgba(239,68,68,.1);color:#fca5a5;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.errors-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top;}
+.errors-table tr:last-child td{border-bottom:none;}
+.err-msg{font-family:monospace;color:#fca5a5;font-size:12px;margin-bottom:4px;}
+.err-fix{color:#94a3b8;}
+
+/* FILE BADGE */
+.file-badge{display:inline-block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#e2e8f0;font-family:monospace;font-size:12px;padding:2px 10px;border-radius:5px;}
+
+@media(max-width:600px){.test-input-row{flex-direction:column;}.step-nav{flex-wrap:wrap;gap:8px;}.step-nav .step-of{order:-1;width:100%;text-align:center;}}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-badge">SUPABASE SETUP GUIDE</div>
+  <h1>🚌 Rewa Kripa Travels</h1>
+  <p>Connect your free Supabase database — real-time seat booking across all devices</p>
+</div>
+
+<div class="main">
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progressLabel">Step 1 of 6 — Create Account</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="step-dots" id="stepDots"></div>
+  </div>
+
+  <!-- ═══ STEP 1: Create Account ═══ -->
+  <div class="step-card active" id="step-1">
+    <div class="step-header">
+      <div class="step-num-big">1</div>
+      <div class="step-header-text">
+        <h2>Create a Free Supabase Account</h2>
+        <p>Takes 2 minutes — no credit card needed</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="do-steps">
+        <div class="do-step">
+          <div class="do-num">1</div>
+          <div class="do-text">Open a new tab and go to <a href="https://supabase.com" target="_blank">supabase.com</a></div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">2</div>
+          <div class="do-text">Click <strong>"Start your project"</strong> (big green button)</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">3</div>
+          <div class="do-text">Sign up using <strong>GitHub</strong> (easiest) or your email address. It's completely free.</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">4</div>
+          <div class="do-text">Once logged in, you'll see the <strong>Supabase dashboard</strong>. Come back here when done.</div>
+        </div>
+      </div>
+
+      <div class="screen-mock">
+        <div class="screen-mock-bar">
+          <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+          <div class="screen-mock-url">supabase.com</div>
+        </div>
+        <div class="screen-mock-body">
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:28px;font-weight:800;color:#3ecf8e;margin-bottom:8px;">Supabase</div>
+            <div style="font-size:14px;color:#94a3b8;margin-bottom:20px;">Build in a weekend. Scale to millions.</div>
+            <div class="sm-btn">→ Start your project</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div>Supabase free tier includes <strong>500MB database, 50,000 API calls/month</strong> — more than enough for a bus booking website. No credit card required.</div>
+      </div>
+
+      <div class="step-nav">
+        <div class="step-of">Step 1 of 6</div>
+        <button class="nav-btn nav-next" onclick="nextStep(1)">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2: Create Project ═══ -->
+  <div class="step-card" id="step-2">
+    <div class="step-header">
+      <div class="step-num-big">2</div>
+      <div class="step-header-text">
+        <h2>Create a New Project</h2>
+        <p>Set up your database — takes about 2 minutes to initialize</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="do-steps">
+        <div class="do-step">
+          <div class="do-num">1</div>
+          <div class="do-text">In the Supabase dashboard, click <strong>"New Project"</strong></div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">2</div>
+          <div class="do-text">
+            Fill in the form:<br>
+            • <strong>Name:</strong> rewa-kripa-travels (or any name)<br>
+            • <strong>Database Password:</strong> Choose a strong password (save it somewhere)<br>
+            • <strong>Region:</strong> Choose <strong>Southeast Asia (Singapore)</strong> or <strong>South Asia (Mumbai)</strong> — closest to India
+          </div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">3</div>
+          <div class="do-text">Click <strong>"Create new project"</strong> and wait 1-2 minutes for initialization</div>
+        </div>
+      </div>
+
+      <div class="screen-mock">
+        <div class="screen-mock-bar">
+          <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+          <div class="screen-mock-url">app.supabase.com/new/project</div>
+        </div>
+        <div class="screen-mock-body">
+          <div style="font-size:14px;font-weight:600;color:white;margin-bottom:14px;">Create a new project</div>
+          <div class="sm-field filled">Name: rewa-kripa-travels</div>
+          <div class="sm-field">Database Password: ••••••••••••</div>
+          <div class="sm-field filled">Region: ✅ Southeast Asia (Singapore)</div>
+          <div style="margin-top:12px"><div class="sm-btn">Create new project</div></div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">ℹ️</div>
+        <div>After clicking Create, Supabase will show a loading screen for 1-2 minutes. This is normal — it's setting up your database server. <strong>Don't refresh the page!</strong></div>
+      </div>
+
+      <div class="step-nav">
+        <button class="nav-btn nav-prev" onclick="prevStep(2)">← Back</button>
+        <div class="step-of">Step 2 of 6</div>
+        <button class="nav-btn nav-next" onclick="nextStep(2)">My project is ready →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3: Run SQL ═══ -->
+  <div class="step-card" id="step-3">
+    <div class="step-header">
+      <div class="step-num-big">3</div>
+      <div class="step-header-text">
+        <h2>Run the Database Setup SQL</h2>
+        <p>This creates the tables needed for seat booking</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="do-steps">
+        <div class="do-step">
+          <div class="do-num">1</div>
+          <div class="do-text">In your Supabase project, click <strong>"SQL Editor"</strong> in the left sidebar (looks like &lt;/&gt; icon)</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">2</div>
+          <div class="do-text">Click <strong>"New query"</strong> button (top left of SQL editor)</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">3</div>
+          <div class="do-text"><strong>Copy the entire SQL below</strong> and paste it into the query box</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">4</div>
+          <div class="do-text">Click the <strong>"Run"</strong> button (green, bottom right of editor)</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">5</div>
+          <div class="do-text">You should see a table with 2 rows: <strong>seats</strong> and <strong>site_config</strong> at the bottom</div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-block" id="sqlCode">
+<span class="cm">-- ═══════════════════════════════════════════════════════</span>
+<span class="cm">-- REWA KRIPA TRAVELS — Supabase Setup (PASTE & RUN ALL)</span>
+<span class="cm">-- ═══════════════════════════════════════════════════════</span>
+
+<span class="cm">-- 1. Seats table</span>
+<span class="ck">create table if not exists</span> <span class="cs">seats</span> (
+  id              bigint <span class="ck">generated always as identity primary key</span>,
+  bus_id          text        <span class="ck">not null</span>,
+  travel_date     date        <span class="ck">not null</span>,
+  seat_num        int         <span class="ck">not null</span>,
+  gender          text        <span class="ck">not null default</span> <span class="cv">'M'</span>,
+  passenger_name  text        <span class="ck">default</span> <span class="cv">''</span>,
+  passenger_phone text        <span class="ck">default</span> <span class="cv">''</span>,
+  status          text        <span class="ck">not null default</span> <span class="cv">'booked'</span>,
+  booked_at       timestamptz <span class="ck">default</span> now(),
+  <span class="ck">constraint</span> seats_unique <span class="ck">unique</span> (bus_id, travel_date, seat_num),
+  <span class="ck">constraint</span> gender_check <span class="ck">check</span> (gender <span class="ck">in</span> (<span class="cv">'M'</span>,<span class="cv">'F'</span>))
+);
+
+<span class="cm">-- 2. Site config table</span>
+<span class="ck">create table if not exists</span> <span class="cs">site_config</span> (
+  id          int         <span class="ck">primary key default</span> 1,
+  config_json jsonb,
+  updated_at  timestamptz <span class="ck">default</span> now()
+);
+
+<span class="cm">-- 3. Enable security</span>
+<span class="ck">alter table</span> seats       <span class="ck">enable row level security</span>;
+<span class="ck">alter table</span> site_config <span class="ck">enable row level security</span>;
+
+<span class="cm">-- 4. Drop old policies (safe to re-run)</span>
+<span class="ck">drop policy if exists</span> <span class="cv">"seats_read"</span>    <span class="ck">on</span> seats;
+<span class="ck">drop policy if exists</span> <span class="cv">"seats_write"</span>   <span class="ck">on</span> seats;
+<span class="ck">drop policy if exists</span> <span class="cv">"seats_update"</span>  <span class="ck">on</span> seats;
+<span class="ck">drop policy if exists</span> <span class="cv">"seats_delete"</span>  <span class="ck">on</span> seats;
+<span class="ck">drop policy if exists</span> <span class="cv">"seats_select"</span>  <span class="ck">on</span> seats;
+<span class="ck">drop policy if exists</span> <span class="cv">"seats_insert"</span>  <span class="ck">on</span> seats;
+<span class="ck">drop policy if exists</span> <span class="cv">"seats_all"</span>     <span class="ck">on</span> seats;
+<span class="ck">drop policy if exists</span> <span class="cv">"config_read"</span>   <span class="ck">on</span> site_config;
+<span class="ck">drop policy if exists</span> <span class="cv">"config_write"</span>  <span class="ck">on</span> site_config;
+<span class="ck">drop policy if exists</span> <span class="cv">"config_all"</span>    <span class="ck">on</span> site_config;
+<span class="ck">drop policy if exists</span> <span class="cv">"config_select"</span> <span class="ck">on</span> site_config;
+
+<span class="cm">-- 5. Allow public access (booking page + admin)</span>
+<span class="ck">create policy</span> <span class="cv">"seats_select"</span> <span class="ck">on</span> seats <span class="ck">for select using</span> (<span class="ck">true</span>);
+<span class="ck">create policy</span> <span class="cv">"seats_insert"</span> <span class="ck">on</span> seats <span class="ck">for insert with check</span> (<span class="ck">true</span>);
+<span class="ck">create policy</span> <span class="cv">"seats_update"</span> <span class="ck">on</span> seats <span class="ck">for update using</span> (<span class="ck">true</span>);
+<span class="ck">create policy</span> <span class="cv">"seats_delete"</span> <span class="ck">on</span> seats <span class="ck">for delete using</span> (<span class="ck">true</span>);
+<span class="ck">create policy</span> <span class="cv">"config_select"</span> <span class="ck">on</span> site_config <span class="ck">for select using</span> (<span class="ck">true</span>);
+<span class="ck">create policy</span> <span class="cv">"config_all"</span>    <span class="ck">on</span> site_config <span class="ck">for all using</span> (<span class="ck">true</span>) <span class="ck">with check</span> (<span class="ck">true</span>);
+
+<span class="cm">-- 6. Enable real-time</span>
+<span class="ck">do</span> $$ <span class="ck">begin begin</span>
+  <span class="ck">alter publication</span> supabase_realtime <span class="ck">add table</span> seats;
+<span class="ck">exception when others then null</span>;
+<span class="ck">end</span>; <span class="ck">end</span> $$;
+
+<span class="cm">-- 7. Index for faster queries</span>
+<span class="ck">create index if not exists</span> idx_seats_bus_date <span class="ck">on</span> seats (bus_id, travel_date);
+
+<span class="cm">-- 8. Verify (should show 2 rows: seats + site_config)</span>
+<span class="ck">select</span> table_name <span class="ck">from</span> information_schema.tables
+<span class="ck">where</span> table_schema = <span class="cv">'public'</span>
+  <span class="ck">and</span> table_name <span class="ck">in</span> (<span class="cv">'seats'</span>, <span class="cv">'site_config'</span>)
+<span class="ck">order by</span> table_name;
+        </div>
+        <button class="copy-btn" id="sqlCopyBtn" onclick="copySQL()">📋 Copy SQL</button>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-icon">✅</div>
+        <div><strong>Expected result after running:</strong> A table at the bottom showing 2 rows — "seats" and "site_config". If you see this, the SQL worked!</div>
+      </div>
+
+      <div class="callout error">
+        <div class="callout-icon">⚠️</div>
+        <div><strong>If you get an error saying "policy already exists"</strong> — that's fine, it means the DROP commands didn't catch everything. The tables were still created. Just click Continue below.</div>
+      </div>
+
+      <!-- COMMON ERRORS -->
+      <div style="margin-top:16px">
+        <div style="font-size:13px;font-weight:600;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Common Error Messages & Fixes</div>
+        <table class="errors-table">
+          <tr><th>Error Message</th><th>What To Do</th></tr>
+          <tr>
+            <td><div class="err-msg">policy "seats_select" already exists</div></td>
+            <td class="err-fix">Ignore it — this just means you ran the SQL before. Tables are still created correctly.</td>
+          </tr>
+          <tr>
+            <td><div class="err-msg">relation "seats" already exists</div></td>
+            <td class="err-fix">Table already exists — that's fine! The "IF NOT EXISTS" means it won't overwrite data.</td>
+          </tr>
+          <tr>
+            <td><div class="err-msg">permission denied for schema public</div></td>
+            <td class="err-fix">You're logged in as read-only user. Make sure you're using SQL Editor inside your own project (not a shared project).</td>
+          </tr>
+          <tr>
+            <td><div class="err-msg">syntax error at or near "do"</div></td>
+            <td class="err-fix">The realtime block failed — skip it. Remove lines 38-42 (the "do $$ begin..." block) and run again. The rest still works.</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="step-nav">
+        <button class="nav-btn nav-prev" onclick="prevStep(3)">← Back</button>
+        <div class="step-of">Step 3 of 6</div>
+        <button class="nav-btn nav-next" onclick="nextStep(3)">SQL ran successfully →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4: Get API Keys ═══ -->
+  <div class="step-card" id="step-4">
+    <div class="step-header">
+      <div class="step-num-big">4</div>
+      <div class="step-header-text">
+        <h2>Copy Your API Keys</h2>
+        <p>Get the URL and key that connect your website to the database</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="do-steps">
+        <div class="do-step">
+          <div class="do-num">1</div>
+          <div class="do-text">In Supabase, click <strong>⚙️ Settings</strong> in the left sidebar (bottom)</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">2</div>
+          <div class="do-text">Click <strong>"API"</strong> from the Settings menu</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">3</div>
+          <div class="do-text">Find and copy these two values:<br>
+            • <strong>Project URL</strong> — looks like <code style="background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px">https://xxxxxxxxxxxx.supabase.co</code><br>
+            • <strong>anon / public</strong> key — starts with <code style="background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px">eyJhbGci...</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-mock">
+        <div class="screen-mock-bar">
+          <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+          <div class="screen-mock-url">app.supabase.com/project/xxx/settings/api</div>
+        </div>
+        <div class="screen-mock-body">
+          <div class="sm-nav-row">
+            <div class="sm-nav-item">General</div>
+            <div class="sm-nav-item active">API</div>
+            <div class="sm-nav-item">Database</div>
+            <div class="sm-nav-item">Auth</div>
+          </div>
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;font-weight:600;">Project URL</div>
+          <div class="sm-highlight" style="margin-bottom:12px">
+            📋 https://wqxirssvjmil<strong>xxxxxxxx</strong>.supabase.co
+          </div>
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;font-weight:600;">Project API Keys → anon / public</div>
+          <div class="sm-highlight">
+            📋 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.<strong>xxxxx</strong>...
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div>Copy the <strong>anon / public</strong> key — NOT the "service_role" key. The service_role key is secret and should never be in website code.</div>
+      </div>
+
+      <div style="margin-top:16px">
+        <div style="font-size:13px;font-weight:600;color:#94a3b8;margin-bottom:8px">Paste your keys here to use in the next step:</div>
+        <input class="test-input" id="savedUrl" placeholder="Paste Project URL here — https://xxxx.supabase.co" style="width:100%;margin-bottom:8px">
+        <input class="test-input" id="savedAnon" placeholder="Paste anon/public key here — eyJhbGci..." style="width:100%">
+      </div>
+
+      <div class="step-nav">
+        <button class="nav-btn nav-prev" onclick="prevStep(4)">← Back</button>
+        <div class="step-of">Step 4 of 6</div>
+        <button class="nav-btn nav-next" onclick="nextStep(4)">I have both keys →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 5: Update supabase.js ═══ -->
+  <div class="step-card" id="step-5">
+    <div class="step-header">
+      <div class="step-num-big">5</div>
+      <div class="step-header-text">
+        <h2>Update supabase.js</h2>
+        <p>Put your keys into the file and upload it to your website</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="do-steps">
+        <div class="do-step">
+          <div class="do-num">1</div>
+          <div class="do-text">Open the file <span class="file-badge">supabase.js</span> in a text editor (Notepad, VS Code, etc.)</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">2</div>
+          <div class="do-text">Find these 2 lines near the top of the file (lines 10–11)</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">3</div>
+          <div class="do-text">Replace <code style="background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px">YOUR_SUPABASE_URL</code> with your Project URL and <code style="background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px">YOUR_SUPABASE_ANON</code> with your anon key</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">4</div>
+          <div class="do-text">Save the file and <strong>re-upload it to your web host</strong> (overwrite the old one)</div>
+        </div>
+      </div>
+
+      <div id="codePreview">
+        <div style="font-size:13px;font-weight:600;color:#94a3b8;margin-bottom:8px">
+          Your personalised supabase.js snippet — <span style="color:#7EC8C9">copy these exact lines:</span>
+        </div>
+        <div class="code-wrap">
+          <div class="code-block" id="codeSnippet">Loading your keys…</div>
+          <button class="copy-btn" onclick="copySnippet()" id="snippetCopyBtn">📋 Copy</button>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">ℹ️</div>
+        <div>Only the first 2 lines with your URL and Key need to change. Everything else in supabase.js stays the same.</div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div><strong>Using Netlify/Cloudflare Pages?</strong> Just re-drag your project folder to redeploy. The updated supabase.js will be included automatically.</div>
+      </div>
+
+      <div class="step-nav">
+        <button class="nav-btn nav-prev" onclick="prevStep(5)">← Back</button>
+        <div class="step-of">Step 5 of 6</div>
+        <button class="nav-btn nav-next" onclick="nextStep(5)">File updated & uploaded →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 6: Test Connection ═══ -->
+  <div class="step-card" id="step-6">
+    <div class="step-header">
+      <div class="step-num-big">6</div>
+      <div class="step-header-text">
+        <h2>Test the Connection</h2>
+        <p>Verify everything is working correctly</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="test-section">
+        <h4>🔌 Test Your Supabase Connection</h4>
+        <div style="font-size:13px;color:#94a3b8;margin-bottom:14px">Enter your keys below to test the connection right here:</div>
+        <div class="test-input-row">
+          <input class="test-input" id="testUrl" placeholder="https://xxxx.supabase.co">
+          <input class="test-input" id="testAnon" placeholder="eyJhbGci...">
+          <button class="test-btn" id="testBtn" onclick="runTest()">Test Connection</button>
+        </div>
+        <div class="test-result" id="testResult"></div>
+      </div>
+
+      <div class="do-steps" style="margin-top:24px">
+        <div class="do-step">
+          <div class="do-num">✓</div>
+          <div class="do-text">Open your website's <strong>Book Seat page</strong> after uploading the updated supabase.js</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">✓</div>
+          <div class="do-text">Select a route and date. In the seat map, look for the badge in the top right — it should show <strong style="color:#86efac">🟢 Live sync</strong></div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">✓</div>
+          <div class="do-text">Try booking a test seat. Open the same page on another device — the seat should appear booked there too!</div>
+        </div>
+        <div class="do-step">
+          <div class="do-num">✓</div>
+          <div class="do-text">In the Admin panel, go to <strong>Dashboard</strong> — today's bookings should appear</div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div><strong>Clear test bookings:</strong> Go to Admin → Seat Management → Select bus and today's date → Click "Clear All" to remove any test seats.</div>
+      </div>
+
+      <div class="step-nav">
+        <button class="nav-btn nav-prev" onclick="prevStep(6)">← Back</button>
+        <div class="step-of">Step 6 of 6</div>
+        <button class="nav-btn nav-next" onclick="finishSetup()" style="background:#22c55e;color:white">🎉 Setup Complete!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">🚌</div>
+    <h2>Rewa Kripa Travels is Live!</h2>
+    <p>Your website now has real-time seat booking shared across all customers' devices. Every booking is instantly visible to everyone.</p>
+    <div class="success-links">
+      <a href="index.html" class="slink slink-primary">← Go to Website</a>
+      <a href="admin.html" class="slink slink-ghost">⚙️ Admin Panel</a>
+      <a href="book-seat.html" class="slink slink-ghost">💺 Test Booking</a>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+var currentStep = 1;
+var totalSteps = 6;
+var stepTitles = ['Create Account','Create Project','Run SQL','Get API Keys','Update File','Test Connection'];
+
+// Build dots
+var dots = document.getElementById('stepDots');
+for (var i = 1; i <= totalSteps; i++) {
+  var d = document.createElement('div');
+  d.className = 'step-dot' + (i === 1 ? ' active' : '');
+  d.textContent = i;
+  d.dataset.step = i;
+  (function(n){ d.onclick = function(){ if(n <= currentStep) goToStep(n); }; })(i);
+  dots.appendChild(d);
+}
+
+function goToStep(n) {
+  document.querySelectorAll('.step-card').forEach(function(c){ c.classList.remove('active'); });
+  document.getElementById('successScreen').style.display = 'none';
+  var card = document.getElementById('step-'+n);
+  if (card) card.classList.add('active');
+  currentStep = n;
+  updateProgress();
+  // Pre-fill keys if available
+  if (n === 5) fillCodeSnippet();
+  if (n === 6) prefillTestInputs();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep(from) {
+  if (from < totalSteps) goToStep(from + 1);
+}
+function prevStep(from) {
+  if (from > 1) goToStep(from - 1);
+}
+
+function updateProgress() {
+  var pct = Math.round(((currentStep - 1) / totalSteps) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressLabel').textContent = 'Step ' + currentStep + ' of ' + totalSteps + ' — ' + stepTitles[currentStep-1];
+  document.querySelectorAll('.step-dot').forEach(function(d) {
+    var n = parseInt(d.dataset.step);
+    d.classList.remove('active', 'done');
+    if (n < currentStep) d.classList.add('done');
+    else if (n === currentStep) d.classList.add('active');
+  });
+}
+
+function fillCodeSnippet() {
+  var url = (document.getElementById('savedUrl') && document.getElementById('savedUrl').value.trim()) || 'YOUR_SUPABASE_URL';
+  var anon = (document.getElementById('savedAnon') && document.getElementById('savedAnon').value.trim()) || 'YOUR_SUPABASE_ANON';
+  document.getElementById('codeSnippet').innerHTML =
+    '<span style="color:#475569">// Open supabase.js and replace lines 10-11 with these:</span>\n\n' +
+    '<span style="color:#7EC8C9">const</span> <span style="color:#e2e8f0">SUPABASE_URL</span>  = <span style="color:#fbbf24">\''+url+'\'</span>;\n' +
+    '<span style="color:#7EC8C9">const</span> <span style="color:#e2e8f0">SUPABASE_ANON</span> = <span style="color:#fbbf24">\''+anon+'\'</span>;\n\n' +
+    '<span style="color:#475569">// Leave everything else in the file unchanged</span>';
+}
+
+function prefillTestInputs() {
+  var url = document.getElementById('savedUrl') && document.getElementById('savedUrl').value.trim();
+  var anon = document.getElementById('savedAnon') && document.getElementById('savedAnon').value.trim();
+  if (url) document.getElementById('testUrl').value = url;
+  if (anon) document.getElementById('testAnon').value = anon;
+}
+
+function copySQL() {
+  var sql = `-- REWA KRIPA TRAVELS — Supabase Setup\ncreate table if not exists seats (\n  id              bigint generated always as identity primary key,\n  bus_id          text        not null,\n  travel_date     date        not null,\n  seat_num        int         not null,\n  gender          text        not null default 'M',\n  passenger_name  text        default '',\n  passenger_phone text        default '',\n  status          text        not null default 'booked',\n  booked_at       timestamptz default now(),\n  constraint seats_unique unique (bus_id, travel_date, seat_num),\n  constraint gender_check check (gender in ('M','F'))\n);\ncreate table if not exists site_config (\n  id          int         primary key default 1,\n  config_json jsonb,\n  updated_at  timestamptz default now()\n);\nalter table seats       enable row level security;\nalter table site_config enable row level security;\ndrop policy if exists "seats_read"    on seats;\ndrop policy if exists "seats_write"   on seats;\ndrop policy if exists "seats_update"  on seats;\ndrop policy if exists "seats_delete"  on seats;\ndrop policy if exists "seats_select"  on seats;\ndrop policy if exists "seats_insert"  on seats;\ndrop policy if exists "seats_all"     on seats;\ndrop policy if exists "config_read"   on site_config;\ndrop policy if exists "config_write"  on site_config;\ndrop policy if exists "config_all"    on site_config;\ndrop policy if exists "config_select" on site_config;\ncreate policy "seats_select" on seats for select using (true);\ncreate policy "seats_insert" on seats for insert with check (true);\ncreate policy "seats_update" on seats for update using (true);\ncreate policy "seats_delete" on seats for delete using (true);\ncreate policy "config_select" on site_config for select using (true);\ncreate policy "config_all"    on site_config for all using (true) with check (true);\ndo $$ begin begin\n  alter publication supabase_realtime add table seats;\nexception when others then null;\nend; end $$;\ncreate index if not exists idx_seats_bus_date on seats (bus_id, travel_date);\nselect table_name from information_schema.tables\nwhere table_schema = 'public' and table_name in ('seats', 'site_config')\norder by table_name;`;
+  navigator.clipboard.writeText(sql).then(function() {
+    var btn = document.getElementById('sqlCopyBtn');
+    btn.textContent = '✅ Copied!'; btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent='📋 Copy SQL'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+function copySnippet() {
+  var url = (document.getElementById('savedUrl') && document.getElementById('savedUrl').value.trim()) || 'YOUR_SUPABASE_URL';
+  var anon = (document.getElementById('savedAnon') && document.getElementById('savedAnon').value.trim()) || 'YOUR_SUPABASE_ANON';
+  var text = "const SUPABASE_URL  = '"+url+"';\nconst SUPABASE_ANON = '"+anon+"';";
+  navigator.clipboard.writeText(text).then(function(){
+    var btn = document.getElementById('snippetCopyBtn');
+    btn.textContent='✅ Copied!'; btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent='📋 Copy'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+async function runTest() {
+  var url = document.getElementById('testUrl').value.trim();
+  var anon = document.getElementById('testAnon').value.trim();
+  var result = document.getElementById('testResult');
+  var btn = document.getElementById('testBtn');
+  if (!url || !anon) { result.className='test-result fail'; result.style.display='block'; result.textContent='⚠️ Please enter both URL and anon key.'; return; }
+  if (!url.startsWith('https://') || !url.includes('supabase.co')) {
+    result.className='test-result fail'; result.style.display='block';
+    result.textContent='❌ URL looks wrong. It should start with https:// and contain supabase.co'; return;
+  }
+  btn.disabled = true; btn.textContent = 'Testing…';
+  result.className='test-result'; result.style.display='none';
+  try {
+    var response = await fetch(url + '/rest/v1/seats?limit=1', {
+      headers: { 'apikey': anon, 'Authorization': 'Bearer ' + anon }
+    });
+    if (response.ok || response.status === 406) {
+      result.className = 'test-result ok';
+      result.innerHTML = '✅ <strong>Connection successful!</strong> Supabase is working. The seats table is accessible.';
+    } else if (response.status === 401 || response.status === 403) {
+      result.className = 'test-result fail';
+      result.innerHTML = '❌ <strong>Auth failed ('+response.status+').</strong> Check that the anon key is correct — it should be the "anon / public" key from Settings → API.';
+    } else if (response.status === 404) {
+      result.className = 'test-result fail';
+      result.innerHTML = '❌ <strong>Table not found (404).</strong> The seats table doesn\'t exist yet. Go back to Step 3 and run the SQL first.';
+    } else {
+      result.className = 'test-result fail';
+      result.innerHTML = '⚠️ <strong>HTTP '+response.status+'.</strong> Try checking your Project URL — it should be like https://xxxx.supabase.co (no trailing slash).';
+    }
+  } catch(e) {
+    result.className = 'test-result fail';
+    result.innerHTML = '❌ <strong>Network error.</strong> Could not reach Supabase. Check: (1) URL is correct, (2) your internet works, (3) Supabase project is not paused (free projects pause after 1 week of no activity).';
+  }
+  result.style.display = 'block';
+  btn.disabled = false; btn.textContent = 'Test Connection';
+}
+
+function finishSetup() {
+  document.querySelectorAll('.step-card').forEach(function(c){ c.classList.remove('active'); });
+  var s = document.getElementById('successScreen');
+  s.style.display = 'block';
+  document.querySelectorAll('.step-dot').forEach(function(d){ d.classList.remove('active'); d.classList.add('done'); });
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressPct').textContent = '100%';
+  document.getElementById('progressLabel').textContent = '✅ Setup Complete!';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
