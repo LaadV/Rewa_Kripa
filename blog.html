@@ -9,8 +9,10 @@
 <section class="page-hero"><div class="container"><div class="page-eyebrow">Travel Tips & Stories</div><h1>Our Blog</h1><p>Guides, tips, and stories from the roads of Madhya Pradesh</p></div></section>
 <section class="section section-gray"><div class="container"><div class="blog-grid" id="blog-grid"></div></div></section>
 <div id="site-footer"></div>
-<script src="config.js"></script><script src="script.js"></script>
+<script src="config.js"></script><script src="supabase.js"></script><script src="config-loader.js"></script><script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader('blog.html'); buildFooter();
 var posts = [
   { img:'images/bus1.jpeg', tag:'Travel Guide', title:'Barwani to Indore by Bus: Everything You Need to Know in 2026', desc:'Complete guide to travelling from Barwani to Indore — timings, fares, boarding points, and comfort tips.', date:'March 15, 2026' },
@@ -23,5 +25,6 @@ var posts = [
 document.getElementById('blog-grid').innerHTML = posts.map(function(p){
   return '<div class="blog-card"><img src="'+p.img+'" alt="'+p.title+'"><div class="blog-card-body"><span class="blog-tag">'+p.tag+'</span><h3>'+p.title+'</h3><p>'+p.desc+'</p><div class="blog-meta"><span>'+p.date+'</span><span class="blog-read-link">Read More →</span></div></div></div>';
 }).join('');
+})();
 </script>
 </body></html>

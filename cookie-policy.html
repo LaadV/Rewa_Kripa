@@ -9,8 +9,10 @@
 <section class="page-hero"><div class="container"><div class="page-eyebrow">Legal · India</div><h1>Cookie Policy</h1><p>Effective Date: 1 April 2026</p></div></section>
 <section class="policy-body"><div class="container"><div class="policy-content" id="pol"></div></div></section>
 <div id="site-footer"></div>
-<script src="config.js"></script><script src="script.js"></script>
+<script src="config.js"></script><script src="supabase.js"></script><script src="config-loader.js"></script><script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader(''); buildFooter();
 var c = CONFIG.company;
 document.getElementById('pol').innerHTML =
@@ -20,5 +22,6 @@ document.getElementById('pol').innerHTML =
   '<h2>3. Managing Cookies</h2><p>Manage or disable cookies through your browser settings. Disabling essential cookies may affect site functionality.</p>'+
   '<h2>4. Third-Party Cookies</h2><p>Services like Google Analytics and WhatsApp may set their own cookies. We recommend reviewing their privacy policies.</p>'+
   '<h2>5. Contact</h2><p>Questions? Email <a href="mailto:'+c.email+'" style="color:#7EC8C9;">'+c.email+'</a></p>';
+})();
 </script>
 </body></html>

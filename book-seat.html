@@ -226,6 +226,7 @@
 
 <script src="config.js"></script>
 <script src="supabase.js"></script>
+<script src="config-loader.js"></script>
 <script src="script.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════
@@ -239,6 +240,8 @@ var liveBooked = [];      // [{seat_num, gender, passenger_name, passenger_phone
 var fbUnsub = null;
 
 /* ── Init ── */
+(async function(){
+await window.RK_CONFIG_READY;
 buildHeader('book-seat.html');
 buildFooter();
 
@@ -565,6 +568,7 @@ function showToast(msg) {
   t.textContent = msg; t.style.display = 'block';
   clearTimeout(t._t); t._t = setTimeout(function(){ t.style.display = 'none'; }, 4500);
 }
+})();
 </script>
 </body>
 </html>

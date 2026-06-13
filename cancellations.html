@@ -9,8 +9,10 @@
 <section class="page-hero"><div class="container"><div class="page-eyebrow">Legal · India</div><h1>Cancellation &amp; Refund Policy</h1><p>Effective Date: 1 April 2026</p></div></section>
 <section class="policy-body"><div class="container"><div class="policy-content" id="pol-content"></div></div></section>
 <div id="site-footer"></div>
-<script src="config.js"></script><script src="script.js"></script>
+<script src="config.js"></script><script src="supabase.js"></script><script src="config-loader.js"></script><script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader(''); buildFooter();
 var c = CONFIG.company;
 document.getElementById('pol-content').innerHTML =
@@ -22,5 +24,6 @@ document.getElementById('pol-content').innerHTML =
   '<h2>5. Cancellation by the Company</h2><p>If the Company cancels (natural calamity, force majeure, breakdown), passengers receive a <strong>full refund</strong> or free rescheduling.</p>'+
   '<h2>6. Rescheduling</h2><p>One free rescheduling up to 6 hours before departure. Subsequent: ₹50 per seat.</p>'+
   '<div class="policy-highlight">Disputes governed by Indian law. Jurisdiction: Courts of '+c.address.city+', '+c.address.state+'.</div>';
+})();
 </script>
 </body></html>

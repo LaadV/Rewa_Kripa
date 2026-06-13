@@ -41,8 +41,10 @@
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;" id="ab-routes"></div>
 </div></section>
 <div id="site-footer"></div>
-<script src="config.js"></script><script src="script.js"></script>
+<script src="config.js"></script><script src="supabase.js"></script><script src="config-loader.js"></script><script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader('about.html'); buildFooter();
 var c = CONFIG.company;
 document.title = 'About Us — ' + c.fullName;
@@ -60,5 +62,6 @@ document.getElementById('ab-stats').innerHTML = CONFIG.stats.map(function(s){
 document.getElementById('ab-routes').innerHTML = CONFIG.routes.map(function(r){
   return '<div style="background:#f8fafc;border-radius:12px;padding:20px;border-left:4px solid #7EC8C9;"><h4 style="font-size:15px;font-weight:600;color:#0f172a;margin-bottom:6px;">'+r.label+'</h4><p style="font-size:13px;color:#64748b;margin:0;">First bus '+r.firstBus+' · From '+formatINR(r.price)+'</p></div>';
 }).join('');
+})();
 </script>
 </body></html>

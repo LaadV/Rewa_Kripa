@@ -9,8 +9,10 @@
 <section class="page-hero"><div class="container"><div class="page-eyebrow">Support</div><h1>Help Centre</h1><p>Common questions and how to reach us</p></div></section>
 <section class="policy-body"><div class="container"><div class="policy-content" id="help-content"></div></div></section>
 <div id="site-footer"></div>
-<script src="config.js"></script><script src="script.js"></script>
+<script src="config.js"></script><script src="supabase.js"></script><script src="config-loader.js"></script><script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader('help.html'); buildFooter();
 var c = CONFIG.company;
 document.getElementById('help-content').innerHTML =
@@ -22,5 +24,6 @@ document.getElementById('help-content').innerHTML =
   '<h2>Cancellation policy?</h2><p>90% refund if cancelled 48+ hours before. 50% for 24–48 hours. No refund under 24 hours. See full <a href="cancellations.html" style="color:#7EC8C9;">Cancellation Policy</a>.</p>'+
   '<h2>What ID should I carry?</h2><p>Any valid government-issued photo ID — Aadhaar, Voter ID, PAN, Passport, or Driving Licence.</p>'+
   '<h2>Still need help?</h2><p><a href="https://wa.me/'+c.whatsapp+'" target="_blank" style="color:#7EC8C9;font-weight:600;">WhatsApp '+c.phone+'</a> or email <a href="mailto:'+c.email+'" style="color:#7EC8C9;">'+c.email+'</a></p>';
+})();
 </script>
 </body></html>

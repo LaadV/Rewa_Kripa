@@ -9,8 +9,10 @@
 <section class="page-hero"><div class="container"><div class="page-eyebrow">Legal · India</div><h1>Terms of Use</h1><p>Effective Date: 1 April 2026</p></div></section>
 <section class="policy-body"><div class="container"><div class="policy-content" id="pol"></div></div></section>
 <div id="site-footer"></div>
-<script src="config.js"></script><script src="script.js"></script>
+<script src="config.js"></script><script src="supabase.js"></script><script src="config-loader.js"></script><script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader(''); buildFooter();
 var c = CONFIG.company;
 document.getElementById('pol').innerHTML =
@@ -21,5 +23,6 @@ document.getElementById('pol').innerHTML =
   '<h2>4. Disclaimer</h2><p>Website provided "as is". No guarantee of uninterrupted access. Information subject to change without notice.</p>'+
   '<h2>5. Governing Law</h2><p>Governed by Indian law. Disputes subject to exclusive jurisdiction of courts in '+c.address.city+', '+c.address.state+'.</p>'+
   '<h2>6. Contact</h2><p>Questions? Email <a href="mailto:'+c.email+'" style="color:#7EC8C9;">'+c.email+'</a> or WhatsApp <a href="https://wa.me/'+c.whatsapp+'" style="color:#7EC8C9;">'+c.phone+'</a>.</p>';
+})();
 </script>
 </body></html>

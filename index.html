@@ -54,8 +54,12 @@
 
 <div id="site-footer"></div>
 <script src="config.js"></script>
+<script src="supabase.js"></script>
+<script src="config-loader.js"></script>
 <script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader('index.html');
 buildFooter();
 document.title = CONFIG.company.fullName + ' — ' + CONFIG.company.tagline;
@@ -91,6 +95,7 @@ document.getElementById('routes-grid').innerHTML = CONFIG.routes.map(function(r)
 document.getElementById('trips-grid').innerHTML = CONFIG.trips.slice(0,3).map(function(t){
   return '<a href="trip-detail.html?trip='+t.id+'" class="trip-card"><div class="trip-card-img"><img src="'+t.image+'" alt="'+t.shortTitle+'"><span class="trip-type-badge '+badgeClass(t.badge)+'">'+t.badgeLabel+'</span><span class="seats-left">'+t.seatsLeft+' seats left</span></div><div class="trip-card-body"><h3>'+t.title+'</h3><p class="trip-desc">'+t.subtitle+'</p><div class="trip-meta-row"><div class="trip-meta-item"><span class="ml">Departure</span><span class="mv">'+t.departure+'</span></div><div class="trip-meta-item"><span class="ml">Duration</span><span class="mv">'+t.duration+'</span></div></div><div class="trip-card-footer"><div class="trip-price">'+formatINR(t.price)+' <small>/person</small></div><button class="trip-book-btn">View Trip</button></div></div></a>';
 }).join('');
+})();
 </script>
 </body>
 </html>

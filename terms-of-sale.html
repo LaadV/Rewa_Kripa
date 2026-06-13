@@ -9,8 +9,10 @@
 <section class="page-hero"><div class="container"><div class="page-eyebrow">Legal · India</div><h1>Terms of Sale</h1><p>Effective Date: 1 April 2026</p></div></section>
 <section class="policy-body"><div class="container"><div class="policy-content" id="pol"></div></div></section>
 <div id="site-footer"></div>
-<script src="config.js"></script><script src="script.js"></script>
+<script src="config.js"></script><script src="supabase.js"></script><script src="config-loader.js"></script><script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader(''); buildFooter();
 var c = CONFIG.company;
 document.getElementById('pol').innerHTML =
@@ -21,5 +23,6 @@ document.getElementById('pol').innerHTML =
   '<h2>4. Liability</h2><p>Liability limited to the ticket/package value. Company not liable for incidental or consequential losses.</p>'+
   '<h2>5. Governing Law</h2><p>Governed by Indian law including Consumer Protection Act, 2019 and Carriage by Road Act, 2007. Jurisdiction: Courts of '+c.address.city+', '+c.address.state+'.</p>'+
   '<div class="policy-highlight">Contact: '+c.phone+' | '+c.email+' | '+c.address.line1+', '+c.address.city+' '+c.address.pin+'</div>';
+})();
 </script>
 </body></html>

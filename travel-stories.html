@@ -11,8 +11,10 @@
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;" id="stories-grid"></div>
 </div></section>
 <div id="site-footer"></div>
-<script src="config.js"></script><script src="script.js"></script>
+<script src="config.js"></script><script src="supabase.js"></script><script src="config-loader.js"></script><script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader('travel-stories.html'); buildFooter();
 var stories = [
   { init:'R', name:'Ramesh Patel',   sub:'Barwani → Indore · Regular Commuter',   stars:5, text:'I travel to Indore every week for work. Rewa Kripa is always on time and the drivers are very professional. The USB charging port has been a lifesaver. Highly recommend!' },
@@ -39,5 +41,6 @@ document.getElementById('stories-grid').innerHTML = stories.map(function(s){
   '<p style="color:rgba(255,255,255,.5);font-size:14px;line-height:1.7;">Travelled with us? Share your experience!</p>'+
   '<a href="https://wa.me/'+CONFIG.company.whatsapp+'?text=Hi%2C+I+want+to+share+my+travel+story+with+Rewa+Kripa+Travels!" target="_blank" class="btn-primary">Share on WhatsApp</a>'+
 '</div>';
+})();
 </script>
 </body></html>

@@ -34,6 +34,8 @@
 <script src="config.js"></script>
 <script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader('upcoming-trip.html');
 buildFooter();
 
@@ -89,6 +91,7 @@ var dailyHTML = CONFIG.routes.map(function(r){
 }).join('');
 
 document.getElementById('trips-grid').innerHTML += dailyHTML;
+})();
 </script>
 </body>
 </html>

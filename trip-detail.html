@@ -60,6 +60,8 @@
 <script src="config.js"></script>
 <script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader('upcoming-trip.html');
 buildFooter();
 
@@ -122,6 +124,7 @@ function bookTripWA(){
     '_Please share payment details to confirm booking. Thank you!_';
   window.open('https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent(msg),'_blank');
 }
+})();
 </script>
 </body>
 </html>

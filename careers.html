@@ -9,8 +9,10 @@
 <section class="page-hero"><div class="container"><div class="page-eyebrow">Join Our Team</div><h1>Careers at Rewa Kripa</h1><p>Passionate, reliable people to grow with us</p></div></section>
 <section class="section section-gray"><div class="container"><div style="max-width:860px;margin:0 auto;" id="jobs-grid"></div></div></section>
 <div id="site-footer"></div>
-<script src="config.js"></script><script src="script.js"></script>
+<script src="config.js"></script><script src="supabase.js"></script><script src="config-loader.js"></script><script src="script.js"></script>
 <script>
+(async function () {
+await window.RK_CONFIG_READY;
 buildHeader('careers.html'); buildFooter();
 var jobs = [
   { title:'Bus Driver (Licensed)', detail:'Full-time · Barwani, MP · ₹18,000–₹25,000/month', points:['Valid HMV licence required.','Minimum 3 years highway driving experience.','Clean driving record. Character certificate required.','Local candidates from Barwani/Indore preferred.'] },
@@ -30,5 +32,6 @@ function applyJob(role){
   var msg='\uD83E\uDDD1\u200D\uD83D\uDCBC *JOB APPLICATION \u2014 REWA KRIPA TRAVELS*\n\nI am interested in the *'+role+'* position.\n\nName: \nAge: \nQualification: \nExperience: \nCity: \n\nPlease let me know the next steps. Thank you!';
   window.open('https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent(msg),'_blank');
 }
+})();
 </script>
 </body></html>
