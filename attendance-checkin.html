@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Check-In — Rewa Kripa Travels</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="supabase.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#012738 0%,#024a6e 100%);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+
+.wrap{width:100%;max-width:440px;}
+
+/* HEADER */
+.top-logo{text-align:center;margin-bottom:28px;}
+.top-logo-icon{font-size:48px;display:block;margin-bottom:8px;}
+.top-logo-name{font-size:20px;font-weight:700;color:white;letter-spacing:.5px;}
+.top-logo-sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:2px;}
+
+/* CARD */
+.card{background:white;border-radius:20px;padding:32px 28px;box-shadow:0 32px 64px rgba(0,0,0,.3);}
+.card-title{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:4px;}
+.card-sub{font-size:13px;color:#64748b;margin-bottom:24px;}
+
+/* STEP INDICATOR */
+.steps{display:flex;gap:8px;margin-bottom:24px;}
+.step-dot{flex:1;height:4px;border-radius:2px;background:#e5e7eb;transition:.3s;}
+.step-dot.active{background:#7EC8C9;}
+.step-dot.done{background:#012738;}
+
+/* FIELD */
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:11px;font-weight:600;color:#64748b;
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;
+  border-radius:10px;font-size:14px;font-family:'Poppins',sans-serif;outline:none;
+  transition:.2s;color:#0f172a;background:white;}
+.field input:focus,.field select:focus{border-color:#7EC8C9;box-shadow:0 0 0 3px rgba(126,200,201,.15);}
+
+/* STATUS BUTTONS */
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.status-opt{padding:16px 12px;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;
+  text-align:center;transition:.2s;background:white;}
+.status-opt:hover{border-color:#7EC8C9;}
+.status-opt.sel-present{background:#dcfce7;border-color:#86efac;}
+.status-opt.sel-late{background:#fef9c3;border-color:#fde68a;}
+.status-opt.sel-halfday{background:#e0f2fe;border-color:#7dd3fc;}
+.status-opt.sel-leave{background:#f3e8ff;border-color:#d8b4fe;}
+.status-opt .so-icon{font-size:28px;display:block;margin-bottom:6px;}
+.status-opt .so-label{font-size:13px;font-weight:600;color:#0f172a;}
+.status-opt .so-sub{font-size:11px;color:#94a3b8;margin-top:2px;}
+
+/* BUTTONS */
+.btn-wa{width:100%;padding:15px;background:#25D366;color:white;border:none;border-radius:12px;
+  font-size:15px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;margin-top:8px;}
+.btn-wa:hover{background:#1ebc58;transform:translateY(-2px);}
+.btn-wa:disabled{background:#94a3b8;cursor:not-allowed;transform:none;}
+.btn-back{width:100%;padding:11px;background:transparent;color:#64748b;border:1.5px solid #e5e7eb;
+  border-radius:10px;font-size:14px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px;}
+.btn-back:hover{border-color:#7EC8C9;color:#012738;}
+
+/* SUCCESS SCREEN */
+.success-screen{text-align:center;padding:20px 0;}
+.success-icon{font-size:64px;display:block;margin-bottom:16px;
+  animation:pop .4s cubic-bezier(0.175,0.885,0.32,1.275);}
+@keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
+.success-title{font-size:22px;font-weight:700;color:#0f172a;margin-bottom:6px;}
+.success-sub{font-size:14px;color:#64748b;line-height:1.6;margin-bottom:20px;}
+.success-badge{display:inline-flex;align-items:center;gap:8px;background:#dcfce7;
+  border:1px solid #86efac;color:#16a34a;font-size:13px;font-weight:600;
+  padding:8px 16px;border-radius:100px;margin-bottom:20px;}
+
+/* HOW IT WORKS */
+.how-it-works{background:#f8fafc;border-radius:12px;padding:16px;margin-top:16px;}
+.how-title{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:10px;}
+.how-step{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;font-size:13px;color:#64748b;}
+.how-step:last-child{margin-bottom:0;}
+.how-num{width:22px;height:22px;background:#012738;color:white;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+
+/* LINK */
+.admin-link{text-align:center;margin-top:20px;}
+.admin-link a{font-size:13px;color:rgba(255,255,255,.45);text-decoration:none;transition:.2s;}
+.admin-link a:hover{color:white;}
+
+/* LOADING */
+.loading{text-align:center;padding:30px 0;color:#64748b;font-size:14px;}
+.spin{width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:#7EC8C9;
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-logo">
+    <span class="top-logo-icon">🚌</span>
+    <div class="top-logo-name">REWA KRIPA TRAVELS</div>
+    <div class="top-logo-sub">Staff Check-In Portal</div>
+  </div>
+
+  <div class="card" id="mainCard">
+
+    <!-- STEP 1: Find staff -->
+    <div id="step1">
+      <div class="steps">
+        <div class="step-dot active" id="dot1"></div>
+        <div class="step-dot" id="dot2"></div>
+        <div class="step-dot" id="dot3"></div>
+      </div>
+      <div class="card-title">Who are you? 👋</div>
+      <div class="card-sub">Enter your phone number or select your name to mark attendance.</div>
+
+      <div class="field">
+        <label>Your Mobile Number</label>
+        <input type="tel" id="staffPhone" placeholder="e.g. 9876543210" maxlength="15"
+          oninput="onPhoneInput()">
+      </div>
+
+      <div id="staffMatchResult" style="margin-bottom:16px;"></div>
+
+      <div class="field">
+        <label>Or select your name</label>
+        <select id="staffSelect" onchange="onSelectStaff()">
+          <option value="">— Select your name —</option>
+        </select>
+      </div>
+
+      <div id="selectedStaffPreview" style="display:none;background:#f0f9ff;border:1px solid #bae6fd;
+        border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:15px;font-weight:600;color:#0f172a" id="previewName"></div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px" id="previewRole"></div>
+        <div style="font-size:12px;color:#0369a1;font-weight:600;margin-top:2px" id="previewBus"></div>
+      </div>
+
+      <button class="btn-wa" id="step1Next" onclick="goStep2()" disabled>
+        Continue → Choose Status
+      </button>
+
+      <div class="how-it-works">
+        <div class="how-title">How Check-In Works</div>
+        <div class="how-step"><div class="how-num">1</div>Find your name or enter your phone</div>
+        <div class="how-step"><div class="how-num">2</div>Select your attendance status for today</div>
+        <div class="how-step"><div class="how-num">3</div>Tap "Send on WhatsApp" — it opens a pre-filled message to the manager</div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Status -->
+    <div id="step2" style="display:none;">
+      <div class="steps">
+        <div class="step-dot done" id="dot1b"></div>
+        <div class="step-dot active" id="dot2b"></div>
+        <div class="step-dot" id="dot3b"></div>
+      </div>
+      <div class="card-title">Mark your attendance 📋</div>
+      <div class="card-sub" id="step2sub">Today is <strong id="todayLabel"></strong></div>
+
+      <div class="status-grid">
+        <div class="status-opt" id="opt-present" onclick="selectStatus('present')">
+          <span class="so-icon">✅</span>
+          <div class="so-label">Present</div>
+          <div class="so-sub">I'm at work today</div>
+        </div>
+        <div class="status-opt" id="opt-late" onclick="selectStatus('late')">
+          <span class="so-icon">⏰</span>
+          <div class="so-label">Late</div>
+          <div class="so-sub">Arrived late</div>
+        </div>
+        <div class="status-opt" id="opt-halfday" onclick="selectStatus('halfday')">
+          <span class="so-icon">🕐</span>
+          <div class="so-label">Half Day</div>
+          <div class="so-sub">Working half day</div>
+        </div>
+        <div class="status-opt" id="opt-leave" onclick="selectStatus('leave')">
+          <span class="so-icon">🏖️</span>
+          <div class="so-label">Leave</div>
+          <div class="so-sub">On approved leave</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Check-in Time (optional)</label>
+        <input type="time" id="checkInTime">
+      </div>
+      <div class="field">
+        <label>Note / Reason (optional)</label>
+        <input type="text" id="checkInNote" placeholder="e.g. Bus breakdown, medical leave...">
+      </div>
+
+      <button class="btn-wa" id="step2Next" onclick="goStep3()" disabled>
+        📲 Send via WhatsApp
+      </button>
+      <button class="btn-back" onclick="goBack(1)">← Back</button>
+    </div>
+
+    <!-- STEP 3: SUCCESS -->
+    <div id="step3" style="display:none;">
+      <div class="steps">
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+      </div>
+      <div class="success-screen">
+        <span class="success-icon" id="successIcon">✅</span>
+        <div class="success-title" id="successTitle">Check-In Sent!</div>
+        <div class="success-badge" id="successBadge">✅ Present</div>
+        <div class="success-sub" id="successSub">
+          Your WhatsApp message has been opened. Press <strong>Send</strong> to confirm your attendance.
+          The manager will mark it officially.
+        </div>
+        <button class="btn-wa" onclick="checkInAgain()">Mark Another Staff →</button>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+
+  <div class="admin-link">
+    <a href="staff.html">⚙️ Admin: Attendance Manager</a>
+    &nbsp;·&nbsp;
+    <a href="index.html">← Website</a>
+  </div>
+</div><!-- /wrap -->
+
+<script>
+/* ═══════════════════════════════════════════
+   STAFF CHECK-IN PAGE
+═══════════════════════════════════════════ */
+
+let staffList = [];
+let selectedStaff = null;
+let selectedStatus = null;
+
+const today = new Date().toISOString().split('T')[0];
+const todayFmt = new Date().toLocaleDateString('en-IN', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+document.getElementById('todayLabel').textContent = todayFmt;
+// Pre-fill current time
+const now = new Date();
+document.getElementById('checkInTime').value =
+  `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+/* ── LOAD STAFF ── */
+async function loadStaff() {
+  // Try supabase
+  for (let i = 0; i < 30; i++) {
+    if (window._supabase) break;
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  if (window._supabase) {
+    try {
+      const { data, error } = await window._supabase
+        .from('staff').select('*').eq('active', true).order('name');
+      if (!error && data?.length) { staffList = data; }
+    } catch(e) {}
+  }
+
+  if (!staffList.length) {
+    staffList = JSON.parse(localStorage.getItem('rk_staff') || '[]');
+  }
+
+  // Populate select
+  const sel = document.getElementById('staffSelect');
+  const byRole = {driver:[],conductor:[],helper:[],office:[]};
+  staffList.forEach(s => { (byRole[s.role] || []).push(s); });
+  const roleLabels = {driver:'🚌 Drivers',conductor:'🎫 Conductors',helper:'🔧 Helpers',office:'🏢 Office Staff'};
+
+  Object.entries(byRole).forEach(([role, members]) => {
+    if (!members.length) return;
+    const og = document.createElement('optgroup');
+    og.label = roleLabels[role];
+    members.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.id;
+      o.textContent = s.name + (s.bus_plate ? ` (${s.bus_plate})` : '');
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+}
+
+loadStaff();
+
+/* ── PHONE INPUT MATCH ── */
+function onPhoneInput() {
+  const phone = document.getElementById('staffPhone').value.replace(/\D/g,'');
+  const result = document.getElementById('staffMatchResult');
+  if (phone.length < 8) { result.innerHTML = ''; return; }
+
+  const match = staffList.find(s =>
+    s.phone.replace(/\D/g,'').endsWith(phone) ||
+    (s.whatsapp && s.whatsapp.replace(/\D/g,'').endsWith(phone))
+  );
+
+  if (match) {
+    selectedStaff = match;
+    result.innerHTML = `
+      <div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:12px;">
+        <div style="font-size:14px;font-weight:600;color:#16a34a">✅ Found: ${match.name}</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px">${match.role}${match.bus_plate?' · '+match.bus_plate:''}</div>
+      </div>`;
+    updatePreview();
+    document.getElementById('step1Next').disabled = false;
+    document.getElementById('staffSelect').value = '';
+  } else if (phone.length >= 10) {
+    result.innerHTML = `
+      <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:12px;">
+        <div style="font-size:13px;color:#dc2626">❌ Not found. Please select your name below.</div>
+      </div>`;
+    selectedStaff = null;
+    document.getElementById('step1Next').disabled = true;
+  }
+}
+
+function onSelectStaff() {
+  const id = +document.getElementById('staffSelect').value;
+  if (!id) return;
+  selectedStaff = staffList.find(s => s.id === id);
+  document.getElementById('staffPhone').value = '';
+  document.getElementById('staffMatchResult').innerHTML = '';
+  updatePreview();
+  document.getElementById('step1Next').disabled = false;
+}
+
+function updatePreview() {
+  if (!selectedStaff) return;
+  document.getElementById('selectedStaffPreview').style.display = 'block';
+  document.getElementById('previewName').textContent = selectedStaff.name;
+  document.getElementById('previewRole').textContent =
+    {driver:'🚌 Driver',conductor:'🎫 Conductor',helper:'🔧 Helper',office:'🏢 Office Staff'}[selectedStaff.role] || selectedStaff.role;
+  document.getElementById('previewBus').textContent =
+    selectedStaff.bus_plate ? `Assigned Bus: ${selectedStaff.bus_plate}` : '';
+}
+
+/* ── STATUS SELECTION ── */
+function selectStatus(status) {
+  selectedStatus = status;
+  ['present','late','halfday','leave'].forEach(s => {
+    document.getElementById(`opt-${s}`).className = 'status-opt';
+  });
+  document.getElementById(`opt-${status}`).classList.add(`sel-${status}`);
+  document.getElementById('step2Next').disabled = false;
+}
+
+/* ── NAVIGATION ── */
+function goStep2() {
+  if (!selectedStaff) return;
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+}
+
+function goStep3() {
+  if (!selectedStatus || !selectedStaff) return;
+  const checkIn = document.getElementById('checkInTime').value;
+  const note    = document.getElementById('checkInNote').value.trim();
+  sendWACheckIn(checkIn, note);
+}
+
+function goBack(step) {
+  document.getElementById('step1').style.display = step === 1 ? 'block' : 'none';
+  document.getElementById('step2').style.display = step === 2 ? 'block' : 'none';
+  if (step === 1) {
+    selectedStatus = null;
+    ['present','late','halfday','leave'].forEach(s => {
+      document.getElementById(`opt-${s}`).className = 'status-opt';
+    });
+    document.getElementById('step2Next').disabled = true;
+  }
+}
+
+function checkInAgain() {
+  selectedStaff = null;
+  selectedStatus = null;
+  document.getElementById('staffPhone').value = '';
+  document.getElementById('staffSelect').value = '';
+  document.getElementById('staffMatchResult').innerHTML = '';
+  document.getElementById('selectedStaffPreview').style.display = 'none';
+  document.getElementById('step1Next').disabled = true;
+  document.getElementById('step3').style.display = 'none';
+  document.getElementById('step1').style.display = 'block';
+  ['present','late','halfday','leave'].forEach(s => {
+    document.getElementById(`opt-${s}`).className = 'status-opt';
+  });
+}
+
+/* ── WHATSAPP CHECK-IN MESSAGE ── */
+function sendWACheckIn(checkIn, note) {
+  const wa = (typeof CONFIG !== 'undefined') ? CONFIG.company.whatsapp : '919977855338';
+  const statusEmoji = {present:'✅',late:'⏰',halfday:'🕐',leave:'🏖️'};
+  const statusLabel = {present:'PRESENT',late:'LATE',halfday:'HALF DAY',leave:'ON LEAVE'};
+
+  let msg = `🚌 *REWA KRIPA TRAVELS — ATTENDANCE CHECK-IN*\n\n`;
+  msg    += `👤 *Name:* ${selectedStaff.name}\n`;
+  msg    += `🔖 *Role:* ${selectedStaff.role}\n`;
+  if (selectedStaff.bus_plate) msg += `🚌 *Bus:* ${selectedStaff.bus_plate}\n`;
+  msg    += `📅 *Date:* ${todayFmt}\n`;
+  msg    += `${statusEmoji[selectedStatus]} *Status:* ${statusLabel[selectedStatus]}\n`;
+  if (checkIn)  msg += `⏰ *Check-in Time:* ${checkIn}\n`;
+  if (note)     msg += `📝 *Note:* ${note}\n`;
+  msg    += `\n_Please confirm this attendance in the Admin Portal._`;
+
+  window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
+
+  // Show success
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step3').style.display = 'block';
+
+  const iconMap = {present:'✅',late:'⏰',halfday:'🕐',leave:'🏖️'};
+  const badgeCls = {present:'#dcfce7',late:'#fef9c3',halfday:'#e0f2fe',leave:'#f3e8ff'};
+  const badgeColor = {present:'#16a34a',late:'#92400e',halfday:'#0369a1',leave:'#7c3aed'};
+  const badgeTxt = {present:'✅ Present',late:'⏰ Late',halfday:'🕐 Half Day',leave:'🏖️ Leave'};
+
+  document.getElementById('successIcon').textContent = iconMap[selectedStatus];
+  document.getElementById('successTitle').textContent = 'Check-In Sent!';
+  document.getElementById('successBadge').textContent = badgeTxt[selectedStatus];
+  document.getElementById('successBadge').style.background = badgeCls[selectedStatus];
+  document.getElementById('successBadge').style.color = badgeColor[selectedStatus];
+  document.getElementById('successBadge').style.border = `1px solid ${badgeColor[selectedStatus]}44`;
+}
+</script>
+</body>
+</html>

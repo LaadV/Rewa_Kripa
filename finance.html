@@ -243,10 +243,9 @@ a{text-decoration:none;color:inherit;}
       <div class="topbar-badge">Finance Manager</div>
     </div>
     <div class="topbar-right">
-      <button class="topbar-btn btn-ghost" onclick="window.open('admin.html','_blank')">⚙️ Admin</button>
+      <button class="topbar-btn btn-ghost" onclick="window.open('admin.html','_blank')">⚙️ Admin Panel</button>
       <button class="topbar-btn btn-ghost" onclick="showExportModal()">📥 Export</button>
-      <button class="topbar-btn" style="background:#25D366;color:white" onclick="quickDailyReport()">📲 Today's Report</button>
-      <button class="topbar-btn btn-orange" onclick="showWAModal()">📲 Share P&L</button>
+      <button class="topbar-btn btn-orange" onclick="showWAModal()">📲 Share on WhatsApp</button>
       <button class="topbar-btn btn-teal" onclick="openEntryModal()">+ Add Entry</button>
       <button class="topbar-btn btn-ghost" onclick="doLogout()">Sign Out</button>
     </div>
@@ -1361,36 +1360,6 @@ function buildWAMessage(period, busId) {
 
   msg += `\n_Rewa Kripa Travels Finance Report_`;
   return msg;
-}
-
-function quickDailyReport() {
-  const today = new Date().toISOString().split("T")[0];
-  const entries = filterEntries({ fromDate: today, toDate: today });
-  const { income, expense, profit } = sumEntries(entries);
-  const pad = n => String(n).padStart(2,"0");
-  const now = new Date();
-  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  const dateLabel = now.toLocaleDateString("en-IN", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
-  let busLines = "";
-  BUSES.forEach(bus => {
-    const be = filterEntries({ busId: bus.id, fromDate: today, toDate: today });
-    if (!be.length) return;
-    const { income: bi, expense: bx, profit: bp } = sumEntries(be);
-    const bpax = be.filter(x=>x.type==="income").reduce((s,x)=>s+(+x.pax1||0)+(+x.pax2||0),0);
-    const routes = {};
-    be.filter(x=>x.type==="income").forEach(x=>{ const k=x.route||x.category||"Route"; if(!routes[k])routes[k]={amt:0,pax:0}; routes[k].amt+=(+x.amount||0); routes[k].pax+=(+x.pax1||0)+(+x.pax2||0); });
-    busLines += `\n\u{1F68C} *${bus.plate}* (${bus.title})\n`;
-    Object.entries(routes).forEach(([r,v]) => { busLines += `  \u2022 ${r}: \u20B9${Number(v.amt).toLocaleString("en-IN")}${v.pax ? " ("+v.pax+" pax)" : ""}\n`; });
-    const expCats = {};
-    be.filter(x=>x.type==="expense").forEach(x=>{ expCats[x.category]=(expCats[x.category]||0)+(+x.amount||0); });
-    Object.entries(expCats).forEach(([c,v]) => { busLines += `  \u{1F4B8} ${c}: \u20B9${Number(v).toLocaleString("en-IN")}\n`; });
-    busLines += `  ${bp>=0?"\u2705":"\u274C"} Net: *\u20B9${Number(bp).toLocaleString("en-IN")}*${bpax?" | \u{1F465} "+bpax+" pax":""}`;
-  });
-  const totalPax = entries.filter(e=>e.type==="income").reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
-  const msg = "\u{1F68C} *REWA KRIPA TRAVELS*\n\u{1F4CA} *Daily Report \u2014 "+dateLabel+"*\n\u{1F550} Generated at "+timeStr+"\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"+(busLines||"\n_No entries for today yet_\n")+"\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\u{1F4B0} *Total Income : \u20B9"+Number(income).toLocaleString("en-IN")+"*\n\u{1F4B8} *Total Expense: \u20B9"+Number(expense).toLocaleString("en-IN")+"*\n"+(profit>=0?"\u2705":"\u274C")+" *Net Profit  : \u20B9"+Number(profit).toLocaleString("en-IN")+"*\n"+(totalPax?"\u{1F465} *Passengers   : "+totalPax+"*\n":"")+(income>0?"\u{1F4C8} *Margin       : "+((profit/income)*100).toFixed(1)+"%*\n":"")+"\n_Rewa Kripa Travels \u2014 Daily Finance Report_";
-  const wa = (typeof CONFIG !== "undefined" && CONFIG.company) ? CONFIG.company.whatsapp : "919977855338";
-  window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(msg), "_blank");
-  toast("\u{1F4F2} Daily report sent to WhatsApp!");
 }
 
 function fmtINR(n) { return '₹'+Number(n).toLocaleString('en-IN'); }
