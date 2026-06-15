@@ -113,7 +113,7 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Our flagship Luxury Seater with premium 2×2 recliner seating, USB charging on every seat, free WiFi, and full AC. Ideal for the Barwani–Bokrata corridor.",
-      bookedSeats: [3, 7, 12, 18, 24, 29]  // Seats already booked (shown in red on map)
+      bookedSeats: []  // Seat bookings are managed live via Supabase/admin panel
     },
     {
       id:       "bus2",
@@ -137,7 +137,7 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Comfortable AC Seater with pushback reclining, cup holders, and reading lights. Great for medium-distance daily travel.",
-      bookedSeats: [2, 5, 11, 20, 31]
+      bookedSeats: []  // Seat bookings are managed live via Supabase/admin panel
     },
     {
       id:       "bus3",
@@ -161,7 +161,7 @@ var CONFIG = {
         "📶 Free WiFi"
       ],
       description: "The ultimate travel experience on wheels. Entertainment system, complimentary snacks, LED displays, and spacious 2×1 premium seating.",
-      bookedSeats: [1, 8, 15, 22]
+      bookedSeats: []  // Seat bookings are managed live via Supabase/admin panel
     },
     {
       id:       "bus4",
@@ -183,7 +183,7 @@ var CONFIG = {
         "⏱️ On-time Service"
       ],
       description: "Reliable and economical. Clean, punctual, and ideal for budget-conscious travellers on shorter routes.",
-      bookedSeats: [4, 9, 14, 19, 28, 35, 42]
+      bookedSeats: []  // Seat bookings are managed live via Supabase/admin panel
     }
   ],
 
