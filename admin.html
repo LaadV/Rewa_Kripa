@@ -327,6 +327,7 @@
 
 <script src="config.js"></script>
 <script src="supabase.js"></script>
+<script src="config-loader.js"></script>
 <script>
 /* ═════════════════════════════════════════
    ADMIN PORTAL LOGIC
@@ -368,19 +369,22 @@ if (window.RK.isAdminLoggedIn()) {
 
 /* ── INIT ── */
 async function initPortal() {
+  // Wait for config-loader.js to apply the latest saved config to CONFIG
+  if (window.RK_CONFIG_READY) { try { await window.RK_CONFIG_READY; } catch(e){} }
   workingConfig = JSON.parse(JSON.stringify(CONFIG));
   if (!window.RK.SUPABASE_CONFIGURED) {
     document.getElementById('setupBanner').style.display = 'flex';
   }
 
-  // Try to load admin-saved config
+  // Safety-net re-check (e.g. if another admin saved changes moments ago)
   var saved = await window.RK.getConfig();
+  var merge = window.RK_deepMerge || function(t,s){ return Object.assign(t,s); };
   if (saved) {
-    Object.assign(workingConfig, saved);
-    toast('Loaded config from Supabase');
+    merge(workingConfig, saved);
+    toast('Loaded latest config from Supabase');
   } else {
     var localSaved = localStorage.getItem('rk_admin_config');
-    if (localSaved) { try { workingConfig = JSON.parse(localSaved); } catch(e){} }
+    if (localSaved) { try { merge(workingConfig, JSON.parse(localSaved)); } catch(e){} }
   }
 
   populateCompany();

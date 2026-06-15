@@ -37,6 +37,9 @@
     return target;
   }
 
+  /* Expose deepMerge globally so admin.html can reuse it for safe re-merges */
+  window.RK_deepMerge = deepMerge;
+
   /* Expose a promise that resolves once CONFIG is patched */
   window.RK_CONFIG_READY = (async function () {
     try {
