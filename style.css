@@ -868,6 +868,7 @@ nav .btn-book:hover { background: #5fb8b9; }
 .bus-content { padding:16px; }
 .bus-content h3 { font-size:15px; font-weight:600; margin-bottom:4px; color:#111827; }
 .bus-content p { font-size:13px; color:#6b7280; margin-bottom:10px; }
+.bus-departure { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; color:#012738; background:#e0f7f8; padding:4px 10px; border-radius:100px; margin-bottom:10px; }
 .bus-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px; }
 .bus-tag { font-size:11px; background:#f1f5f9; color:#475569; padding:3px 9px; border-radius:100px; }
 .bus-link { font-size:13px; color:#7EC8C9; font-weight:600; }
