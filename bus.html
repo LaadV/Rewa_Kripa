@@ -41,8 +41,7 @@
             <div class="book-row"><span class="bl">Layout</span><span class="bv" id="busLayout"></span></div>
             <div class="book-row"><span class="bl">Capacity</span><span class="bv" id="busCap"></span></div>
             <div class="book-cta">
-              <a id="busBookLink" href="book-seat.html" class="btn-primary" style="text-align:center;display:block;width:100%;padding:13px;">🎫 Choose Seat &amp; Book</a>
-              <a id="busWALink" href="#" target="_blank" class="btn-whatsapp">💬 WhatsApp to Book</a>
+              <a id="busWALink" href="#" target="_blank" class="btn-whatsapp" style="text-align:center;display:block;width:100%;padding:13px;">💬 Book via WhatsApp</a>
             </div>
           </div>
         </div>
@@ -77,8 +76,13 @@ document.getElementById('busDep').textContent   = b.departure;
 document.getElementById('busLayout').textContent= b.layout;
 document.getElementById('busCap').textContent   = b.capacity + ' Seats';
 
-document.getElementById('busBookLink').href = 'book-seat.html?bus='+b.id;
-document.getElementById('busWALink').href   = 'https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent('Hi, I want to book a seat on bus '+b.plate+' ('+b.title+') on the route '+b.route+'.');
+var waMsg = '🚌 *REWA KRIPA TRAVELS — SEAT BOOKING ENQUIRY*\n\n' +
+  '🚌 *Bus:* ' + b.plate + ' (' + b.title + ')\n' +
+  '🛣️ *Route:* ' + b.route + '\n' +
+  '💰 *Fare:* ' + formatINR(b.price) + ' per seat\n\n' +
+  'Hi, I would like to book seat(s) on this bus. Please confirm availability.\n\n' +
+  '📅 *Travel Date:* \n👥 *No. of Seats:* \n👤 *Name:* \n📱 *Phone:* ';
+document.getElementById('busWALink').href = 'https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent(waMsg);
 
 var specs = [
   { l:'Bus Number', v: b.plate   },

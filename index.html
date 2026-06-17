@@ -89,11 +89,18 @@ document.getElementById('buses-grid').innerHTML = CONFIG.buses.map(function(b){
 }).join('');
 
 document.getElementById('routes-grid').innerHTML = CONFIG.routes.map(function(r){
-  return '<a href="book-seat.html?route='+r.id+'" class="route-card"><div class="card-image"><img src="'+r.image+'" alt="'+r.label+'"><span class="distance-badge">'+r.duration+'</span></div><div class="card-content"><h3>'+r.label+'</h3><span class="address">'+r.type+' · First bus: '+r.firstBus+'</span><div class="card-footer"><div class="rating">⭐ '+r.rating+' <span>('+r.reviews+')</span></div>'+(r.status==='open'?'<button class="open-btn">Open Now</button>':'')+'</div><div class="route-price-row"><span class="route-price">'+formatINR(r.price)+'</span><span class="route-dep">Last: '+r.lastBus+'</span></div><button class="route-book-btn">Book Seat →</button></div></a>';
+  var waMsg = '🚌 *REWA KRIPA TRAVELS — SEAT BOOKING ENQUIRY*\n\n' +
+    '🗺️ *Route:* ' + r.label + '\n' +
+    '💰 *Fare:* ' + formatINR(r.price) + ' per seat\n' +
+    '⏰ *First Bus:* ' + r.firstBus + ' · *Last Bus:* ' + r.lastBus + '\n\n' +
+    'Hi, I would like to book seat(s) on this route. Please confirm availability.\n\n' +
+    '📅 *Travel Date:* \n👥 *No. of Seats:* \n👤 *Name:* \n📱 *Phone:* ';
+  var waLink = 'https://wa.me/' + CONFIG.company.whatsapp + '?text=' + encodeURIComponent(waMsg);
+  return '<a href="'+waLink+'" target="_blank" class="route-card"><div class="card-image"><img src="'+r.image+'" alt="'+r.label+'"><span class="route-price-badge">'+formatINR(r.price)+' <small>/seat</small></span><span class="distance-badge">'+r.duration+'</span></div><div class="card-content"><h3>'+r.label+'</h3><span class="address">'+r.type+' · First bus: '+r.firstBus+'</span><div class="card-footer"><div class="rating">⭐ '+r.rating+' <span>('+r.reviews+')</span></div>'+(r.status==='open'?'<span class="open-btn">Open Now</span>':'')+'</div><div class="route-price-row"><span class="route-price">'+formatINR(r.price)+'</span><span class="route-dep">Last: '+r.lastBus+'</span></div><span class="route-book-btn">💬 Book on WhatsApp</span></div></a>';
 }).join('');
 
 document.getElementById('trips-grid').innerHTML = CONFIG.trips.slice(0,3).map(function(t){
-  return '<a href="trip-detail.html?trip='+t.id+'" class="trip-card"><div class="trip-card-img"><img src="'+t.image+'" alt="'+t.shortTitle+'"><span class="trip-type-badge '+badgeClass(t.badge)+'">'+t.badgeLabel+'</span><span class="seats-left">'+t.seatsLeft+' seats left</span></div><div class="trip-card-body"><h3>'+t.title+'</h3><p class="trip-desc">'+t.subtitle+'</p><div class="trip-meta-row"><div class="trip-meta-item"><span class="ml">Departure</span><span class="mv">'+t.departure+'</span></div><div class="trip-meta-item"><span class="ml">Duration</span><span class="mv">'+t.duration+'</span></div></div><div class="trip-card-footer"><div class="trip-price">'+formatINR(t.price)+' <small>/person</small></div><button class="trip-book-btn">View Trip</button></div></div></a>';
+  return '<a href="trip-detail.html?trip='+t.id+'" class="trip-card"><div class="trip-card-img"><img src="'+t.image+'" alt="'+t.shortTitle+'"><span class="trip-type-badge '+badgeClass(t.badge)+'">'+t.badgeLabel+'</span><span class="seats-left">'+t.seatsLeft+' seats left</span></div><div class="trip-card-body"><h3>'+t.title+'</h3><p class="trip-desc">'+t.subtitle+'</p><div class="trip-meta-row"><div class="trip-meta-item"><span class="ml">Departure</span><span class="mv">'+t.departure+'</span></div><div class="trip-meta-item"><span class="ml">Duration</span><span class="mv">'+t.duration+'</span></div></div><div class="trip-card-footer"><div class="trip-price">'+formatINR(t.price)+' <small>/person</small></div><span class="trip-book-btn">View Trip</span></div></div></a>';
 }).join('');
 })();
 </script>
