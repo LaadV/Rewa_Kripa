@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Attendance — Rewa Kripa Travels</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="supabase.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh;}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#012738 0%,#024a6e 60%,#7EC8C9 100%);}
+.login-card{background:white;border-radius:20px;padding:48px 40px;max-width:400px;width:90%;
+  text-align:center;box-shadow:0 32px 64px rgba(0,0,0,.3);}
+.login-logo{font-size:32px;margin-bottom:8px;}
+.login-brand{font-size:22px;font-weight:700;color:#012738;margin-bottom:4px;}
+.login-sub{font-size:13px;color:#64748b;margin-bottom:30px;}
+.login-input{width:100%;padding:13px 16px;border:1.5px solid #e5e7eb;border-radius:10px;
+  font-size:15px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;
+  text-align:center;letter-spacing:2px;margin-bottom:14px;}
+.login-input:focus{border-color:#7EC8C9;}
+.login-btn{width:100%;padding:13px;background:#012738;color:white;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;}
+.login-btn:hover{background:#024a6e;}
+.login-err{color:#dc2626;font-size:13px;margin-top:10px;min-height:18px;}
+.login-back{display:block;margin-top:16px;font-size:13px;color:#94a3b8;text-decoration:none;}
+
+/* ── LAYOUT ── */
+.app{display:none;}
+.topbar{background:#012738;color:white;padding:0 28px;display:flex;align-items:center;
+  justify-content:space-between;height:58px;position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 12px rgba(0,0,0,.3);}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.topbar-brand{font-size:15px;font-weight:700;}
+.topbar-badge{font-size:10px;background:rgba(126,200,201,.2);border:1px solid rgba(126,200,201,.4);
+  color:#7EC8C9;padding:3px 10px;border-radius:100px;font-weight:600;letter-spacing:1px;}
+.topbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.tbtn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
+  border:none;font-family:'Poppins',sans-serif;transition:.2s;}
+.tbtn-ghost{background:rgba(255,255,255,.1);color:white;}
+.tbtn-ghost:hover{background:rgba(255,255,255,.2);}
+.tbtn-teal{background:#7EC8C9;color:#012738;}
+.tbtn-teal:hover{background:#5fb8b9;}
+.tbtn-green{background:#22c55e;color:white;}
+.tbtn-green:hover{background:#16a34a;}
+.tbtn-wa{background:#25D366;color:white;}
+.tbtn-wa:hover{background:#1ebc58;}
+
+/* ── TAB NAV ── */
+.tab-nav{background:white;border-bottom:1px solid #e5e7eb;display:flex;padding:0 28px;
+  position:sticky;top:58px;z-index:100;overflow-x:auto;}
+.tab-item{padding:14px 18px;font-size:13px;font-weight:500;color:#64748b;
+  border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;}
+.tab-item:hover{color:#012738;}
+.tab-item.active{color:#012738;border-bottom-color:#7EC8C9;font-weight:600;}
+
+.main{padding:24px;max-width:1400px;margin:0 auto;}
+
+/* ── CARDS ── */
+.card{background:white;border-radius:14px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+  border:1px solid #e5e7eb;margin-bottom:20px;}
+.card-title{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:16px;
+  padding-bottom:12px;border-bottom:1px solid #f1f5f9;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.card-title span{font-size:12px;font-weight:400;color:#94a3b8;}
+
+/* ── KPI ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
+.kpi{background:white;border-radius:12px;padding:18px 20px;border:1px solid #e5e7eb;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.kpi-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;
+  color:#94a3b8;margin-bottom:5px;}
+.kpi-val{font-size:24px;font-weight:700;line-height:1;}
+.kpi-sub{font-size:11px;color:#94a3b8;margin-top:3px;}
+.kv-present{color:#16a34a;} .kv-absent{color:#dc2626;} .kv-late{color:#f59e0b;}
+.kv-half{color:#0369a1;} .kv-leave{color:#7c3aed;}
+
+/* ── DATE BAR ── */
+.date-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.date-bar input{padding:9px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;
+  font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+.date-bar input:focus{border-color:#7EC8C9;}
+.date-bar-label{font-size:14px;font-weight:600;color:#0f172a;}
+
+/* ── FILTER ROW ── */
+.filter-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px;}
+.filter-row .field{margin-bottom:0;flex:1;min-width:130px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:600;color:#64748b;
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;
+  border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;
+  font-family:'Poppins',sans-serif;outline:none;transition:.2s;color:#0f172a;background:white;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#7EC8C9;}
+
+/* ── ATTENDANCE GRID ── */
+.att-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.att-card{background:white;border-radius:12px;border:1px solid #e5e7eb;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden;transition:.2s;}
+.att-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.1);border-color:#7EC8C9;}
+.att-card-header{padding:14px 16px;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid #f1f5f9;}
+.att-avatar{width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;}
+.role-driver{background:#0369a1;} .role-conductor{background:#7c3aed;}
+.role-helper{background:#f59e0b;} .role-office{background:#16a34a;}
+.att-info{flex:1;min-width:0;}
+.att-name{font-size:14px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.att-role-bus{font-size:11px;color:#94a3b8;}
+.att-status-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap;}
+.sp-present{background:#dcfce7;color:#16a34a;}
+.sp-absent{background:#fee2e2;color:#dc2626;}
+.sp-halfday{background:#e0f2fe;color:#0369a1;}
+.sp-leave{background:#f3e8ff;color:#7c3aed;}
+.sp-late{background:#fef9c3;color:#92400e;}
+.sp-unmarked{background:#f1f5f9;color:#94a3b8;}
+.att-card-body{padding:14px 16px;}
+.status-btns{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;}
+.sbtn{padding:6px 4px;border:1.5px solid #e5e7eb;border-radius:6px;font-size:10px;
+  font-weight:600;cursor:pointer;background:white;color:#64748b;
+  font-family:'Poppins',sans-serif;transition:.15s;text-align:center;}
+.sbtn:hover{border-color:#7EC8C9;color:#012738;}
+.sbtn.active-P{background:#dcfce7;border-color:#86efac;color:#16a34a;}
+.sbtn.active-A{background:#fee2e2;border-color:#fca5a5;color:#dc2626;}
+.sbtn.active-H{background:#e0f2fe;border-color:#7dd3fc;color:#0369a1;}
+.sbtn.active-L{background:#f3e8ff;border-color:#d8b4fe;color:#7c3aed;}
+.sbtn.active-T{background:#fef9c3;border-color:#fde68a;color:#92400e;}
+.att-note-input{width:100%;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:6px;
+  font-size:12px;font-family:'Poppins',sans-serif;outline:none;color:#0f172a;transition:.2s;}
+.att-note-input:focus{border-color:#7EC8C9;}
+.att-checkin{display:flex;gap:6px;margin-top:8px;align-items:center;}
+.att-checkin input{flex:1;padding:6px 10px;border:1.5px solid #e5e7eb;border-radius:6px;
+  font-size:12px;font-family:'Poppins',sans-serif;outline:none;}
+.att-save-btn{padding:6px 14px;background:#012738;color:white;border:none;border-radius:6px;
+  font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;white-space:nowrap;}
+.att-save-btn:hover{background:#7EC8C9;color:#012738;}
+.wa-send-btn{padding:6px 12px;background:#25D366;color:white;border:none;border-radius:6px;
+  font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid #e5e7eb;}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{text-align:left;padding:10px 13px;background:#f8fafc;color:#64748b;
+  font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid #e5e7eb;white-space:nowrap;}
+.tbl td{padding:11px 13px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#f8fafc;}
+
+/* ── STAFF FORM ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.btn{padding:9px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:#012738;color:white;} .btn-primary:hover{background:#024a6e;}
+.btn-teal{background:#7EC8C9;color:#012738;} .btn-teal:hover{background:#5fb8b9;}
+.btn-danger{background:#fee2e2;color:#dc2626;} .btn-danger:hover{background:#fecaca;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-wa{background:#25D366;color:white;} .btn-wa:hover{background:#1ebc58;}
+
+/* ── ROLE BADGE ── */
+.role-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;}
+.rb-driver{background:#dbeafe;color:#1d4ed8;} .rb-conductor{background:#f3e8ff;color:#7c3aed;}
+.rb-helper{background:#fef9c3;color:#92400e;} .rb-office{background:#dcfce7;color:#16a34a;}
+
+/* ── MONTHLY SHEET ── */
+.month-scroll{overflow-x:auto;}
+.month-tbl{border-collapse:collapse;font-size:12px;min-width:900px;}
+.month-tbl th,.month-tbl td{border:1px solid #e5e7eb;padding:7px 10px;white-space:nowrap;}
+.month-tbl th{background:#f8fafc;font-weight:600;color:#64748b;font-size:11px;}
+.month-tbl td{text-align:center;}
+.mc-P{background:#dcfce7;color:#16a34a;font-weight:700;}
+.mc-A{background:#fee2e2;color:#dc2626;font-weight:700;}
+.mc-H{background:#e0f2fe;color:#0369a1;font-weight:700;}
+.mc-L{background:#f3e8ff;color:#7c3aed;font-weight:700;}
+.mc-T{background:#fef9c3;color:#92400e;font-weight:700;}
+.mc-blank{color:#d1d5db;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:28px;right:28px;background:#012738;color:white;
+  padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;
+  z-index:9999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;
+  align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:white;border-radius:16px;padding:28px;width:100%;max-width:620px;
+  position:relative;margin:auto;animation:mpop .2s ease;}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;
+  background:#f1f5f9;border:none;font-size:16px;cursor:pointer;color:#64748b;}
+@keyframes mpop{from{transform:scale(.88);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(3,1fr);}
+  .g2,.g3{grid-template-columns:1fr;} .att-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr;}.main{padding:14px;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🚌</div>
+    <div class="login-brand">Rewa Kripa Travels</div>
+    <div class="login-sub">Staff Attendance Manager</div>
+    <input type="password" id="pwInput" class="login-input" placeholder="Admin Password"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="loginErr"></div>
+    <a href="index.html" class="login-back">← Back to Website</a>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">🚌 Rewa Kripa Travels</div>
+      <div class="topbar-badge">Staff Attendance</div>
+    </div>
+    <div class="topbar-right">
+      <button class="tbtn tbtn-ghost" onclick="window.open('admin.html','_blank')">⚙️ Admin</button>
+      <button class="tbtn tbtn-wa" onclick="shareWASummary()">📲 Share Summary</button>
+      <button class="tbtn tbtn-teal" onclick="openAddStaffModal()">+ Add Staff</button>
+      <button class="tbtn tbtn-ghost" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <div class="tab-item active" onclick="switchTab('today',this)">📋 Today's Attendance</div>
+    <div class="tab-item" onclick="switchTab('daily',this)">📊 Daily Summary</div>
+    <div class="tab-item" onclick="switchTab('monthly',this)">📅 Monthly Sheet</div>
+    <div class="tab-item" onclick="switchTab('staff',this)">👥 Staff Directory</div>
+  </div>
+
+  <div class="main">
+
+    <!-- ══ TODAY'S ATTENDANCE ══ -->
+    <div id="tab-today">
+      <div class="date-bar">
+        <div class="date-bar-label">📅 Attendance for</div>
+        <input type="date" id="attDate" onchange="loadTodayAttendance()">
+        <button class="tbtn tbtn-teal" onclick="loadTodayAttendance()">🔄 Refresh</button>
+        <button class="tbtn tbtn-wa" onclick="shareWASummary()">📲 WhatsApp Report</button>
+        <button class="tbtn tbtn-ghost" onclick="markAllPresent()">✅ Mark All Present</button>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-row" id="todayKPI"></div>
+
+      <!-- Filter by role/bus -->
+      <div class="filter-row" style="margin-bottom:16px;">
+        <div class="field" style="margin-bottom:0;min-width:140px;">
+          <label>Filter by Role</label>
+          <select id="filterRole" onchange="renderAttendanceGrid()">
+            <option value="all">All Roles</option>
+            <option value="driver">🚌 Driver</option>
+            <option value="conductor">🎫 Conductor</option>
+            <option value="helper">🔧 Helper</option>
+            <option value="office">🏢 Office Staff</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0;min-width:140px;">
+          <label>Filter by Bus</label>
+          <select id="filterBus" onchange="renderAttendanceGrid()">
+            <option value="all">All Buses</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="attendanceGrid" class="att-grid"></div>
+    </div>
+
+    <!-- ══ DAILY SUMMARY ══ -->
+    <div id="tab-daily" style="display:none">
+      <div class="filter-row">
+        <div class="field"><label>From Date</label><input type="date" id="dailyFrom"></div>
+        <div class="field"><label>To Date</label><input type="date" id="dailyTo"></div>
+        <div class="field"><label>Role</label>
+          <select id="dailyRole">
+            <option value="all">All Roles</option>
+            <option value="driver">Driver</option>
+            <option value="conductor">Conductor</option>
+            <option value="helper">Helper</option>
+            <option value="office">Office Staff</option>
+          </select>
+        </div>
+        <div style="align-self:flex-end;">
+          <button class="btn btn-primary" onclick="renderDailySummary()">Filter</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Daily Attendance Summary <span id="dailySummaryLabel"></span></div>
+        <div class="tbl-wrap" id="dailySummaryTable"></div>
+      </div>
+    </div>
+
+    <!-- ══ MONTHLY SHEET ══ -->
+    <div id="tab-monthly" style="display:none">
+      <div class="filter-row">
+        <div class="field"><label>Month</label>
+          <input type="month" id="monthPicker"></div>
+        <div class="field"><label>Role</label>
+          <select id="monthRole">
+            <option value="all">All Roles</option>
+            <option value="driver">Driver</option>
+            <option value="conductor">Conductor</option>
+            <option value="helper">Helper</option>
+            <option value="office">Office Staff</option>
+          </select>
+        </div>
+        <div style="align-self:flex-end;">
+          <button class="btn btn-primary" onclick="renderMonthlySheet()">View Sheet</button>
+          <button class="btn btn-wa" style="margin-left:8px;" onclick="shareMonthlyWA()">📲 Share</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" id="monthlyTitle">Monthly Attendance Sheet</div>
+        <div class="month-scroll" id="monthlySheet"></div>
+      </div>
+    </div>
+
+    <!-- ══ STAFF DIRECTORY ══ -->
+    <div id="tab-staff" style="display:none">
+      <div class="filter-row">
+        <div class="field"><label>Search</label>
+          <input type="text" id="staffSearch" placeholder="Name or phone..." oninput="renderStaffTable()"></div>
+        <div class="field"><label>Role</label>
+          <select id="staffRoleFilter" onchange="renderStaffTable()">
+            <option value="all">All Roles</option>
+            <option value="driver">Driver</option>
+            <option value="conductor">Conductor</option>
+            <option value="helper">Helper</option>
+            <option value="office">Office Staff</option>
+          </select>
+        </div>
+        <div class="field"><label>Bus</label>
+          <select id="staffBusFilter" onchange="renderStaffTable()">
+            <option value="all">All Buses</option>
+          </select>
+        </div>
+        <div style="align-self:flex-end;">
+          <button class="btn btn-teal" onclick="openAddStaffModal()">+ Add Staff</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Staff Directory <span id="staffCount"></span></div>
+        <div class="tbl-wrap" id="staffTable"></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ADD / EDIT STAFF MODAL -->
+<div class="modal-overlay" id="staffModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeStaffModal()">✕</button>
+    <h3 id="staffModalTitle" style="font-size:18px;font-weight:700;margin-bottom:18px;color:#0f172a">Add New Staff</h3>
+    <div class="g2">
+      <div class="field"><label>Full Name *</label><input id="sf-name" placeholder="e.g. Raju Sharma"></div>
+      <div class="field"><label>Role *</label>
+        <select id="sf-role">
+          <option value="driver">🚌 Driver</option>
+          <option value="conductor">🎫 Conductor</option>
+          <option value="helper">🔧 Helper</option>
+          <option value="office">🏢 Office Staff</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field"><label>Phone *</label><input id="sf-phone" placeholder="+91 XXXXX XXXXX"></div>
+      <div class="field"><label>WhatsApp (with country code, no +)</label><input id="sf-whatsapp" placeholder="919XXXXXXXXX"></div>
+    </div>
+    <div class="g2">
+      <div class="field"><label>Assign Bus</label>
+        <select id="sf-bus">
+          <option value="">— Not Assigned —</option>
+        </select>
+      </div>
+      <div class="field"><label>Monthly Salary (₹)</label><input id="sf-salary" type="number" placeholder="0"></div>
+    </div>
+    <div class="g2">
+      <div class="field"><label>Join Date</label><input id="sf-joindate" type="date"></div>
+      <div class="field"><label>ID Proof No. (Aadhaar / DL)</label><input id="sf-idproof" placeholder="XXXX XXXX XXXX"></div>
+    </div>
+    <div class="field"><label>Address</label><input id="sf-address" placeholder="Full address"></div>
+    <div class="field"><label>Photo URL (optional)</label><input id="sf-photo" placeholder="https:// or images/..."></div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-primary" onclick="saveStaff()" style="flex:1">💾 Save Staff</button>
+      <button class="btn btn-danger btn-sm" id="deleteStaffBtn" onclick="deleteCurrentStaff()" style="display:none">🗑 Delete</button>
+      <button class="btn" onclick="closeStaffModal()" style="background:#f1f5f9;color:#64748b;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   STAFF ATTENDANCE SYSTEM
+   Uses window.RK (supabase.js) for DB access
+═══════════════════════════════════════════════ */
+
+const ADMIN_PW = (typeof CONFIG !== 'undefined' && CONFIG.finance)
+  ? CONFIG.finance.adminPassword : 'Swift@8606';
+
+let staffList = [];       // all staff from DB
+let attMap = {};          // { staff_id: attendance_row } for selected date
+let editingStaffId = null;
+
+/* ── AUTH ── */
+function doLogin() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PW || (typeof window.RK !== 'undefined' && window.RK.ADMIN_PASSWORD && pw === window.RK.ADMIN_PASSWORD)) {
+    sessionStorage.setItem('rk_staff_auth','1');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('loginErr').textContent='Incorrect password.';
+    document.getElementById('pwInput').value='';
+  }
+}
+document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+function doLogout() {
+  sessionStorage.removeItem('rk_staff_auth');
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+}
+if (sessionStorage.getItem('rk_staff_auth')==='1') {
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.addEventListener('DOMContentLoaded', initApp);
+}
+
+/* ── INIT ── */
+async function initApp() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('attDate').value = today;
+
+  const monthStart = today.slice(0,7)+'-01';
+  document.getElementById('dailyFrom').value = monthStart;
+  document.getElementById('dailyTo').value   = today;
+  document.getElementById('monthPicker').value = today.slice(0,7);
+
+  await loadStaff();
+  populateBusDropdowns();
+  await loadTodayAttendance();
+}
+
+/* ── SUPABASE HELPERS ── */
+async function getSB() {
+  // Wait for supabase.js SDK to be ready
+  for (let i = 0; i < 50; i++) {
+    if (window._supabase) return window._supabase;
+    await new Promise(r => setTimeout(r, 100));
+  }
+  return null;
+}
+
+async function dbQuery(table, filters = {}, order = null) {
+  const sb = await getSB();
+  if (!sb) return [];
+  try {
+    let q = sb.from(table).select('*');
+    Object.entries(filters).forEach(([k, v]) => { q = q.eq(k, v); });
+    if (order) q = q.order(order);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  } catch(e) { console.warn('dbQuery', table, e.message); return []; }
+}
+
+async function dbUpsert(table, row, conflict) {
+  const sb = await getSB();
+  if (!sb) return null;
+  try {
+    const { data, error } = await sb.from(table)
+      .upsert(row, conflict ? { onConflict: conflict } : {})
+      .select();
+    if (error) throw error;
+    return data;
+  } catch(e) { console.warn('dbUpsert', table, e.message); return null; }
+}
+
+async function dbInsert(table, row) {
+  const sb = await getSB();
+  if (!sb) return null;
+  try {
+    const { data, error } = await sb.from(table).insert(row).select();
+    if (error) throw error;
+    return data;
+  } catch(e) { console.warn('dbInsert', table, e.message); return null; }
+}
+
+async function dbUpdate(table, row, matchCol, matchVal) {
+  const sb = await getSB();
+  if (!sb) return;
+  try {
+    const { error } = await sb.from(table).update(row).eq(matchCol, matchVal);
+    if (error) throw error;
+  } catch(e) { console.warn('dbUpdate', table, e.message); }
+}
+
+async function dbDelete(table, col, val) {
+  const sb = await getSB();
+  if (!sb) return;
+  try {
+    const { error } = await sb.from(table).delete().eq(col, val);
+    if (error) throw error;
+  } catch(e) { console.warn('dbDelete', table, e.message); }
+}
+
+/* ── LOAD STAFF ── */
+async function loadStaff() {
+  staffList = await dbQuery('staff', { active: true }, 'name');
+  if (!staffList.length) {
+    // fallback: localStorage demo data
+    staffList = JSON.parse(localStorage.getItem('rk_staff') || '[]');
+    if (!staffList.length) {
+      staffList = [
+        {id:1,name:'Raju Sharma',role:'driver',phone:'+91 98765 43210',whatsapp:'919876543210',bus_id:'bus1',bus_plate:'MP09CY8606',salary:22000,join_date:'2020-01-15',active:true},
+        {id:2,name:'Mohan Verma',role:'conductor',phone:'+91 98765 43212',whatsapp:'919876543212',bus_id:'bus1',bus_plate:'MP09CY8606',salary:14000,join_date:'2020-01-15',active:true},
+        {id:3,name:'Suresh Patel',role:'driver',phone:'+91 98765 43211',whatsapp:'919876543211',bus_id:'bus2',bus_plate:'MP09CY7782',salary:22000,join_date:'2021-03-10',active:true},
+        {id:4,name:'Dinesh Kumar',role:'conductor',phone:'+91 98765 43213',whatsapp:'919876543213',bus_id:'bus2',bus_plate:'MP09CY7782',salary:14000,join_date:'2021-03-10',active:true},
+        {id:5,name:'Ramesh Helper',role:'helper',phone:'+91 98765 43214',whatsapp:'919876543214',bus_id:'bus3',bus_plate:'MP09CY9911',salary:10000,join_date:'2022-06-01',active:true},
+        {id:6,name:'Anita Devi',role:'office',phone:'+91 98765 43215',whatsapp:'919876543215',bus_id:'',bus_plate:'',salary:15000,join_date:'2019-08-20',active:true}
+      ];
+      localStorage.setItem('rk_staff', JSON.stringify(staffList));
+    }
+  }
+  renderStaffTable();
+}
+
+/* ── BUS DROPDOWNS ── */
+function populateBusDropdowns() {
+  const buses = (typeof CONFIG !== 'undefined') ? CONFIG.buses : [];
+  const opts = buses.map(b => `<option value="${b.id}" data-plate="${b.plate}">${b.plate} — ${b.title}</option>`).join('');
+  ['filterBus','staffBusFilter','staffBusFilter','sf-bus'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const extra = id === 'sf-bus' ? '<option value="">— Not Assigned —</option>' : '<option value="all">All Buses</option>';
+    el.innerHTML = extra + opts;
+  });
+}
+
+/* ── LOAD ATTENDANCE FOR DATE ── */
+async function loadTodayAttendance() {
+  const date = document.getElementById('attDate').value;
+  const rows = await dbQuery('attendance', { date });
+  if (!rows.length) {
+    // fallback localStorage
+    const local = JSON.parse(localStorage.getItem(`rk_att_${date}`) || '[]');
+    attMap = {};
+    local.forEach(r => { attMap[r.staff_id] = r; });
+  } else {
+    attMap = {};
+    rows.forEach(r => { attMap[r.staff_id] = r; });
+  }
+  renderKPIs();
+  renderAttendanceGrid();
+}
+
+/* ── KPIs ── */
+function renderKPIs() {
+  const total   = staffList.length;
+  const present = staffList.filter(s => attMap[s.id]?.status === 'present').length;
+  const absent  = staffList.filter(s => attMap[s.id]?.status === 'absent').length;
+  const late    = staffList.filter(s => attMap[s.id]?.status === 'late').length;
+  const half    = staffList.filter(s => attMap[s.id]?.status === 'halfday').length;
+  const leave   = staffList.filter(s => attMap[s.id]?.status === 'leave').length;
+  const unmarked = staffList.filter(s => !attMap[s.id]).length;
+
+  document.getElementById('todayKPI').innerHTML = `
+    <div class="kpi"><div class="kpi-lbl">Total Staff</div><div class="kpi-val">${total}</div><div class="kpi-sub">${unmarked} unmarked</div></div>
+    <div class="kpi"><div class="kpi-lbl">Present ✅</div><div class="kpi-val kv-present">${present}</div><div class="kpi-sub">${total?((present/total)*100).toFixed(0)+'%':'—'}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Absent ❌</div><div class="kpi-val kv-absent">${absent}</div><div class="kpi-sub"></div></div>
+    <div class="kpi"><div class="kpi-lbl">Late ⏰ / Half 🕐</div><div class="kpi-val kv-late">${late + half}</div><div class="kpi-sub">Late: ${late} | Half: ${half}</div></div>
+    <div class="kpi"><div class="kpi-lbl">On Leave 🏖️</div><div class="kpi-val kv-leave">${leave}</div><div class="kpi-sub"></div></div>`;
+}
+
+/* ── ATTENDANCE GRID ── */
+function renderAttendanceGrid() {
+  const roleFilter = document.getElementById('filterRole')?.value || 'all';
+  const busFilter  = document.getElementById('filterBus')?.value  || 'all';
+
+  let list = staffList.filter(s => {
+    if (roleFilter !== 'all' && s.role !== roleFilter) return false;
+    if (busFilter  !== 'all' && s.bus_id !== busFilter) return false;
+    return true;
+  });
+
+  if (!list.length) {
+    document.getElementById('attendanceGrid').innerHTML =
+      '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8;font-size:14px;">No staff found for selected filters.</div>';
+    return;
+  }
+
+  const statusMap = {
+    present:{code:'P',label:'Present',cls:'active-P'},
+    absent:{code:'A',label:'Absent',cls:'active-A'},
+    halfday:{code:'H',label:'Half Day',cls:'active-H'},
+    leave:{code:'L',label:'Leave',cls:'active-L'},
+    late:{code:'T',label:'Late',cls:'active-T'}
+  };
+
+  document.getElementById('attendanceGrid').innerHTML = list.map(s => {
+    const att = attMap[s.id];
+    const status = att?.status || '';
+    const pillCls = status ? `sp-${status === 'halfday' ? 'halfday' : status}` : 'sp-unmarked';
+    const pillTxt = status ? Object.values(statusMap).find(x=>x.code===(statusMap[status]?.code||''))?.label || status : 'Not Marked';
+    const roleIcon = {driver:'🚌',conductor:'🎫',helper:'🔧',office:'🏢'}[s.role] || '👤';
+    const roleCls  = `role-${s.role}`;
+
+    const statusBtns = Object.entries(statusMap).map(([st, info]) =>
+      `<button class="sbtn ${status===st?info.cls:''}" onclick="setStatus(${s.id},'${st}')" title="${info.label}">${info.code}</button>`
+    ).join('');
+
+    return `
+    <div class="att-card" id="card-${s.id}">
+      <div class="att-card-header">
+        <div class="att-avatar ${roleCls}">${roleIcon}</div>
+        <div class="att-info">
+          <div class="att-name">${s.name}</div>
+          <div class="att-role-bus">
+            <span class="role-badge rb-${s.role}">${s.role}</span>
+            ${s.bus_plate ? `· ${s.bus_plate}` : ''}
+          </div>
+        </div>
+        <span class="att-status-pill ${pillCls}" id="pill-${s.id}">${pillTxt}</span>
+      </div>
+      <div class="att-card-body">
+        <div class="status-btns">${statusBtns}</div>
+        <input class="att-note-input" id="note-${s.id}" placeholder="Note (optional)"
+          value="${att?.note||''}" onchange="pendingNote(${s.id},this.value)">
+        <div class="att-checkin">
+          <input type="time" id="checkin-${s.id}" value="${att?.check_in||''}" title="Check-in time"
+            style="padding:6px 10px;border:1.5px solid #e5e7eb;border-radius:6px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;flex:1;">
+          <button class="att-save-btn" onclick="saveAttendance(${s.id})">💾 Save</button>
+          ${s.whatsapp ? `<button class="wa-send-btn" onclick="sendWANotif(${s.id})" title="Notify via WhatsApp">💬</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* pending changes before save */
+const pendingStatus = {};
+const pendingNotes  = {};
+function pendingNote(id, val) { pendingNotes[id] = val; }
+
+function setStatus(staffId, status) {
+  pendingStatus[staffId] = status;
+  // Update all buttons in this card visually
+  const card = document.getElementById(`card-${staffId}`);
+  if (!card) return;
+  const map = {present:'P',absent:'A',halfday:'H',leave:'L',late:'T'};
+  const clsMap = {present:'active-P',absent:'active-A',halfday:'active-H',leave:'active-L',late:'active-T'};
+  card.querySelectorAll('.sbtn').forEach(btn => {
+    const code = btn.textContent.trim();
+    btn.className = 'sbtn';
+    if (map[status] === code) btn.classList.add(clsMap[status]);
+  });
+  // Update pill
+  const labels = {present:'Present ✅',absent:'Absent ❌',halfday:'Half Day 🕐',leave:'On Leave 🏖️',late:'Late ⏰'};
+  const pillCls = {present:'sp-present',absent:'sp-absent',halfday:'sp-halfday',leave:'sp-leave',late:'sp-late'};
+  const pill = document.getElementById(`pill-${staffId}`);
+  if (pill) { pill.textContent = labels[status]; pill.className = `att-status-pill ${pillCls[status]}`; }
+}
+
+async function saveAttendance(staffId) {
+  const date     = document.getElementById('attDate').value;
+  const staff    = staffList.find(s => s.id === staffId);
+  const status   = pendingStatus[staffId] || attMap[staffId]?.status || 'absent';
+  const note     = pendingNotes[staffId]  !== undefined ? pendingNotes[staffId] : (attMap[staffId]?.note || '');
+  const checkIn  = document.getElementById(`checkin-${staffId}`)?.value || '';
+
+  const row = {
+    staff_id: staffId, staff_name: staff?.name || '', role: staff?.role || '',
+    bus_id: staff?.bus_id || '', bus_plate: staff?.bus_plate || '',
+    date, status, note, check_in: checkIn, marked_by: 'admin', updated_at: new Date().toISOString()
+  };
+
+  // Try Supabase upsert
+  const result = await dbUpsert('attendance', row, 'staff_id,date');
+  if (!result) {
+    // localStorage fallback
+    const local = JSON.parse(localStorage.getItem(`rk_att_${date}`) || '[]');
+    const idx = local.findIndex(r => r.staff_id === staffId);
+    if (idx >= 0) local[idx] = row; else local.push(row);
+    localStorage.setItem(`rk_att_${date}`, JSON.stringify(local));
+  }
+  attMap[staffId] = row;
+  delete pendingStatus[staffId];
+  renderKPIs();
+  toast(`✅ ${staff?.name} — ${status}`);
+}
+
+async function markAllPresent() {
+  const date = document.getElementById('attDate').value;
+  if (!confirm(`Mark ALL ${staffList.length} staff as PRESENT for ${date}?`)) return;
+  for (const s of staffList) {
+    pendingStatus[s.id] = 'present';
+    await saveAttendance(s.id);
+  }
+  renderAttendanceGrid();
+  toast('✅ All staff marked Present!');
+}
+
+/* ── WHATSAPP NOTIFICATION TO INDIVIDUAL STAFF ── */
+function sendWANotif(staffId) {
+  const staff = staffList.find(s => s.id === staffId);
+  const att   = attMap[staffId];
+  const date  = document.getElementById('attDate').value;
+  if (!staff?.whatsapp) return;
+  const statusEmoji = {present:'✅',absent:'❌',halfday:'🕐',leave:'🏖️',late:'⏰'};
+  const msg = `🚌 *REWA KRIPA TRAVELS*\n\nNamaste ${staff.name} ji! 🙏\n\n` +
+    `Your attendance for *${fmtDate(date)}* has been marked as:\n\n` +
+    `${statusEmoji[att?.status||'absent']} *${(att?.status||'Absent').toUpperCase()}*\n` +
+    (att?.check_in ? `⏰ Check-in: ${att.check_in}\n` : '') +
+    (att?.note ? `📝 Note: ${att.note}\n` : '') +
+    `\n_Rewa Kripa Travels HR_`;
+  window.open(`https://wa.me/${staff.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* ── WHATSAPP DAILY SUMMARY ── */
+function shareWASummary() {
+  const date = document.getElementById('attDate').value;
+  const wa   = (typeof CONFIG !== 'undefined') ? CONFIG.company.whatsapp : '919977855338';
+
+  const present = staffList.filter(s => attMap[s.id]?.status === 'present');
+  const absent  = staffList.filter(s => attMap[s.id]?.status === 'absent');
+  const late    = staffList.filter(s => attMap[s.id]?.status === 'late');
+  const half    = staffList.filter(s => attMap[s.id]?.status === 'halfday');
+  const leave   = staffList.filter(s => attMap[s.id]?.status === 'leave');
+  const unmarked = staffList.filter(s => !attMap[s.id]);
+
+  let msg = `🚌 *REWA KRIPA TRAVELS*\n`;
+  msg    += `📋 *Staff Attendance Report*\n`;
+  msg    += `📅 *Date: ${fmtDate(date)}*\n`;
+  msg    += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  msg    += `👥 Total Staff: *${staffList.length}*\n`;
+  msg    += `✅ Present: *${present.length}*\n`;
+  msg    += `❌ Absent: *${absent.length}*\n`;
+  msg    += `⏰ Late: *${late.length}*\n`;
+  msg    += `🕐 Half Day: *${half.length}*\n`;
+  msg    += `🏖️ On Leave: *${leave.length}*\n`;
+  if (unmarked.length) msg += `❓ Not Marked: *${unmarked.length}*\n`;
+  msg    += `\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  const byBus = {};
+  staffList.forEach(s => {
+    const bus = s.bus_plate || 'Office';
+    if (!byBus[bus]) byBus[bus] = [];
+    byBus[bus].push(s);
+  });
+
+  Object.entries(byBus).forEach(([bus, members]) => {
+    msg += `🚌 *${bus}*\n`;
+    members.forEach(s => {
+      const st = attMap[s.id]?.status;
+      const em = {present:'✅',absent:'❌',halfday:'🕐',leave:'🏖️',late:'⏰'}[st] || '❓';
+      msg += `  ${em} ${s.name} (${s.role})\n`;
+    });
+    msg += `\n`;
+  });
+
+  msg += `_Rewa Kripa Travels — Attendance System_`;
+  window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* ── DAILY SUMMARY TABLE ── */
+async function renderDailySummary() {
+  const from = document.getElementById('dailyFrom').value;
+  const to   = document.getElementById('dailyTo').value;
+  const role = document.getElementById('dailyRole').value;
+
+  const sb = await getSB();
+  let rows = [];
+  if (sb) {
+    try {
+      let q = sb.from('attendance').select('*').gte('date', from).lte('date', to).order('date', {ascending:false});
+      const { data, error } = await q;
+      if (!error) rows = data || [];
+    } catch(e) {}
+  }
+  if (!rows.length) {
+    // build from localStorage
+    let d = new Date(from);
+    while (d <= new Date(to)) {
+      const dateStr = d.toISOString().split('T')[0];
+      const local = JSON.parse(localStorage.getItem(`rk_att_${dateStr}`) || '[]');
+      rows.push(...local);
+      d.setDate(d.getDate()+1);
+    }
+  }
+
+  // Group by date
+  const byDate = {};
+  rows.forEach(r => {
+    if (!byDate[r.date]) byDate[r.date] = [];
+    byDate[r.date].push(r);
+  });
+
+  const dates = Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
+  document.getElementById('dailySummaryLabel').textContent = `${dates.length} day(s)`;
+
+  if (!dates.length) {
+    document.getElementById('dailySummaryTable').innerHTML =
+      '<p style="padding:20px;color:#94a3b8;font-size:13px;">No attendance data found.</p>';
+    return;
+  }
+
+  const filteredStaff = role === 'all' ? staffList : staffList.filter(s => s.role === role);
+
+  document.getElementById('dailySummaryTable').innerHTML = `
+    <table class="tbl">
+      <thead><tr>
+        <th>Date</th><th>Total</th>
+        <th style="color:#16a34a">✅ Present</th>
+        <th style="color:#dc2626">❌ Absent</th>
+        <th style="color:#f59e0b">⏰ Late</th>
+        <th style="color:#0369a1">🕐 Half Day</th>
+        <th style="color:#7c3aed">🏖️ Leave</th>
+        <th>Attendance %</th>
+      </tr></thead>
+      <tbody>${dates.map(date => {
+        const dayRows = byDate[date].filter(r => role === 'all' || r.role === role);
+        const total   = filteredStaff.length;
+        const present = dayRows.filter(r=>r.status==='present').length;
+        const absent  = dayRows.filter(r=>r.status==='absent').length;
+        const late    = dayRows.filter(r=>r.status==='late').length;
+        const half    = dayRows.filter(r=>r.status==='halfday').length;
+        const leave   = dayRows.filter(r=>r.status==='leave').length;
+        const pct     = total > 0 ? ((present/total)*100).toFixed(0) : '—';
+        const pctColor = +pct >= 80 ? '#16a34a' : +pct >= 60 ? '#f59e0b' : '#dc2626';
+        return `<tr>
+          <td><strong>${fmtDate(date)}</strong></td>
+          <td>${total}</td>
+          <td style="color:#16a34a;font-weight:600">${present}</td>
+          <td style="color:#dc2626;font-weight:600">${absent}</td>
+          <td style="color:#f59e0b;font-weight:600">${late}</td>
+          <td style="color:#0369a1;font-weight:600">${half}</td>
+          <td style="color:#7c3aed;font-weight:600">${leave}</td>
+          <td><strong style="color:${pctColor}">${pct}%</strong></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+}
+
+/* ── MONTHLY SHEET ── */
+async function renderMonthlySheet() {
+  const month = document.getElementById('monthPicker').value; // "2026-04"
+  const role  = document.getElementById('monthRole').value;
+  const [yr, mo] = month.split('-').map(Number);
+  const daysInMonth = new Date(yr, mo, 0).getDate();
+  const days = Array.from({length: daysInMonth}, (_,i) => {
+    return `${yr}-${String(mo).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`;
+  });
+
+  // Fetch all attendance for this month
+  const sb = await getSB();
+  let rows = [];
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('attendance').select('*')
+        .gte('date', days[0]).lte('date', days[days.length-1]);
+      if (!error) rows = data || [];
+    } catch(e) {}
+  }
+  if (!rows.length) {
+    days.forEach(d => {
+      const local = JSON.parse(localStorage.getItem(`rk_att_${d}`) || '[]');
+      rows.push(...local);
+    });
+  }
+
+  // staff_id → date → status
+  const attLookup = {};
+  rows.forEach(r => {
+    if (!attLookup[r.staff_id]) attLookup[r.staff_id] = {};
+    attLookup[r.staff_id][r.date] = r.status;
+  });
+
+  const filteredStaff = role === 'all' ? staffList : staffList.filter(s => s.role === role);
+  const shortCode = {present:'P',absent:'A',halfday:'H',leave:'L',late:'T'};
+  const cellCls   = {present:'mc-P',absent:'mc-A',halfday:'mc-H',leave:'mc-L',late:'mc-T'};
+
+  document.getElementById('monthlyTitle').textContent =
+    `Monthly Sheet — ${new Date(yr, mo-1).toLocaleString('en-IN',{month:'long'})} ${yr}`;
+
+  document.getElementById('monthlySheet').innerHTML = `
+    <table class="month-tbl">
+      <thead>
+        <tr>
+          <th style="min-width:140px;text-align:left">Staff</th>
+          <th>Role</th>
+          <th>Bus</th>
+          ${days.map(d => `<th title="${fmtDate(d)}">${new Date(d+'T00:00:00').getDate()}</th>`).join('')}
+          <th>P</th><th>A</th><th>H</th><th>L</th><th>T</th><th>%</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredStaff.map(s => {
+          const sAtt = attLookup[s.id] || {};
+          const counts = {P:0,A:0,H:0,L:0,T:0};
+          const cells = days.map(d => {
+            const st = sAtt[d];
+            if (st) { counts[shortCode[st] || st]++; return `<td class="${cellCls[st]||''}">${shortCode[st]||'?'}</td>`; }
+            return `<td class="mc-blank">·</td>`;
+          }).join('');
+          const total = days.length;
+          const pct = total > 0 ? ((counts.P/total)*100).toFixed(0) : '0';
+          const pctColor = +pct >= 80 ? '#16a34a' : +pct >= 60 ? '#f59e0b' : '#dc2626';
+          return `<tr>
+            <td style="text-align:left;font-weight:600">${s.name}</td>
+            <td><span class="role-badge rb-${s.role}">${s.role}</span></td>
+            <td style="font-size:11px;color:#64748b">${s.bus_plate||'—'}</td>
+            ${cells}
+            <td class="mc-P">${counts.P}</td>
+            <td class="mc-A">${counts.A}</td>
+            <td class="mc-H">${counts.H}</td>
+            <td class="mc-L">${counts.L}</td>
+            <td class="mc-T">${counts.T}</td>
+            <td style="font-weight:700;color:${pctColor}">${pct}%</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function shareMonthlyWA() {
+  const month = document.getElementById('monthPicker').value;
+  const wa    = (typeof CONFIG !== 'undefined') ? CONFIG.company.whatsapp : '919977855338';
+  const [yr, mo] = month.split('-').map(Number);
+  const monthName = new Date(yr, mo-1).toLocaleString('en-IN',{month:'long'});
+
+  let msg = `🚌 *REWA KRIPA TRAVELS*\n`;
+  msg    += `📅 *Monthly Attendance — ${monthName} ${yr}*\n`;
+  msg    += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  staffList.forEach(s => {
+    msg += `• ${s.name} (${s.role}${s.bus_plate ? ' · '+s.bus_plate : ''})\n`;
+  });
+  msg += `\n_Please check the full sheet in the Admin Portal._`;
+  window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* ── STAFF TABLE ── */
+function renderStaffTable() {
+  const search    = (document.getElementById('staffSearch')?.value || '').toLowerCase();
+  const roleFilter = document.getElementById('staffRoleFilter')?.value || 'all';
+  const busFilter  = document.getElementById('staffBusFilter')?.value  || 'all';
+
+  let list = staffList.filter(s => {
+    if (roleFilter !== 'all' && s.role !== roleFilter) return false;
+    if (busFilter  !== 'all' && s.bus_id !== busFilter) return false;
+    if (search && !s.name.toLowerCase().includes(search) && !s.phone.includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('staffCount').textContent = `${list.length} staff`;
+
+  if (!list.length) {
+    document.getElementById('staffTable').innerHTML =
+      '<p style="padding:20px;color:#94a3b8;font-size:13px;">No staff found.</p>';
+    return;
+  }
+
+  document.getElementById('staffTable').innerHTML = `
+    <table class="tbl">
+      <thead><tr>
+        <th>Name</th><th>Role</th><th>Assigned Bus</th>
+        <th>Phone</th><th>Salary</th><th>Join Date</th><th>Actions</th>
+      </tr></thead>
+      <tbody>${list.map(s => `
+        <tr>
+          <td><strong>${s.name}</strong></td>
+          <td><span class="role-badge rb-${s.role}">${s.role}</span></td>
+          <td style="font-size:12px;color:#0369a1;font-weight:600">${s.bus_plate||'—'}</td>
+          <td style="font-size:13px">${s.phone}</td>
+          <td style="font-weight:600">₹${(s.salary||0).toLocaleString('en-IN')}</td>
+          <td style="font-size:12px;color:#64748b">${s.join_date||'—'}</td>
+          <td>
+            <button class="btn btn-sm btn-teal" onclick="openEditStaffModal(${s.id})">✏️ Edit</button>
+            ${s.whatsapp ? `<button class="btn btn-sm btn-wa" style="margin-left:4px" onclick="sendWANotif(${s.id})" title="Send WhatsApp">💬</button>` : ''}
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+/* ── ADD / EDIT STAFF ── */
+function openAddStaffModal() {
+  editingStaffId = null;
+  document.getElementById('staffModalTitle').textContent = 'Add New Staff';
+  document.getElementById('deleteStaffBtn').style.display = 'none';
+  ['sf-name','sf-phone','sf-whatsapp','sf-salary','sf-joindate','sf-idproof','sf-address','sf-photo']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('sf-role').value = 'driver';
+  document.getElementById('sf-bus').value  = '';
+  document.getElementById('staffModal').classList.add('open');
+}
+
+function openEditStaffModal(id) {
+  editingStaffId = id;
+  const s = staffList.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('staffModalTitle').textContent = 'Edit Staff — ' + s.name;
+  document.getElementById('deleteStaffBtn').style.display = 'inline-flex';
+  document.getElementById('sf-name').value      = s.name || '';
+  document.getElementById('sf-role').value      = s.role || 'driver';
+  document.getElementById('sf-phone').value     = s.phone || '';
+  document.getElementById('sf-whatsapp').value  = s.whatsapp || '';
+  document.getElementById('sf-bus').value       = s.bus_id || '';
+  document.getElementById('sf-salary').value    = s.salary || '';
+  document.getElementById('sf-joindate').value  = s.join_date || '';
+  document.getElementById('sf-idproof').value   = s.id_proof || '';
+  document.getElementById('sf-address').value   = s.address || '';
+  document.getElementById('sf-photo').value     = s.photo_url || '';
+  document.getElementById('staffModal').classList.add('open');
+}
+
+function closeStaffModal() {
+  document.getElementById('staffModal').classList.remove('open');
+}
+
+async function saveStaff() {
+  const name    = document.getElementById('sf-name').value.trim();
+  const role    = document.getElementById('sf-role').value;
+  const phone   = document.getElementById('sf-phone').value.trim();
+  const wa      = document.getElementById('sf-whatsapp').value.trim();
+  const busEl   = document.getElementById('sf-bus');
+  const busId   = busEl.value;
+  const busPlate = busEl.options[busEl.selectedIndex]?.text?.split('—')[0]?.trim() || '';
+  const salary  = +document.getElementById('sf-salary').value || 0;
+  const joinDate = document.getElementById('sf-joindate').value;
+  const idProof = document.getElementById('sf-idproof').value.trim();
+  const address = document.getElementById('sf-address').value.trim();
+  const photo   = document.getElementById('sf-photo').value.trim();
+
+  if (!name || !phone) { toast('Name and Phone are required.'); return; }
+
+  const row = { name, role, phone, whatsapp: wa, bus_id: busId,
+    bus_plate: busPlate, salary, join_date: joinDate, id_proof: idProof,
+    address, photo_url: photo, active: true, updated_at: new Date().toISOString() };
+
+  if (editingStaffId) {
+    // Update
+    const result = await dbUpdate('staff', row, 'id', editingStaffId);
+    const idx = staffList.findIndex(s => s.id === editingStaffId);
+    if (idx >= 0) staffList[idx] = { ...staffList[idx], ...row };
+    else await loadStaff();
+    toast('✅ Staff updated!');
+  } else {
+    // Insert
+    const result = await dbInsert('staff', row);
+    if (result && result[0]) staffList.push(result[0]);
+    else {
+      // localStorage fallback
+      const newId = Date.now();
+      const newStaff = { id: newId, ...row };
+      staffList.push(newStaff);
+      localStorage.setItem('rk_staff', JSON.stringify(staffList));
+    }
+    toast('✅ Staff added!');
+  }
+
+  closeStaffModal();
+  renderStaffTable();
+  renderAttendanceGrid();
+  renderKPIs();
+}
+
+async function deleteCurrentStaff() {
+  if (!editingStaffId) return;
+  const s = staffList.find(x => x.id === editingStaffId);
+  if (!confirm(`Delete ${s?.name}? This will also remove their attendance records.`)) return;
+  await dbDelete('staff', 'id', editingStaffId);
+  staffList = staffList.filter(x => x.id !== editingStaffId);
+  localStorage.setItem('rk_staff', JSON.stringify(staffList));
+  closeStaffModal();
+  renderStaffTable();
+  renderAttendanceGrid();
+  renderKPIs();
+  toast('🗑 Staff deleted.');
+}
+
+/* ── TAB SWITCHING ── */
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['today','daily','monthly','staff'].forEach(t => {
+    const p = document.getElementById(`tab-${t}`);
+    if (p) p.style.display = t === name ? 'block' : 'none';
+  });
+  if (name === 'daily')   renderDailySummary();
+  if (name === 'monthly') renderMonthlySheet();
+  if (name === 'staff')   renderStaffTable();
+}
+
+/* ── HELPERS ── */
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 3500);
+}
+
+// Modal backdrop close
+document.getElementById('staffModal').addEventListener('click', function(e) {
+  if (e.target === this) closeStaffModal();
+});
+</script>
+</body>
+</html>

@@ -881,6 +881,8 @@ nav .btn-book:hover { background: #5fb8b9; }
 .card-image img { width:100%; height:170px; object-fit:cover; display:block; transition:0.4s; }
 .route-card:hover .card-image img { transform:scale(1.04); }
 .distance-badge { position:absolute; bottom:10px; right:10px; background:#fff; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,.15); color:#012738; }
+.route-price-badge { position:absolute; top:10px; left:10px; background:#7EC8C9; color:#012738; padding:6px 12px; border-radius:8px; font-size:14px; font-weight:700; box-shadow:0 2px 8px rgba(0,0,0,.2); line-height:1.2; }
+.route-price-badge small { font-size:10px; font-weight:600; opacity:.75; }
 .card-content { padding:15px; }
 .card-content h3 { font-size:16px; font-weight:600; color:#0f172a; margin-bottom:3px; }
 .address { color:#94a3b8; font-size:12px; margin-bottom:12px; display:block; }
@@ -891,7 +893,7 @@ nav .btn-book:hover { background: #5fb8b9; }
 .route-price-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .route-price { font-size:18px; font-weight:700; color:#012738; }
 .route-dep { font-size:12px; color:#94a3b8; }
-.route-book-btn { width:100%; padding:10px; background:#012738; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; transition:0.3s; }
+.route-book-btn { display:block; width:100%; padding:10px; background:#012738; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; transition:0.3s; text-align:center; }
 .route-book-btn:hover { background:#7EC8C9; color:#012738; }
 
 /* Trip cards (dark) */
