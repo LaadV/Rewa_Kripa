@@ -59,49 +59,79 @@
 <script src="script.js"></script>
 <script>
 (async function () {
-await window.RK_CONFIG_READY;
+try { await window.RK_CONFIG_READY; } catch(e) { console.warn('Config load issue, using current CONFIG as-is:', e); }
+
+var FALLBACK_IMG = 'images/bus1.jpeg';
+function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function safeArr(a) { return Array.isArray(a) ? a : []; }
+function safeSrc(s) { return s ? esc(s) : FALLBACK_IMG; }
+function imgFallbackAttr() { return ' onerror="this.onerror=null;this.src=\''+FALLBACK_IMG+'\';"'; }
+
 buildHeader('index.html');
 buildFooter();
-document.title = CONFIG.company.fullName + ' — ' + CONFIG.company.tagline;
 
-var H = CONFIG.hero;
-document.getElementById('hero-eyebrow').textContent = H.eyebrow;
-document.getElementById('hero-heading').innerHTML = H.heading1 + '<br>' + H.heading2;
-document.getElementById('hero-sub').textContent = H.subtext;
-document.getElementById('hero-btn1').textContent = H.btnBook;
-document.getElementById('hero-btn2').textContent = H.btnRoutes;
+var company = CONFIG.company || {};
+document.title = (company.fullName || 'Rewa Kripa Travels') + ' — ' + (company.tagline || '');
 
-var sliderEl = document.getElementById('slider');
-H.slides.forEach(function(src, i){
-  var d = document.createElement('div');
-  d.className = 'slide'+(i===0?' active':'');
-  d.innerHTML = '<img src="'+src+'" alt="Bus">';
-  sliderEl.appendChild(d);
-});
-sliderEl.innerHTML += '<button class="prev" onclick="changeSlide(-1)">&#10094;</button><button class="next" onclick="changeSlide(1)">&#10095;</button><div class="dots">'+H.slides.map(function(_,i){ return '<span class="'+(i===0?'active':'')+'" onclick="goToSlide('+i+')"></span>'; }).join('')+'</div>';
+try {
+  var H = CONFIG.hero || {};
+  document.getElementById('hero-eyebrow').textContent = H.eyebrow || '';
+  document.getElementById('hero-heading').innerHTML = esc(H.heading1||'') + '<br>' + esc(H.heading2||'');
+  document.getElementById('hero-sub').textContent = H.subtext || '';
+  document.getElementById('hero-btn1').textContent = H.btnBook || 'Book Your Seat';
+  document.getElementById('hero-btn2').textContent = H.btnRoutes || 'View Routes';
 
-document.getElementById('hero-stats').innerHTML = CONFIG.stats.map(function(s){
-  return '<div class="stat-item"><div class="num">'+s.num+'</div><div class="lbl">'+s.label+'</div></div>';
-}).join('');
+  var slides = safeArr(H.slides).length ? safeArr(H.slides) : [FALLBACK_IMG];
+  var sliderEl = document.getElementById('slider');
+  slides.forEach(function(src, i){
+    var d = document.createElement('div');
+    d.className = 'slide'+(i===0?' active':'');
+    d.innerHTML = '<img src="'+safeSrc(src)+'" alt="Bus"'+imgFallbackAttr()+'>';
+    sliderEl.appendChild(d);
+  });
+  sliderEl.innerHTML += '<button class="prev" onclick="changeSlide(-1)">&#10094;</button><button class="next" onclick="changeSlide(1)">&#10095;</button><div class="dots">'+slides.map(function(_,i){ return '<span class="'+(i===0?'active':'')+'" onclick="goToSlide('+i+')"></span>'; }).join('')+'</div>';
+} catch(e) { console.error('Hero render failed:', e); }
 
-document.getElementById('buses-grid').innerHTML = CONFIG.buses.map(function(b){
-  return '<a href="bus.html?bus='+b.id+'" class="bus-card"><img src="'+b.image+'" alt="'+b.plate+'"><div class="bus-content"><h3>'+b.plate+'</h3><p>'+b.title+' · '+b.layout+'</p><div class="bus-tags">'+b.tags.map(function(t){ return '<span class="bus-tag">'+t+'</span>'; }).join('')+'</div><span class="bus-link">View Details →</span></div></a>';
-}).join('');
+try {
+  document.getElementById('hero-stats').innerHTML = safeArr(CONFIG.stats).map(function(s){
+    return '<div class="stat-item"><div class="num">'+esc(s.num)+'</div><div class="lbl">'+esc(s.label)+'</div></div>';
+  }).join('');
+} catch(e) { console.error('Stats render failed:', e); }
 
-document.getElementById('routes-grid').innerHTML = CONFIG.routes.map(function(r){
-  var waMsg = '🚌 *REWA KRIPA TRAVELS — SEAT BOOKING ENQUIRY*\n\n' +
-    '🗺️ *Route:* ' + r.label + '\n' +
-    '💰 *Fare:* ' + formatINR(r.price) + ' per seat\n' +
-    '⏰ *First Bus:* ' + r.firstBus + ' · *Last Bus:* ' + r.lastBus + '\n\n' +
-    'Hi, I would like to book seat(s) on this route. Please confirm availability.\n\n' +
-    '📅 *Travel Date:* \n👥 *No. of Seats:* \n👤 *Name:* \n📱 *Phone:* ';
-  var waLink = 'https://wa.me/' + CONFIG.company.whatsapp + '?text=' + encodeURIComponent(waMsg);
-  return '<a href="'+waLink+'" target="_blank" class="route-card"><div class="card-image"><img src="'+r.image+'" alt="'+r.label+'"><span class="route-price-badge">'+formatINR(r.price)+' <small>/seat</small></span><span class="distance-badge">'+r.duration+'</span></div><div class="card-content"><h3>'+r.label+'</h3><span class="address">'+r.type+' · First bus: '+r.firstBus+'</span><div class="card-footer"><div class="rating">⭐ '+r.rating+' <span>('+r.reviews+')</span></div>'+(r.status==='open'?'<span class="open-btn">Open Now</span>':'')+'</div><div class="route-price-row"><span class="route-price">'+formatINR(r.price)+'</span><span class="route-dep">Last: '+r.lastBus+'</span></div><span class="route-book-btn">💬 Book on WhatsApp</span></div></a>';
-}).join('');
+/* ── Our Buses ── */
+try {
+  var buses = safeArr(CONFIG.buses);
+  document.getElementById('buses-grid').innerHTML = buses.length ? buses.map(function(b){
+    var tags = safeArr(b.tags).map(function(t){ return '<span class="bus-tag">'+esc(t)+'</span>'; }).join('');
+    var dep = b.departure ? esc(b.departure) : '—';
+    return '<a href="bus.html?bus='+esc(b.id)+'" class="bus-card"><img src="'+safeSrc(b.image)+'" alt="'+esc(b.plate||'Bus')+'"'+imgFallbackAttr()+'><div class="bus-content"><h3>'+esc(b.plate||'')+'</h3><p>'+esc(b.title||'')+' · '+esc(b.layout||'')+'</p><div class="bus-departure">🕐 Starts '+dep+'</div><div class="bus-tags">'+tags+'</div><span class="bus-link">View Details →</span></div></a>';
+  }).join('') : '<p style="color:#94a3b8;padding:20px 0;">No buses available right now. Please check back soon.</p>';
+} catch(e) { console.error('Bus cards render failed:', e); document.getElementById('buses-grid').innerHTML = '<p style="color:#94a3b8;padding:20px 0;">Buses are temporarily unavailable.</p>'; }
 
-document.getElementById('trips-grid').innerHTML = CONFIG.trips.slice(0,3).map(function(t){
-  return '<a href="trip-detail.html?trip='+t.id+'" class="trip-card"><div class="trip-card-img"><img src="'+t.image+'" alt="'+t.shortTitle+'"><span class="trip-type-badge '+badgeClass(t.badge)+'">'+t.badgeLabel+'</span><span class="seats-left">'+t.seatsLeft+' seats left</span></div><div class="trip-card-body"><h3>'+t.title+'</h3><p class="trip-desc">'+t.subtitle+'</p><div class="trip-meta-row"><div class="trip-meta-item"><span class="ml">Departure</span><span class="mv">'+t.departure+'</span></div><div class="trip-meta-item"><span class="ml">Duration</span><span class="mv">'+t.duration+'</span></div></div><div class="trip-card-footer"><div class="trip-price">'+formatINR(t.price)+' <small>/person</small></div><span class="trip-book-btn">View Trip</span></div></div></a>';
-}).join('');
+/* ── Available Routes ── */
+try {
+  var routes = safeArr(CONFIG.routes);
+  document.getElementById('routes-grid').innerHTML = routes.length ? routes.map(function(r){
+    var firstBus = r.firstBus ? esc(r.firstBus) : '—';
+    var lastBus  = r.lastBus  ? esc(r.lastBus)  : '—';
+    var waMsg = '🚌 *REWA KRIPA TRAVELS — SEAT BOOKING ENQUIRY*\n\n' +
+      '🗺️ *Route:* ' + (r.label||'') + '\n' +
+      '💰 *Fare:* ' + formatINR(r.price||0) + ' per seat\n' +
+      '⏰ *First Bus:* ' + (r.firstBus||'—') + ' · *Last Bus:* ' + (r.lastBus||'—') + '\n\n' +
+      'Hi, I would like to book seat(s) on this route. Please confirm availability.\n\n' +
+      '📅 *Travel Date:* \n👥 *No. of Seats:* \n👤 *Name:* \n📱 *Phone:* ';
+    var waLink = 'https://wa.me/' + (company.whatsapp||'') + '?text=' + encodeURIComponent(waMsg);
+    return '<a href="'+waLink+'" target="_blank" class="route-card"><div class="card-image"><img src="'+safeSrc(r.image)+'" alt="'+esc(r.label||'Route')+'"'+imgFallbackAttr()+'><span class="route-price-badge">'+formatINR(r.price||0)+' <small>/seat</small></span><span class="distance-badge">'+esc(r.duration||'')+'</span></div><div class="card-content"><h3>'+esc(r.label||'')+'</h3><span class="address">'+esc(r.type||'')+' · Starts '+firstBus+'</span><div class="card-footer"><div class="rating">⭐ '+esc(r.rating||'—')+' <span>('+esc(r.reviews||'0')+')</span></div>'+(r.status==='open'?'<span class="open-btn">Open Now</span>':'')+'</div><div class="route-price-row"><span class="route-price">'+formatINR(r.price||0)+'</span><span class="route-dep">Last: '+lastBus+'</span></div><span class="route-book-btn">💬 Book on WhatsApp</span></div></a>';
+  }).join('') : '<p style="color:#94a3b8;padding:20px 0;">No routes available right now. Please check back soon.</p>';
+} catch(e) { console.error('Route cards render failed:', e); document.getElementById('routes-grid').innerHTML = '<p style="color:#94a3b8;padding:20px 0;">Routes are temporarily unavailable.</p>'; }
+
+/* ── Next Available Trips ── */
+try {
+  var trips = safeArr(CONFIG.trips).slice(0,3);
+  document.getElementById('trips-grid').innerHTML = trips.length ? trips.map(function(t){
+    return '<a href="trip-detail.html?trip='+esc(t.id)+'" class="trip-card"><div class="trip-card-img"><img src="'+safeSrc(t.image)+'" alt="'+esc(t.shortTitle||'Trip')+'"'+imgFallbackAttr()+'><span class="trip-type-badge '+badgeClass(t.badge)+'">'+esc(t.badgeLabel||'')+'</span><span class="seats-left">'+(t.seatsLeft!=null?t.seatsLeft:'—')+' seats left</span></div><div class="trip-card-body"><h3>'+esc(t.title||'')+'</h3><p class="trip-desc">'+esc(t.subtitle||'')+'</p><div class="trip-meta-row"><div class="trip-meta-item"><span class="ml">Departure</span><span class="mv">'+esc(t.departure||'—')+'</span></div><div class="trip-meta-item"><span class="ml">Duration</span><span class="mv">'+esc(t.duration||'—')+'</span></div></div><div class="trip-card-footer"><div class="trip-price">'+formatINR(t.price||0)+' <small>/person</small></div><span class="trip-book-btn">View Trip</span></div></div></a>';
+  }).join('') : '<p style="color:rgba(255,255,255,.5);padding:20px 0;">No trips available right now. Please check back soon.</p>';
+} catch(e) { console.error('Trip cards render failed:', e); document.getElementById('trips-grid').innerHTML = '<p style="color:rgba(255,255,255,.5);padding:20px 0;">Trips are temporarily unavailable.</p>'; }
 })();
 </script>
 </body>

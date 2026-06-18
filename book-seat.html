@@ -381,12 +381,10 @@ function mkSeat(num, b, adjBlocked, isAdmin) {
       (function(n){ el.addEventListener('click', function(){ adminUnblockSeat(n); }); })(num);
     }
   } else if (isAdj) {
-    el.classList.add('sb-blk'); el.textContent = '🚫';
-    el.title = 'Blocked — next to female passenger. Females can still book this.';
-    // Females CAN book adj seats — we allow clicking and prompt if needed
-    (function(n){ el.addEventListener('click', function(){ addSeat(n); }); })(num);
-    el.classList.remove('sb-blk'); el.textContent = num; el.style.opacity = '.4';
     el.classList.add('sb-blk');
+    el.style.opacity = '.4';
+    el.title = 'Blocked — next to female passenger. Females can still book this.';
+    (function(n){ el.addEventListener('click', function(){ addSeat(n); }); })(num);
   } else if (isSelected) {
     el.classList.add('selected');
     (function(n){ el.addEventListener('click', function(){ removeSeat(n); }); })(num);

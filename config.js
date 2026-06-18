@@ -517,6 +517,16 @@ function getRoute(id) {
   return CONFIG.routes.find(function(r){ return r.id === id; }) || CONFIG.routes[0];
 }
 
+// Get the bus assigned to a route (each route has one busId, set in Admin → Routes)
+function getBusForRoute(routeId) {
+  var route = CONFIG.routes.find(function(r){ return r.id === routeId; });
+  if (route && route.busId) {
+    var bus = CONFIG.buses.find(function(b){ return b.id === route.busId; });
+    if (bus) return bus;
+  }
+  return CONFIG.buses[0];
+}
+
 // Get a trip by ID
 function getTrip(id) {
   return CONFIG.trips.find(function(t){ return t.id === id; }) || CONFIG.trips[0];
