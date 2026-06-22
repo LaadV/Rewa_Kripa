@@ -113,7 +113,7 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Our flagship Luxury Seater with premium 2×2 recliner seating, USB charging on every seat, free WiFi, and full AC. Ideal for the Barwani–Bokrata corridor.",
-      bookedSeats: []  // Seat bookings are managed live via Supabase/admin panel
+      bookedSeats: []  // Managed via Supabase — do not hardcode here
     },
     {
       id:       "bus2",
@@ -137,7 +137,7 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Comfortable AC Seater with pushback reclining, cup holders, and reading lights. Great for medium-distance daily travel.",
-      bookedSeats: []  // Seat bookings are managed live via Supabase/admin panel
+      bookedSeats: []
     },
     {
       id:       "bus3",
@@ -161,7 +161,7 @@ var CONFIG = {
         "📶 Free WiFi"
       ],
       description: "The ultimate travel experience on wheels. Entertainment system, complimentary snacks, LED displays, and spacious 2×1 premium seating.",
-      bookedSeats: []  // Seat bookings are managed live via Supabase/admin panel
+      bookedSeats: []
     },
     {
       id:       "bus4",
@@ -183,7 +183,7 @@ var CONFIG = {
         "⏱️ On-time Service"
       ],
       description: "Reliable and economical. Clean, punctual, and ideal for budget-conscious travellers on shorter routes.",
-      bookedSeats: []  // Seat bookings are managed live via Supabase/admin panel
+      bookedSeats: []
     }
   ],
 
@@ -512,19 +512,16 @@ function getBus(id) {
   return CONFIG.buses.find(function(b){ return b.id === id; }) || CONFIG.buses[0];
 }
 
+// Get the bus assigned to a route (by route ID)
+function getBusForRoute(routeId) {
+  var route = CONFIG.routes.find(function(r){ return r.id === routeId; });
+  if (!route) return CONFIG.buses[0];
+  return CONFIG.buses.find(function(b){ return b.id === route.busId; }) || CONFIG.buses[0];
+}
+
 // Get a route by ID
 function getRoute(id) {
   return CONFIG.routes.find(function(r){ return r.id === id; }) || CONFIG.routes[0];
-}
-
-// Get the bus assigned to a route (each route has one busId, set in Admin → Routes)
-function getBusForRoute(routeId) {
-  var route = CONFIG.routes.find(function(r){ return r.id === routeId; });
-  if (route && route.busId) {
-    var bus = CONFIG.buses.find(function(b){ return b.id === route.busId; });
-    if (bus) return bus;
-  }
-  return CONFIG.buses[0];
 }
 
 // Get a trip by ID

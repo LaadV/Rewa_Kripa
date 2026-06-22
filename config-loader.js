@@ -1,79 +1,90 @@
 /**
  * config-loader.js — Rewa Kripa Travels
  *
- * Loads the admin-saved config from Supabase (or localStorage fallback)
- * and deep-merges it into the global CONFIG object BEFORE any page renders.
+ * Fetches the admin-saved config from Supabase (saved via admin.html → "Save All Changes")
+ * and deep-merges it into the global CONFIG object defined in config.js.
  *
- * HOW IT WORKS:
- *   1. Every page calls: await window.RK_CONFIG_READY
- *   2. This file fetches saved config and patches CONFIG
- *   3. Page then renders with the latest admin settings
+ * Usage: include AFTER config.js and supabase.js on any page that needs live admin config.
  *
- * Load order on every page:
- *   <script src="config.js"></script>      ← default hardcoded CONFIG
- *   <script src="supabase.js"></script>    ← DB client
- *   <script src="config-loader.js"></script> ← this file (patches CONFIG)
- *   <script> ... page render ... </script>
+ *   <script src="config.js"></script>
+ *   <script src="supabase.js"></script>
+ *   <script src="config-loader.js"></script>
+ *
+ * Pages should await window.RK_CONFIG_READY before reading CONFIG:
+ *
+ *   window.RK_CONFIG_READY.then(function() {
+ *     // safe to use CONFIG here
+ *   });
+ *
+ * If Supabase is not configured or fetch fails, the default CONFIG from config.js is used.
  */
 
-(function () {
+(function() {
   'use strict';
 
-  /* Deep merge: source values override target, arrays are replaced */
+  /**
+   * Deep-merge source into target (non-destructive for target keys not in source).
+   * Arrays are replaced (not merged) so admin can fully override routes/buses/trips.
+   */
   function deepMerge(target, source) {
     if (!source || typeof source !== 'object') return target;
-    Object.keys(source).forEach(function (key) {
-      var sv = source[key];
-      var tv = target[key];
-      if (Array.isArray(sv)) {
-        target[key] = sv;                          // arrays: replace entirely
-      } else if (sv && typeof sv === 'object' && !Array.isArray(sv) &&
-                 tv && typeof tv === 'object' && !Array.isArray(tv)) {
-        deepMerge(tv, sv);                         // objects: recurse
-      } else if (sv !== undefined && sv !== null) {
-        target[key] = sv;                          // primitives: override
+    Object.keys(source).forEach(function(key) {
+      var val = source[key];
+      if (Array.isArray(val)) {
+        // Replace arrays entirely — admin intent is to replace, not append
+        target[key] = val;
+      } else if (val && typeof val === 'object' && !Array.isArray(val)) {
+        if (!target[key] || typeof target[key] !== 'object') target[key] = {};
+        deepMerge(target[key], val);
+      } else {
+        target[key] = val;
       }
     });
     return target;
   }
 
-  /* Expose deepMerge globally so admin.html can reuse it for safe re-merges */
-  window.RK_deepMerge = deepMerge;
+  /**
+   * Main loader — resolves once CONFIG has been updated (or falls back gracefully).
+   */
+  window.RK_CONFIG_READY = new Promise(function(resolve) {
+    // Wait for supabase.js to expose window.RK
+    var attempts = 0;
+    var maxAttempts = 50; // 5 seconds max wait
 
-  /* Expose a promise that resolves once CONFIG is patched */
-  window.RK_CONFIG_READY = (async function () {
-    try {
-      /* Wait up to 3s for supabase.js SDK to boot */
-      var waited = 0;
-      while (!window.RK && waited < 3000) {
-        await new Promise(function (r) { setTimeout(r, 100); });
-        waited += 100;
+    function tryLoad() {
+      attempts++;
+
+      if (typeof window.RK === 'undefined' || typeof window.RK.getConfig !== 'function') {
+        if (attempts < maxAttempts) {
+          setTimeout(tryLoad, 100);
+        } else {
+          // supabase.js never loaded — use default CONFIG as-is
+          console.warn('[config-loader] supabase.js not ready after 5s — using default CONFIG');
+          resolve(window.CONFIG);
+        }
+        return;
       }
 
-      var saved = null;
-
-      /* Try Supabase first */
-      if (window.RK && typeof window.RK.getConfig === 'function') {
-        saved = await window.RK.getConfig();
-      }
-
-      /* Fallback to localStorage */
-      if (!saved) {
-        try {
-          saved = JSON.parse(localStorage.getItem('rk_admin_config') || 'null');
-        } catch (e) { saved = null; }
-      }
-
-      if (saved && typeof saved === 'object') {
-        deepMerge(window.CONFIG, saved);
-        console.log('✅ Config loaded from ' + (window.RK && window.RK.isSupabaseActive() ? 'Supabase' : 'localStorage'));
-      } else {
-        console.log('ℹ️ No saved config — using defaults from config.js');
-      }
-    } catch (err) {
-      console.warn('config-loader error (using defaults):', err.message);
+      // supabase.js is ready — attempt to fetch saved config
+      window.RK.getConfig().then(function(saved) {
+        if (saved && typeof saved === 'object') {
+          try {
+            deepMerge(window.CONFIG, saved);
+            console.info('[config-loader] ✅ Admin config loaded from Supabase');
+          } catch(e) {
+            console.warn('[config-loader] Merge error:', e.message);
+          }
+        } else {
+          console.info('[config-loader] No saved config found — using defaults from config.js');
+        }
+        resolve(window.CONFIG);
+      }).catch(function(err) {
+        console.warn('[config-loader] getConfig failed:', err && err.message);
+        resolve(window.CONFIG);
+      });
     }
-    return window.CONFIG;
-  })();
+
+    tryLoad();
+  });
 
 })();
