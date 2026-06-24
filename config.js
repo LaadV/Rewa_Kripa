@@ -194,6 +194,7 @@ var CONFIG = {
   routes: [
     {
       id:        "barwani-bokrata",
+      busId:     "bus1",                         // Assigned bus ID (must match a bus id above)
       from:      "Barwani",
       to:        "Bokrata",
       via:       "Pati",                         // Leave blank "" if no via stop
@@ -210,6 +211,7 @@ var CONFIG = {
     },
     {
       id:        "indore-barwani",
+      busId:     "bus3",                         // Premium Coach: Indore→Barwani
       from:      "Indore",
       to:        "Barwani",
       via:       "",
@@ -226,6 +228,7 @@ var CONFIG = {
     },
     {
       id:        "barwani-indore",
+      busId:     "bus2",                         // AC Seater: Barwani→Indore
       from:      "Barwani",
       to:        "Indore",
       via:       "",
@@ -242,6 +245,7 @@ var CONFIG = {
     },
     {
       id:        "anjad-indore",
+      busId:     "bus4",                         // Budget Seater: Anjad→Indore
       from:      "Anjad",
       to:        "Indore",
       via:       "",

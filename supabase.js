@@ -26,6 +26,7 @@ let _sdkQueue = [];  // functions waiting for the client
 function _initClient() {
   try {
     _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    window._supabase = _supabase;  // expose for staff.html / attendance-checkin.html
     _sdkReady = true;
     console.log('✅ Supabase connected');
     _sdkQueue.forEach(fn => fn(_supabase));
@@ -267,5 +268,6 @@ window.RK = {
   getBookedSeats, bookSeats, unblockSeat, unblockAllSeats, unblockAllBusSeats,
   subscribeSeats, getConfig, saveConfig,
   adminLogin, isAdminLoggedIn, adminLogout,
-  checkAutoReset, SUPABASE_CONFIGURED, ADMIN_PASSWORD
+  checkAutoReset, SUPABASE_CONFIGURED, ADMIN_PASSWORD,
+  isSupabaseActive: function() { return !!_supabase && _sdkReady; }
 };

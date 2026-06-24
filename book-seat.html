@@ -566,6 +566,16 @@ function showToast(msg) {
   t.textContent = msg; t.style.display = 'block';
   clearTimeout(t._t); t._t = setTimeout(function(){ t.style.display = 'none'; }, 4500);
 }
+
+/* ── Expose event handlers to global scope (needed for HTML onclick/onchange) ── */
+window.onRouteChange   = onRouteChange;
+window.openDriverModal = openDriverModal;
+window.closeDriverModal= closeDriverModal;
+window.adminClearToday = adminClearToday;
+window.adminClearAll   = adminClearAll;
+window.confirmBooking  = confirmBooking;
+window.removeSeat      = removeSeat;
+window.updatePax       = updatePax;
 })();
 </script>
 </body>

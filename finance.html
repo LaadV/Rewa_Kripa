@@ -245,7 +245,8 @@ a{text-decoration:none;color:inherit;}
     <div class="topbar-right">
       <button class="topbar-btn btn-ghost" onclick="window.open('admin.html','_blank')">⚙️ Admin Panel</button>
       <button class="topbar-btn btn-ghost" onclick="showExportModal()">📥 Export</button>
-      <button class="topbar-btn btn-orange" onclick="showWAModal()">📲 Share on WhatsApp</button>
+      <button class="topbar-btn btn-green" onclick="quickDailyReport()">📲 Today's Report</button>
+      <button class="topbar-btn btn-orange" onclick="showWAModal()">📲 Share P&L</button>
       <button class="topbar-btn btn-teal" onclick="openEntryModal()">+ Add Entry</button>
       <button class="topbar-btn btn-ghost" onclick="doLogout()">Sign Out</button>
     </div>
@@ -1360,6 +1361,37 @@ function buildWAMessage(period, busId) {
 
   msg += `\n_Rewa Kripa Travels Finance Report_`;
   return msg;
+}
+
+
+function quickDailyReport() {
+  const today = new Date().toISOString().split("T")[0];
+  const entries = filterEntries({ fromDate: today, toDate: today });
+  const { income, expense, profit } = sumEntries(entries);
+  const pad = n => String(n).padStart(2,"0");
+  const now = new Date();
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const dateLabel = now.toLocaleDateString("en-IN", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  let busLines = "";
+  BUSES.forEach(bus => {
+    const be = filterEntries({ busId: bus.id, fromDate: today, toDate: today });
+    if (!be.length) return;
+    const { income: bi, expense: bx, profit: bp } = sumEntries(be);
+    const bpax = be.filter(x=>x.type==="income").reduce((s,x)=>s+(+x.pax1||0)+(+x.pax2||0),0);
+    const routes = {};
+    be.filter(x=>x.type==="income").forEach(x=>{ const k=x.route||x.category||"Route"; if(!routes[k])routes[k]={amt:0,pax:0}; routes[k].amt+=(+x.amount||0); routes[k].pax+=(+x.pax1||0)+(+x.pax2||0); });
+    busLines += `\n🚌 *${bus.plate}* (${bus.title})\n`;
+    Object.entries(routes).forEach(([r,v]) => { busLines += `  • ${r}: ${fmtINR(v.amt)}${v.pax ? " ("+v.pax+" pax)" : ""}\n`; });
+    const expCats = {};
+    be.filter(x=>x.type==="expense").forEach(x=>{ expCats[x.category]=(expCats[x.category]||0)+(+x.amount||0); });
+    Object.entries(expCats).forEach(([c,v]) => { busLines += `  💸 ${c}: ${fmtINR(v)}\n`; });
+    busLines += `  ${bp>=0?"✅":"❌"} Net: *${fmtINR(bp)}*${bpax?" | 👥 "+bpax+" pax":""}`;
+  });
+  const totalPax = entries.filter(e=>e.type==="income").reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
+  const msg = `🚌 *REWA KRIPA TRAVELS*\n📊 *Daily Report — ${dateLabel}*\n🕐 Generated at ${timeStr}\n━━━━━━━━━━━━━━━━━━━━━${busLines||"\n_No entries for today yet_"}\n━━━━━━━━━━━━━━━━━━━━━\n💰 *Total Income : ${fmtINR(income)}*\n💸 *Total Expense: ${fmtINR(expense)}*\n${profit>=0?"✅":"❌"} *Net Profit  : ${fmtINR(profit)}*\n${totalPax?"👥 *Passengers   : "+totalPax+"*\n":""}${income>0?"📈 *Margin       : "+((profit/income)*100).toFixed(1)+"%*\n":""}\n_Rewa Kripa Travels — Daily Finance Report_`;
+  const wa = (typeof CONFIG !== "undefined" && CONFIG.company) ? CONFIG.company.whatsapp : "919977855338";
+  window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(msg), "_blank");
+  toast("📲 Daily report opened in WhatsApp!");
 }
 
 function fmtINR(n) { return '₹'+Number(n).toLocaleString('en-IN'); }

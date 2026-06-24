@@ -378,7 +378,19 @@ async function initPortal() {
 
   // Safety-net re-check (e.g. if another admin saved changes moments ago)
   var saved = await window.RK.getConfig();
-  var merge = window.RK_deepMerge || function(t,s){ return Object.assign(t,s); };
+  /* deep-merge so nested objects (company.address etc) are preserved */
+  var merge = function(target, source) {
+    if (!source || typeof source !== 'object') return target;
+    Object.keys(source).forEach(function(k) {
+      var v = source[k];
+      if (Array.isArray(v)) { target[k] = v; }
+      else if (v && typeof v === 'object') {
+        if (!target[k] || typeof target[k] !== 'object') target[k] = {};
+        merge(target[k], v);
+      } else { target[k] = v; }
+    });
+    return target;
+  };
   if (saved) {
     merge(workingConfig, saved);
     toast('Loaded latest config from Supabase');
