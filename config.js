@@ -113,6 +113,13 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Our flagship Luxury Seater with premium 2×2 recliner seating, USB charging on every seat, free WiFi, and full AC. Ideal for the Barwani–Bokrata corridor.",
+      driver: {
+        name:    "Raju Sharma",
+        phone:   "+91 98765 43210",
+        licence: "MP09-20120045678",
+        exp:     "12 years experience",
+        photo:   "images/driver1.jpeg"
+      },
       bookedSeats: [3, 7, 12, 18, 24, 29]  // Seats already booked (shown in red on map)
     },
     {
@@ -137,6 +144,13 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Comfortable AC Seater with pushback reclining, cup holders, and reading lights. Great for medium-distance daily travel.",
+      driver: {
+        name:    "Suresh Patel",
+        phone:   "+91 98765 43211",
+        licence: "MP09-20150056789",
+        exp:     "9 years experience",
+        photo:   "images/driver2.jpeg"
+      },
       bookedSeats: [2, 5, 11, 20, 31]
     },
     {
@@ -161,6 +175,13 @@ var CONFIG = {
         "📶 Free WiFi"
       ],
       description: "The ultimate travel experience on wheels. Entertainment system, complimentary snacks, LED displays, and spacious 2×1 premium seating.",
+      driver: {
+        name:    "Mohan Verma",
+        phone:   "+91 98765 43212",
+        licence: "MP09-20180067890",
+        exp:     "7 years experience",
+        photo:   "images/driver3.jpeg"
+      },
       bookedSeats: [1, 8, 15, 22]
     },
     {
@@ -183,6 +204,13 @@ var CONFIG = {
         "⏱️ On-time Service"
       ],
       description: "Reliable and economical. Clean, punctual, and ideal for budget-conscious travellers on shorter routes.",
+      driver: {
+        name:    "Dinesh Kumar",
+        phone:   "+91 98765 43213",
+        licence: "MP09-20160078901",
+        exp:     "8 years experience",
+        photo:   "images/driver4.jpeg"
+      },
       bookedSeats: [4, 9, 14, 19, 28, 35, 42]
     }
   ],

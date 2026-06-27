@@ -57,6 +57,9 @@
 <script src="config-loader.js"></script>
 <script src="script.js"></script>
 <script>
+(async function() {
+await window.RK_CONFIG_READY;
+
 buildHeader('');
 buildFooter();
 
@@ -93,6 +96,7 @@ document.getElementById('busSpecs').innerHTML = specs.map(function(s){
 document.getElementById('busFeatures').innerHTML = b.features.map(function(f){
   return '<div class="feat-item">'+f+'</div>';
 }).join('');
+})();
 </script>
 </body>
 </html>
