@@ -113,7 +113,7 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Our flagship Luxury Seater with premium 2×2 recliner seating, USB charging on every seat, free WiFi, and full AC. Ideal for the Barwani–Bokrata corridor.",
-      bookedSeats: []  // Managed via Supabase — do not hardcode here
+      bookedSeats: [3, 7, 12, 18, 24, 29]  // Seats already booked (shown in red on map)
     },
     {
       id:       "bus2",
@@ -137,7 +137,7 @@ var CONFIG = {
         "📹 CCTV Camera"
       ],
       description: "Comfortable AC Seater with pushback reclining, cup holders, and reading lights. Great for medium-distance daily travel.",
-      bookedSeats: []
+      bookedSeats: [2, 5, 11, 20, 31]
     },
     {
       id:       "bus3",
@@ -161,7 +161,7 @@ var CONFIG = {
         "📶 Free WiFi"
       ],
       description: "The ultimate travel experience on wheels. Entertainment system, complimentary snacks, LED displays, and spacious 2×1 premium seating.",
-      bookedSeats: []
+      bookedSeats: [1, 8, 15, 22]
     },
     {
       id:       "bus4",
@@ -183,7 +183,7 @@ var CONFIG = {
         "⏱️ On-time Service"
       ],
       description: "Reliable and economical. Clean, punctual, and ideal for budget-conscious travellers on shorter routes.",
-      bookedSeats: []
+      bookedSeats: [4, 9, 14, 19, 28, 35, 42]
     }
   ],
 
@@ -194,7 +194,7 @@ var CONFIG = {
   routes: [
     {
       id:        "barwani-bokrata",
-      busId:     "bus1",                         // Assigned bus ID (must match a bus id above)
+      busId:     "bus1",
       from:      "Barwani",
       to:        "Bokrata",
       via:       "Pati",                         // Leave blank "" if no via stop
@@ -211,7 +211,7 @@ var CONFIG = {
     },
     {
       id:        "indore-barwani",
-      busId:     "bus3",                         // Premium Coach: Indore→Barwani
+      busId:     "bus3",
       from:      "Indore",
       to:        "Barwani",
       via:       "",
@@ -228,7 +228,7 @@ var CONFIG = {
     },
     {
       id:        "barwani-indore",
-      busId:     "bus2",                         // AC Seater: Barwani→Indore
+      busId:     "bus2",
       from:      "Barwani",
       to:        "Indore",
       via:       "",
@@ -245,7 +245,7 @@ var CONFIG = {
     },
     {
       id:        "anjad-indore",
-      busId:     "bus4",                         // Budget Seater: Anjad→Indore
+      busId:     "bus4",
       from:      "Anjad",
       to:        "Indore",
       via:       "",
@@ -516,11 +516,10 @@ function getBus(id) {
   return CONFIG.buses.find(function(b){ return b.id === id; }) || CONFIG.buses[0];
 }
 
-// Get the bus assigned to a route (by route ID)
+// Get the bus assigned to a route
 function getBusForRoute(routeId) {
-  var route = CONFIG.routes.find(function(r){ return r.id === routeId; });
-  if (!route) return CONFIG.buses[0];
-  return CONFIG.buses.find(function(b){ return b.id === route.busId; }) || CONFIG.buses[0];
+  var route = getRoute(routeId);
+  return getBus(route.busId || CONFIG.buses[0].id);
 }
 
 // Get a route by ID

@@ -226,7 +226,6 @@
 
 <script src="config.js"></script>
 <script src="supabase.js"></script>
-<script src="config-loader.js"></script>
 <script src="script.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════
@@ -240,8 +239,6 @@ var liveBooked = [];      // [{seat_num, gender, passenger_name, passenger_phone
 var fbUnsub = null;
 
 /* ── Init ── */
-(async function(){
-await window.RK_CONFIG_READY;
 buildHeader('book-seat.html');
 buildFooter();
 
@@ -272,7 +269,7 @@ if (window.RK && window.RK.isAdminLoggedIn()) {
 /* ── Route change ── */
 function onRouteChange() {
   currentRoute = getRoute(routeSel.value);
-  currentBus   = getBusForRoute ? getBusForRoute(currentRoute.id) : getBus(currentRoute.busId || CONFIG.buses[0].id);
+  currentBus   = getBusForRoute(currentRoute.id);
   selectedSeats = [];
 
   document.getElementById('busInfoPlate').textContent = currentBus.plate + ' — ' + currentBus.title;
@@ -381,10 +378,12 @@ function mkSeat(num, b, adjBlocked, isAdmin) {
       (function(n){ el.addEventListener('click', function(){ adminUnblockSeat(n); }); })(num);
     }
   } else if (isAdj) {
-    el.classList.add('sb-blk');
-    el.style.opacity = '.4';
+    el.classList.add('sb-blk'); el.textContent = '🚫';
     el.title = 'Blocked — next to female passenger. Females can still book this.';
+    // Females CAN book adj seats — we allow clicking and prompt if needed
     (function(n){ el.addEventListener('click', function(){ addSeat(n); }); })(num);
+    el.classList.remove('sb-blk'); el.textContent = num; el.style.opacity = '.4';
+    el.classList.add('sb-blk');
   } else if (isSelected) {
     el.classList.add('selected');
     (function(n){ el.addEventListener('click', function(){ removeSeat(n); }); })(num);
@@ -566,17 +565,6 @@ function showToast(msg) {
   t.textContent = msg; t.style.display = 'block';
   clearTimeout(t._t); t._t = setTimeout(function(){ t.style.display = 'none'; }, 4500);
 }
-
-/* ── Expose event handlers to global scope (needed for HTML onclick/onchange) ── */
-window.onRouteChange   = onRouteChange;
-window.openDriverModal = openDriverModal;
-window.closeDriverModal= closeDriverModal;
-window.adminClearToday = adminClearToday;
-window.adminClearAll   = adminClearAll;
-window.confirmBooking  = confirmBooking;
-window.removeSeat      = removeSeat;
-window.updatePax       = updatePax;
-})();
 </script>
 </body>
 </html>
