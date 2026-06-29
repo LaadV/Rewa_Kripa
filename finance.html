@@ -867,7 +867,7 @@ function buildIncomeLines(targetId) {
 
 function incomeLineHTML(idx, targetId) {
   const routeOptions = ROUTES.length
-    ? ROUTES.map(r=>`<option value="${r.shortName||r.name}">${r.shortName||r.name}</option>`).join('')
+    ? ROUTES.map(r=>`<option value="${r.label||r.id}">${r.label||r.id}</option>`).join('')
     : '';
   return `
     <div class="route-expense-row" id="il-${targetId}-${idx}">
@@ -1022,10 +1022,10 @@ function ilFareHint(targetId, idx) {
   }
   // Auto-fill fare from routes config
   if (sel && sel.value && sel.value !== '__custom__') {
-    const route = ROUTES.find(r=>(r.shortName||r.name)===sel.value);
-    if (route && route.fare) {
+    const route = ROUTES.find(r=>(r.label||r.id)===sel.value);
+    if (route && route.price) {
       const fareEl = document.getElementById(`il-fare-${targetId}-${idx}`);
-      if (fareEl && !fareEl.value) fareEl.value = route.fare;
+      if (fareEl && !fareEl.value) fareEl.value = route.price;
     }
   }
 }

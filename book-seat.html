@@ -226,8 +226,11 @@
 
 <script src="config.js"></script>
 <script src="supabase.js"></script>
+<script src="config-loader.js"></script>
 <script src="script.js"></script>
 <script>
+(async function() {
+await window.RK_CONFIG_READY;
 /* ═══════════════════════════════════════════════════════
    BOOKING ENGINE — Multi-passenger, gender-per-seat,
    Supabase real-time shared state, admin unblock
@@ -565,6 +568,19 @@ function showToast(msg) {
   t.textContent = msg; t.style.display = 'block';
   clearTimeout(t._t); t._t = setTimeout(function(){ t.style.display = 'none'; }, 4500);
 }
+
+// Expose functions called from HTML onclick attributes
+window.onRouteChange    = onRouteChange;
+window.confirmBooking   = confirmBooking;
+window.removeSeat       = removeSeat;
+window.updatePax        = updatePax;
+window.adminClearToday  = adminClearToday;
+window.adminClearAll    = adminClearAll;
+window.openDriverModal  = openDriverModal;
+window.closeDriverModal = closeDriverModal;
+window.hideNotice       = hideNotice;
+
+})(); // end RK_CONFIG_READY
 </script>
 </body>
 </html>
