@@ -8,7 +8,7 @@ create table if not exists staff (
   id           bigint generated always as identity primary key,
   name         text not null,
   role         text not null check (role in ('driver','conductor','helper','office')),
-  phone        text not null,
+  phone        text not null unique,
   whatsapp     text default '',
   photo_url    text default '',
   bus_id       text default '',          -- assigned bus (nullable)
@@ -30,7 +30,7 @@ insert into staff (name, role, phone, whatsapp, bus_id, bus_plate, salary, join_
 ('Dinesh Kumar',   'conductor', '+91 98765 43213', '919876543213', 'bus2', 'MP09CY7782', 14000, '2021-03-10'),
 ('Ramesh Helper',  'helper',    '+91 98765 43214', '919876543214', 'bus3', 'MP09CY9911', 10000, '2022-06-01'),
 ('Anita Devi',     'office',    '+91 98765 43215', '919876543215', '',    '',            15000, '2019-08-20')
-on conflict do nothing;
+on conflict (phone) do nothing;
 
 -- ── 2. ATTENDANCE ────────────────────────────────────────────────────────
 create table if not exists attendance (
@@ -56,10 +56,15 @@ create table if not exists attendance (
 alter table staff     enable row level security;
 alter table attendance enable row level security;
 
-create policy if not exists "staff_read"   on staff     for select using (true);
-create policy if not exists "staff_write"  on staff     for all    using (true) with check (true);
-create policy if not exists "att_read"     on attendance for select using (true);
-create policy if not exists "att_write"    on attendance for all    using (true) with check (true);
+drop policy if exists "staff_read"  on staff;
+drop policy if exists "staff_write" on staff;
+drop policy if exists "att_read"    on attendance;
+drop policy if exists "att_write"   on attendance;
+
+create policy "staff_read"  on staff      for select using (true);
+create policy "staff_write" on staff      for all    using (true) with check (true);
+create policy "att_read"    on attendance for select using (true);
+create policy "att_write"   on attendance for all    using (true) with check (true);
 
 -- Real-time for attendance (so admin dashboard updates live)
 alter publication supabase_realtime add table attendance;

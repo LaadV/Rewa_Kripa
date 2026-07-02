@@ -241,6 +241,29 @@ function removeLocalSeat(busId, date, seatNum) {
 
 function clearLocalSeats(busId, date) { localStorage.removeItem(lsKey(busId, date)); }
 
+/* ── IMAGE UPLOAD (Supabase Storage — site-images bucket) ──── */
+
+async function uploadImage(file, folder) {
+  const sb = await getSB();
+  if (!sb) { console.warn('uploadImage: Supabase not connected'); return null; }
+  try {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const safeFolder = (folder || 'misc').replace(/[^a-z0-9_-]/gi, '');
+    const path = safeFolder + '/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+    const { error } = await sb.storage.from('site-images').upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type || undefined
+    });
+    if (error) throw error;
+    const { data: pub } = sb.storage.from('site-images').getPublicUrl(path);
+    return pub && pub.publicUrl ? pub.publicUrl : null;
+  } catch (e) {
+    console.warn('uploadImage:', e.message);
+    return null;
+  }
+}
+
 /* ── AUTO-RESET (2hrs after bus departure) ────────────────── */
 
 function checkAutoReset(bus, date) {
@@ -269,5 +292,6 @@ window.RK = {
   subscribeSeats, getConfig, saveConfig,
   adminLogin, isAdminLoggedIn, adminLogout,
   checkAutoReset, SUPABASE_CONFIGURED, ADMIN_PASSWORD,
+  uploadImage,
   isSupabaseActive: function() { return !!_supabase && _sdkReady; }
 };
