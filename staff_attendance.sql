@@ -39,9 +39,9 @@ create policy "att_read" on attendance for select using (true);
 
 create policy "att_write" on attendance for all using (true) with check (true);
 
-alter publication supabase_realtime add table attendance;
+do $$ begin begin alter publication supabase_realtime add table attendance; exception when duplicate_object then null; end; end $$;
 
-alter publication supabase_realtime add table staff;
+do $$ begin begin alter publication supabase_realtime add table staff; exception when duplicate_object then null; end; end $$;
 
 -- ── DONE ─────────────────────────────────────────────────────────────────
 -- staff_attendance.sql complete
