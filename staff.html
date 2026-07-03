@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <script src="supabase.js"></script>
+<script src="config-loader.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Poppins',sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh;}
@@ -442,6 +443,7 @@ if (sessionStorage.getItem('rk_staff_auth')==='1') {
 
 /* ── INIT ── */
 async function initApp() {
+  if (typeof window.RK_CONFIG_READY !== 'undefined') { await window.RK_CONFIG_READY; }
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('attDate').value = today;
 
