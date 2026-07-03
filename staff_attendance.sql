@@ -22,15 +22,18 @@ create table if not exists staff (
   updated_at   timestamptz default now()
 );
 
--- Sample staff
-insert into staff (name, role, phone, whatsapp, bus_id, bus_plate, salary, join_date) values
-('Raju Sharma',    'driver',    '+91 98765 43210', '919876543210', 'bus1', 'MP09CY8606', 22000, '2020-01-15'),
-('Suresh Patel',   'driver',    '+91 98765 43211', '919876543211', 'bus2', 'MP09CY7782', 22000, '2021-03-10'),
-('Mohan Verma',    'conductor', '+91 98765 43212', '919876543212', 'bus1', 'MP09CY8606', 14000, '2020-01-15'),
-('Dinesh Kumar',   'conductor', '+91 98765 43213', '919876543213', 'bus2', 'MP09CY7782', 14000, '2021-03-10'),
-('Ramesh Helper',  'helper',    '+91 98765 43214', '919876543214', 'bus3', 'MP09CY9911', 10000, '2022-06-01'),
-('Anita Devi',     'office',    '+91 98765 43215', '919876543215', '',    '',            15000, '2019-08-20')
-on conflict (phone) do nothing;
+-- Sample staff (idempotent — skips any phone already present, no unique constraint required)
+insert into staff (name, role, phone, whatsapp, bus_id, bus_plate, salary, join_date)
+select v.name, v.role, v.phone, v.whatsapp, v.bus_id, v.bus_plate, v.salary, v.join_date
+from (values
+  ('Raju Sharma',    'driver',    '+91 98765 43210', '919876543210', 'bus1', 'MP09CY8606', 22000, '2020-01-15'),
+  ('Suresh Patel',   'driver',    '+91 98765 43211', '919876543211', 'bus2', 'MP09CY7782', 22000, '2021-03-10'),
+  ('Mohan Verma',    'conductor', '+91 98765 43212', '919876543212', 'bus1', 'MP09CY8606', 14000, '2020-01-15'),
+  ('Dinesh Kumar',   'conductor', '+91 98765 43213', '919876543213', 'bus2', 'MP09CY7782', 14000, '2021-03-10'),
+  ('Ramesh Helper',  'helper',    '+91 98765 43214', '919876543214', 'bus3', 'MP09CY9911', 10000, '2022-06-01'),
+  ('Anita Devi',     'office',    '+91 98765 43215', '919876543215', '',    '',            15000, '2019-08-20')
+) as v(name, role, phone, whatsapp, bus_id, bus_plate, salary, join_date)
+where not exists (select 1 from staff s where s.phone = v.phone);
 
 -- ── 2. ATTENDANCE ────────────────────────────────────────────────────────
 create table if not exists attendance (
