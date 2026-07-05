@@ -286,6 +286,76 @@ function checkAutoReset(bus, date) {
   return 'ok';
 }
 
+/* ── FINANCE ENTRIES (shared via Supabase, bus-only, no route/passenger fields) ── */
+
+const _FIN_LS_KEY = 'rk_finance_shared_v1';
+
+function _lsGetFinance() {
+  try { return JSON.parse(localStorage.getItem(_FIN_LS_KEY) || '[]'); } catch(e) { return []; }
+}
+function _lsAddFinance(row) {
+  const list = _lsGetFinance();
+  row.id = row.id || ('local_' + Date.now() + '_' + Math.random().toString(36).slice(2,8));
+  row.created_at = row.created_at || new Date().toISOString();
+  list.unshift(row);
+  localStorage.setItem(_FIN_LS_KEY, JSON.stringify(list));
+}
+function _lsDeleteFinance(id) {
+  const list = _lsGetFinance().filter(r => r.id !== id);
+  localStorage.setItem(_FIN_LS_KEY, JSON.stringify(list));
+}
+
+async function getFinanceEntries() {
+  const sb = await getSB();
+  if (!sb) return _lsGetFinance();
+  try {
+    const { data, error } = await sb.from('finance_entries').select('*').order('date', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  } catch (e) {
+    console.warn('getFinanceEntries:', e.message);
+    return _lsGetFinance();
+  }
+}
+
+async function addFinanceEntry(entry) {
+  const row = {
+    bus_id: entry.busId,
+    bus_plate: entry.busPlate || '',
+    bus_title: entry.busTitle || '',
+    date: entry.date,
+    type: entry.type,
+    category: entry.category,
+    amount: +entry.amount || 0,
+    note: entry.note || ''
+  };
+  const sb = await getSB();
+  if (!sb) { _lsAddFinance(row); return { ok: true, local: true }; }
+  try {
+    const { data, error } = await sb.from('finance_entries').insert(row).select();
+    if (error) throw error;
+    return { ok: true, local: false, row: data && data[0] };
+  } catch (e) {
+    console.warn('addFinanceEntry:', e.message);
+    _lsAddFinance(row);
+    return { ok: false, local: true };
+  }
+}
+
+async function deleteFinanceEntry(id) {
+  const sb = await getSB();
+  if (sb && typeof id === 'number') {
+    try {
+      const { error } = await sb.from('finance_entries').delete().eq('id', id);
+      if (error) throw error;
+      return;
+    } catch (e) {
+      console.warn('deleteFinanceEntry:', e.message);
+    }
+  }
+  _lsDeleteFinance(id);
+}
+
 /* ── GLOBAL EXPORTS (same interface — no other files need to change) ── */
 window.RK = {
   getBookedSeats, bookSeats, unblockSeat, unblockAllSeats, unblockAllBusSeats,
@@ -293,5 +363,6 @@ window.RK = {
   adminLogin, isAdminLoggedIn, adminLogout,
   checkAutoReset, SUPABASE_CONFIGURED, ADMIN_PASSWORD,
   uploadImage,
+  getFinanceEntries, addFinanceEntry, deleteFinanceEntry,
   isSupabaseActive: function() { return !!_supabase && _sdkReady; }
 };

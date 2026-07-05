@@ -6,6 +6,8 @@
 <title>Finance Manager — Rewa Kripa Travels</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
+<script src="supabase.js"></script>
+<script src="config-loader.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -241,9 +243,11 @@ a{text-decoration:none;color:inherit;}
     <div class="topbar-left">
       <div class="topbar-brand">🚌 Rewa Kripa Travels</div>
       <div class="topbar-badge">Finance Manager</div>
+      <div class="topbar-badge" id="connBadge" style="background:rgba(234,179,8,.18);border-color:rgba(234,179,8,.4);color:#fde68a">🔄 Connecting…</div>
     </div>
     <div class="topbar-right">
       <button class="topbar-btn btn-ghost" onclick="window.open('admin.html','_blank')">⚙️ Admin Panel</button>
+      <button class="topbar-btn btn-ghost" onclick="manualRefresh()">🔄 Refresh</button>
       <button class="topbar-btn btn-ghost" onclick="showExportModal()">📥 Export</button>
       <button class="topbar-btn btn-green" onclick="quickDailyReport()">📲 Today's Report</button>
       <button class="topbar-btn btn-orange" onclick="showWAModal()">📲 Share P&L</button>
@@ -416,7 +420,6 @@ a{text-decoration:none;color:inherit;}
         <option value="expense">Expense Only</option>
         <option value="summary">Profit Summary by Bus</option>
         <option value="daily">Daily Summary</option>
-        <option value="route">Route-wise Summary</option>
       </select>
     </div>
     <div class="g2">
@@ -462,54 +465,74 @@ a{text-decoration:none;color:inherit;}
 /* ════════════════════════════════════════════════════
    CONSTANTS — pulled from config.js
 ════════════════════════════════════════════════════ */
-let ADMIN_PASSWORD, BUSES, INCOME_CATEGORIES, EXPENSE_CATEGORIES, QUICK_AMOUNTS, ROUTES;
+let ADMIN_PASSWORD, INCOME_CATEGORIES, EXPENSE_CATEGORIES, QUICK_AMOUNTS;
 
 try {
   ADMIN_PASSWORD      = CONFIG.finance.adminPassword;
   INCOME_CATEGORIES   = CONFIG.finance.incomeCategories;
   EXPENSE_CATEGORIES  = CONFIG.finance.expenseCategories;
   QUICK_AMOUNTS       = CONFIG.finance.quickAmounts;
-  BUSES               = CONFIG.buses.map(b => ({ id:b.id, plate:b.plate, title:b.title, capacity:b.capacity||40 }));
-  ROUTES              = CONFIG.routes || [];
 } catch(e) {
   ADMIN_PASSWORD    = 'Swift@8606';
   INCOME_CATEGORIES = ['Daily Route','Tour Package','Marriage Booking','Party Booking','Charter / Private Hire','Festival Special','School Trip','Corporate Booking','Other Income'];
   EXPENSE_CATEGORIES= ['Fuel','Driver Salary','Conductor Salary','Helper Salary','Bus Repair','Tyre Puncture','Tyre Replacement','Engine Repair','Oil & Lubricants','Bus Wash','Toll Tax','Parking','Insurance','Road Tax / Permit','Fitness Certificate','Spare Parts','AC Repair','Electrical Repair','Driver Food / Allowance','Other Expense'];
   QUICK_AMOUNTS     = [100,200,500,1000,2000,5000,10000,15000,20000,50000];
-  BUSES             = [{id:'bus1',plate:'MP09CY8606',title:'Luxury Seater',capacity:40},{id:'bus2',plate:'MP09CY7782',title:'AC Seater',capacity:44},{id:'bus3',plate:'MP09CY9911',title:'Premium Coach',capacity:36},{id:'bus4',plate:'MP09CY4455',title:'Budget Seater',capacity:52}];
-  ROUTES            = [];
 }
-
-const LS_KEY = 'rk_finance_entries_v2';
 
 /* ════════════════════════════════════════════════════
-   DATA LAYER
+   DATA LAYER — shared via Supabase (window.RK), with an
+   in-memory cache so the existing synchronous render
+   functions below don't need to become async everywhere.
+   Every entry depends on a Bus only — no routes, no
+   passenger counts, no fare calculator.
 ════════════════════════════════════════════════════ */
-function loadEntries() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)||'[]'); } catch(e){ return []; }
+let ALL_ENTRIES = [];   // [{id, busId, busPlate, busTitle, date, type, category, amount, note}]
+let ALL_BUSES   = [];   // [{id, plate, title, capacity, archived}]
+
+async function refreshEntries() {
+  const raw = await window.RK.getFinanceEntries();
+  ALL_ENTRIES = raw.map(r => ({
+    id: r.id,
+    busId: r.bus_id !== undefined ? r.bus_id : r.busId,
+    busPlate: r.bus_plate || r.busPlate || '',
+    busTitle: r.bus_title || r.busTitle || '',
+    date: r.date,
+    type: r.type,
+    category: r.category,
+    amount: +r.amount || 0,
+    note: r.note || ''
+  }));
+  updateConnBadge();
 }
-function saveEntries(e) { localStorage.setItem(LS_KEY, JSON.stringify(e)); }
-function addEntry(entry) {
-  const entries = loadEntries();
-  entry.id = 'e_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  entry.created = new Date().toISOString();
-  entries.unshift(entry);
-  saveEntries(entries);
-  return entry;
-}
-function addEntries(list) {
-  const entries = loadEntries();
-  list.forEach(entry => {
-    entry.id = 'e_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-    entry.created = new Date().toISOString();
-    entries.unshift(entry);
+
+// Live buses come from CONFIG.buses (admin-managed). If a bus is deleted in
+// admin.html, it disappears from CONFIG.buses but its finance history is
+// preserved here — we surface it as an "Archived" bus so old records stay
+// visible everywhere except the "Add Entry" form (which only shows live buses).
+function computeBusList() {
+  const liveBuses = (typeof CONFIG !== 'undefined' ? CONFIG.buses : []).map(b => ({
+    id: b.id, plate: b.plate, title: b.title, capacity: b.capacity || 40, archived: false
+  }));
+  const liveIds = new Set(liveBuses.map(b => b.id));
+  const archivedMap = {};
+  ALL_ENTRIES.forEach(e => {
+    if (e.busId && !liveIds.has(e.busId) && !archivedMap[e.busId]) {
+      archivedMap[e.busId] = {
+        id: e.busId,
+        plate: e.busPlate || e.busId,
+        title: e.busTitle || '(deleted bus)',
+        capacity: 0,
+        archived: true
+      };
+    }
   });
-  saveEntries(entries);
+  ALL_BUSES = liveBuses.concat(Object.values(archivedMap));
 }
-function deleteEntry(id) { saveEntries(loadEntries().filter(e=>e.id!==id)); }
+
+function busLabel(b) { return `${b.plate} — ${b.title}` + (b.archived ? ' (Archived)' : ''); }
 
 function filterEntries({ busId, type, category, fromDate, toDate }={}) {
-  return loadEntries().filter(e => {
+  return ALL_ENTRIES.filter(e => {
     if (busId && busId!=='all' && e.busId!==busId) return false;
     if (type && type!=='all' && e.type!==type) return false;
     if (category && category!=='all' && e.category!==category) return false;
@@ -563,30 +586,65 @@ if (sessionStorage.getItem('rk_fin_auth')==='1') {
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='block';
   document.addEventListener('DOMContentLoaded',initApp);
+  if (document.readyState !== 'loading') initApp();
 }
 
 /* ════════════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════════════ */
-function initApp() {
-  ['dash-bus','led-bus','inc-bus','exp-bus','exp-modal-bus'].forEach(sid=>{
-    const sel=document.getElementById(sid); if(!sel)return;
-    BUSES.forEach(b=>{ const o=document.createElement('option'); o.value=b.id; o.textContent=`${b.plate} — ${b.title}`; sel.appendChild(o); });
-  });
+async function initApp() {
+  if (typeof window.RK_CONFIG_READY !== 'undefined') { await window.RK_CONFIG_READY; }
+  await refreshEntries();
+  computeBusList();
+  populateDropdowns();
+
   const expCatSel=document.getElementById('exp-cat');
-  if(expCatSel) EXPENSE_CATEGORIES.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; expCatSel.appendChild(o); });
+  if(expCatSel && !expCatSel.dataset.filled) { EXPENSE_CATEGORIES.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; expCatSel.appendChild(o); }); expCatSel.dataset.filled='1'; }
   const ledCatSel=document.getElementById('led-cat');
-  if(ledCatSel) [...INCOME_CATEGORIES,...EXPENSE_CATEGORIES].sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; ledCatSel.appendChild(o); });
+  if(ledCatSel && !ledCatSel.dataset.filled) { [...INCOME_CATEGORIES,...EXPENSE_CATEGORIES].sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; ledCatSel.appendChild(o); }); ledCatSel.dataset.filled='1'; }
 
   const today=new Date().toISOString().split('T')[0];
   const monthStart=today.slice(0,7)+'-01';
-  ['led-from','inc-from','exp-from','exp-modal-from'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=monthStart; });
-  ['led-to','inc-to','exp-to','exp-modal-to'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=today; });
-  document.getElementById('dash-from').value=monthStart;
-  document.getElementById('dash-to').value=today;
+  ['led-from','inc-from','exp-from','exp-modal-from'].forEach(id=>{ const el=document.getElementById(id); if(el && !el.value)el.value=monthStart; });
+  ['led-to','inc-to','exp-to','exp-modal-to'].forEach(id=>{ const el=document.getElementById(id); if(el && !el.value)el.value=today; });
+  if (!document.getElementById('dash-from').value) document.getElementById('dash-from').value=monthStart;
+  if (!document.getElementById('dash-to').value)   document.getElementById('dash-to').value=today;
 
   renderDashboard();
   buildInlineForm();
+}
+
+// Populates the "All Buses" filter dropdowns from ALL_BUSES (live + archived).
+// Safe to call repeatedly (e.g. from the Refresh button) — clears and rebuilds.
+function populateDropdowns() {
+  ['dash-bus','led-bus','inc-bus','exp-bus','exp-modal-bus','wa-bus'].forEach(sid=>{
+    const sel=document.getElementById(sid); if(!sel)return;
+    const keep = sel.options[0];
+    sel.innerHTML = '';
+    if (keep) sel.appendChild(keep);
+    ALL_BUSES.forEach(b=>{ const o=document.createElement('option'); o.value=b.id; o.textContent=busLabel(b); sel.appendChild(o); });
+  });
+}
+
+async function manualRefresh() {
+  toast('🔄 Refreshing…');
+  await refreshEntries();
+  computeBusList();
+  populateDropdowns();
+  renderDashboard(); renderLedger(); renderIncomeTable(); renderExpenseTable(); renderBuswise();
+  toast('✅ Refreshed');
+}
+
+function updateConnBadge() {
+  const el = document.getElementById('connBadge');
+  if (!el) return;
+  if (window.RK && window.RK.isSupabaseActive && window.RK.isSupabaseActive()) {
+    el.textContent = '🟢 Synced — shared across devices';
+    el.style.background='rgba(34,197,94,.18)'; el.style.borderColor='rgba(34,197,94,.4)'; el.style.color='#86efac';
+  } else {
+    el.textContent = '🟡 Local only — not yet synced';
+    el.style.background='rgba(234,179,8,.18)'; el.style.borderColor='rgba(234,179,8,.4)'; el.style.color='#fde68a';
+  }
 }
 
 function onPeriodChange() {
@@ -623,29 +681,31 @@ function renderDashboard() {
   else { const r=dateRange(period); fromDate=r.from; toDate=r.to; }
   const entries=filterEntries({busId,fromDate,toDate});
   const {income,expense,profit}=sumEntries(entries);
-  const totalPax=entries.filter(e=>e.type==='income').reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
-  const routeCount=new Set(entries.filter(e=>e.route).map(e=>e.route)).size;
+  const activeBuses=new Set(entries.map(e=>e.busId)).size;
+  const liveBusCount=ALL_BUSES.filter(b=>!b.archived).length;
 
   document.getElementById('kpiRow').innerHTML=`
     <div class="kpi kpi-income"><div class="kpi-label">Total Income (CR)</div><div class="kpi-value">${fmtINR(income)}</div><div class="kpi-sub">${entries.filter(e=>e.type==='income').length} entries</div></div>
     <div class="kpi kpi-expense"><div class="kpi-label">Total Expenses (DR)</div><div class="kpi-value">${fmtINR(expense)}</div><div class="kpi-sub">${entries.filter(e=>e.type==='expense').length} entries</div></div>
     <div class="kpi kpi-profit"><div class="kpi-label">Net Profit</div><div class="kpi-value" style="color:${profit>=0?'#0369a1':'#dc2626'}">${fmtINR(profit)}</div><div class="kpi-sub">Margin: ${income>0?((profit/income)*100).toFixed(1)+'%':'—'}</div></div>
-    <div class="kpi kpi-trips"><div class="kpi-label">Routes Used</div><div class="kpi-value">${routeCount||'—'}</div><div class="kpi-sub">${busId==='all'?'All buses':'Selected bus'}</div></div>
-    <div class="kpi kpi-pax"><div class="kpi-label">Total Passengers</div><div class="kpi-value">${totalPax||'—'}</div><div class="kpi-sub">Across all trips</div></div>`;
+    <div class="kpi kpi-trips"><div class="kpi-label">Active Buses</div><div class="kpi-value">${activeBuses||'—'}</div><div class="kpi-sub">${busId==='all'?'Out of '+liveBusCount+' buses':'Selected bus'}</div></div>
+    <div class="kpi kpi-pax"><div class="kpi-label">Total Entries</div><div class="kpi-value" style="color:#7c3aed">${entries.length||'—'}</div><div class="kpi-sub">In this period</div></div>`;
 
-  // Bus chart
-  const busData=BUSES.map(b=>{ const be=filterEntries({busId:b.id,fromDate,toDate}); return {...b,...sumEntries(be)}; });
+  // Bus chart — every live bus, plus any archived bus that still has data in this period
+  const busIdsWithData = new Set(entries.map(e=>e.busId));
+  const busesToChart = ALL_BUSES.filter(b => !b.archived || busIdsWithData.has(b.id));
+  const busData=busesToChart.map(b=>{ const be=filterEntries({busId:b.id,fromDate,toDate}); return {...b,...sumEntries(be)}; });
   const maxInc=Math.max(...busData.map(b=>b.income),1);
   const maxExp=Math.max(...busData.map(b=>b.expense),1);
-  document.getElementById('busChart').innerHTML=`<div class="chart-bar-wrap">${busData.map(b=>`
+  document.getElementById('busChart').innerHTML=busData.length?`<div class="chart-bar-wrap">${busData.map(b=>`
     <div style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:5px">${b.plate} <span style="font-weight:400;color:#94a3b8;font-size:11px">${b.title}</span></div>
+      <div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:5px">${b.plate} <span style="font-weight:400;color:#94a3b8;font-size:11px">${b.title}${b.archived?' · Archived':''}</span></div>
       <div class="chart-bar-row"><div class="chart-bar-label" style="color:#16a34a;width:55px">CR</div>
         <div class="chart-bar-track"><div class="chart-bar-fill inc" style="width:${(b.income/maxInc*100).toFixed(1)}%"><span class="chart-bar-val">${fmtINR(b.income)}</span></div></div></div>
       <div class="chart-bar-row" style="margin-top:3px"><div class="chart-bar-label" style="color:#dc2626;width:55px">DR</div>
         <div class="chart-bar-track"><div class="chart-bar-fill exp" style="width:${(b.expense/maxExp*100).toFixed(1)}%"><span class="chart-bar-val">${fmtINR(b.expense)}</span></div></div></div>
       <div style="font-size:12px;margin-top:3px;padding-left:65px">Net: <strong style="color:${b.profit>=0?'#16a34a':'#dc2626'}">${fmtINR(b.profit)}</strong></div>
-    </div>`).join('')}</div>`;
+    </div>`).join('')}</div>` : '<p style="color:#94a3b8;font-size:13px;padding:12px 0">No buses yet — add one in the Admin Panel.</p>';
 
   // Expense breakdown
   const catTotals={};
@@ -658,7 +718,6 @@ function renderDashboard() {
         <div class="chart-bar-track"><div class="chart-bar-fill exp" style="width:${(amt/maxCat*100).toFixed(1)}%"><span class="chart-bar-val">${fmtINR(amt)}</span></div></div></div>`).join('')}</div>`
     :'<p style="color:#94a3b8;font-size:13px;padding:12px 0">No expenses in this period.</p>';
 
-  // Recent
   document.getElementById('recentTable').innerHTML=entries.length
     ?buildTable(entries.slice(0,20),true)
     :'<p style="padding:20px;color:#94a3b8;font-size:13px">No entries in this period.</p>';
@@ -698,7 +757,7 @@ function renderExpenseTable() {
 function exportExpenses() { exportToExcel(filterEntries({busId:document.getElementById('exp-bus').value,type:'expense',category:document.getElementById('exp-cat').value,fromDate:document.getElementById('exp-from').value,toDate:document.getElementById('exp-to').value}),'Expense_Report','Expenses'); }
 
 /* ════════════════════════════════════════════════════
-   BUS-WISE P&L  (Enhanced)
+   BUS-WISE P&L
 ════════════════════════════════════════════════════ */
 function renderBuswise() {
   const period=document.getElementById('bw-period').value;
@@ -706,41 +765,33 @@ function renderBuswise() {
   const panels=document.getElementById('buswisePanels');
   panels.innerHTML='';
 
-  BUSES.forEach(bus=>{
+  ALL_BUSES.forEach(bus=>{
     const entries=filterEntries({busId:bus.id,fromDate,toDate});
+    if (bus.archived && !entries.length) return; // don't clutter with empty archived buses
     const {income,expense,profit}=sumEntries(entries);
     const margin=income>0?((profit/income)*100).toFixed(1):0;
     const profitPct=income>0?Math.max(0,Math.min(100,(profit/income)*100)):0;
-    const totalPax=entries.filter(e=>e.type==='income').reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
     const incomeEntries=entries.filter(e=>e.type==='income');
-    const tripCount=incomeEntries.length;
 
-    // Route breakdown
-    const routeTotals={};
-    incomeEntries.forEach(e=>{
-      const k=e.route||e.category||'Unspecified';
-      if(!routeTotals[k]) routeTotals[k]={income:0,pax:0,trips:0};
-      routeTotals[k].income+=(+e.amount||0);
-      routeTotals[k].pax+=(+e.pax1||0)+(+e.pax2||0);
-      routeTotals[k].trips++;
-    });
+    const incomeCatTotals={};
+    incomeEntries.forEach(e=>{ incomeCatTotals[e.category]=(incomeCatTotals[e.category]||0)+(+e.amount||0); });
 
-    const catTotals={};
-    entries.filter(e=>e.type==='expense').forEach(e=>{catTotals[e.category]=(catTotals[e.category]||0)+(+e.amount||0);});
+    const expCatTotals={};
+    entries.filter(e=>e.type==='expense').forEach(e=>{expCatTotals[e.category]=(expCatTotals[e.category]||0)+(+e.amount||0);});
 
     const div=document.createElement('div');
     div.className='bus-pl-card';
     div.innerHTML=`
       <div class="bus-pl-header" style="background:${profit>=0?'#f0fdf4':'#fff1f2'}">
         <div>
-          <div style="font-size:17px;font-weight:700;color:#0f172a">🚌 ${bus.plate}</div>
+          <div style="font-size:17px;font-weight:700;color:#0f172a">🚌 ${bus.plate}${bus.archived?' <span style="font-size:11px;font-weight:600;color:#92400e;background:#fef9c3;padding:2px 9px;border-radius:100px;margin-left:6px;vertical-align:middle">Archived</span>':''}</div>
           <div style="font-size:13px;color:#64748b;margin-top:2px">${bus.title}</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="${profit>=0?'pill-profit':'pill-loss'}">${profit>=0?'✅ Profit':'❌ Loss'}: ${fmtINR(Math.abs(profit))}</span>
           <span style="font-size:12px;color:#64748b">Margin: ${margin}%</span>
-          <button class="btn btn-sm" style="background:#25D366;color:white" onclick="shareWABusDaily('${bus.id}','${bus.plate}')">📲 Today</button>
-          <button class="btn btn-sm" style="background:#128C7E;color:white" onclick="shareWABusWeekly('${bus.id}','${bus.plate}')">📲 This Week</button>
+          ${!bus.archived?`<button class="btn btn-sm" style="background:#25D366;color:white" onclick="shareWABusDaily('${bus.id}')">📲 Today</button>
+          <button class="btn btn-sm" style="background:#128C7E;color:white" onclick="shareWABusWeekly('${bus.id}')">📲 This Week</button>`:''}
           <button class="btn btn-excel btn-sm" onclick="exportBuswiseSingle('${bus.id}','${bus.plate}')">📥 Export</button>
         </div>
       </div>
@@ -749,7 +800,7 @@ function renderBuswise() {
         <div class="bus-pl-kpi"><div class="val amt-inc">${fmtINR(income)}</div><div class="lbl">Total Income (CR)</div></div>
         <div class="bus-pl-kpi"><div class="val amt-exp">${fmtINR(expense)}</div><div class="lbl">Total Expenses (DR)</div></div>
         <div class="bus-pl-kpi"><div class="val" style="color:${profit>=0?'#0369a1':'#dc2626'}">${fmtINR(profit)}</div><div class="lbl">Net Profit / Loss</div></div>
-        <div class="bus-pl-kpi"><div class="val" style="color:#7c3aed">${totalPax||'—'}</div><div class="lbl">Total Passengers</div></div>
+        <div class="bus-pl-kpi"><div class="val" style="color:#7c3aed">${entries.length||'—'}</div><div class="lbl">Total Entries</div></div>
       </div>
 
       <div class="bus-pl-body">
@@ -762,20 +813,17 @@ function renderBuswise() {
 
         <div class="g2" style="margin-top:18px">
           <div>
-            <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:10px;display:flex;align-items:center;gap:6px">💰 Income by Route</div>
-            ${Object.keys(routeTotals).length?Object.entries(routeTotals).sort((a,b)=>b[1].income-a[1].income).map(([k,v])=>`
-              <div style="padding:8px 0;border-bottom:1px solid #f1f5f9;">
-                <div style="display:flex;justify-content:space-between;font-size:13px">
-                  <span style="font-weight:600">${k}</span><span class="amt-inc">${fmtINR(v.income)}</span>
-                </div>
-                <div style="font-size:11px;color:#94a3b8;margin-top:2px">${v.trips} trip${v.trips!==1?'s':''} · ${v.pax} passengers</div>
+            <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:10px;display:flex;align-items:center;gap:6px">💰 Income by Category</div>
+            ${Object.keys(incomeCatTotals).length?Object.entries(incomeCatTotals).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px">
+                <span style="font-weight:600">${k}</span><span class="amt-inc">${fmtINR(v)}</span>
               </div>`).join('')
             :'<p style="color:#94a3b8;font-size:13px">No income entries</p>'}
             <div style="padding:8px 0;font-size:13px;font-weight:700;color:#0f172a">Total: <span class="amt-inc">${fmtINR(income)}</span></div>
           </div>
           <div>
             <div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:10px;display:flex;align-items:center;gap:6px">💸 Expenses by Category</div>
-            ${Object.keys(catTotals).length?Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+            ${Object.keys(expCatTotals).length?Object.entries(expCatTotals).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
               <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px">
                 <span>${k}</span><span class="amt-exp">${fmtINR(v)}</span>
               </div>`).join('')
@@ -786,7 +834,7 @@ function renderBuswise() {
 
         ${entries.length?`
         <div style="margin-top:18px">
-          <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#0f172a">Recent Entries (${tripCount} trips)</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#0f172a">Recent Entries (${entries.length})</div>
           <div class="tbl-wrap">${buildTable(entries.slice(0,8),false)}</div>
         </div>`:''}
       </div>`;
@@ -802,7 +850,7 @@ function exportBuswise() {
   const period=document.getElementById('bw-period').value;
   const {from:fromDate,to:toDate}=period!=='all'?dateRange(period):{};
   const allRows=[];
-  BUSES.forEach(bus=>{ filterEntries({busId:bus.id,fromDate,toDate}).forEach(e=>allRows.push(toExcelRow(e))); });
+  ALL_BUSES.forEach(bus=>{ filterEntries({busId:bus.id,fromDate,toDate}).forEach(e=>allRows.push(toExcelRow(e))); });
   exportToExcel(null,'BusWise_PL','P&L',allRows);
 }
 function exportBuswiseSingle(busId,plate) {
@@ -812,310 +860,109 @@ function exportBuswiseSingle(busId,plate) {
 }
 
 /* ════════════════════════════════════════════════════
-   ADD ENTRY FORM — DR/CR + Multiple Expenses per Route
+   ADD ENTRY FORM — one simple row per entry.
+   Bus + Date + Type + Category + Amount + Note. That's it.
 ════════════════════════════════════════════════════ */
-// Each "entry session" can have:
-//   - Multiple CR (income) lines: route, trip 1 pax, trip 2 pax, fare, total
-//   - Multiple DR (expense) lines: category, amount, vendor
+let entryFormType = 'income';
 
-let formType = 'income';
-
-function buildEntryForm(defaultType, targetId) {
-  formType = defaultType || 'income';
+function buildEntryForm(targetId) {
   const today = new Date().toISOString().split('T')[0];
+  const liveBuses = ALL_BUSES.filter(b => !b.archived);
+  const cats = entryFormType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
   return `
     <h3 style="font-size:17px;font-weight:700;margin-bottom:16px;color:#0f172a">
-      ${formType==='income'?'💰 Add Income Entry':'💸 Add Expense Entry'}
+      ${entryFormType==='income'?'💰 Add Income Entry':'💸 Add Expense Entry'}
     </h3>
     <div class="type-toggle">
-      <button class="type-btn inc ${formType==='income'?'active':''}" onclick="rebuildForm('income','${targetId}')">💰 CR — Income</button>
-      <button class="type-btn exp ${formType==='expense'?'active':''}" onclick="rebuildForm('expense','${targetId}')">💸 DR — Expense</button>
+      <button type="button" class="type-btn inc ${entryFormType==='income'?'active':''}" onclick="setEntryFormType('income','${targetId}')">💰 CR — Income</button>
+      <button type="button" class="type-btn exp ${entryFormType==='expense'?'active':''}" onclick="setEntryFormType('expense','${targetId}')">💸 DR — Expense</button>
     </div>
     <div class="g2 mb16">
       <div class="field"><label>Bus *</label>
-        <select id="ef-bus" required>
+        <select id="ef-bus-${targetId}" required>
           <option value="">— Select Bus —</option>
-          ${BUSES.map(b=>`<option value="${b.id}">${b.plate} — ${b.title}</option>`).join('')}
+          ${liveBuses.map(b=>`<option value="${b.id}">${b.plate} — ${b.title}</option>`).join('')}
         </select>
+        ${!liveBuses.length?'<div class="field-hint" style="color:#dc2626">No buses found — add one in the Admin Panel first.</div>':''}
       </div>
       <div class="field"><label>Date *</label>
-        <input type="date" id="ef-date" value="${today}" required>
+        <input type="date" id="ef-date-${targetId}" value="${today}" required>
       </div>
     </div>
-    ${formType==='income' ? buildIncomeLines(targetId) : buildExpenseLines(targetId)}
-    <div class="field"><label>Notes / Description</label>
-      <textarea id="ef-notes" rows="2" placeholder="Any additional details..."></textarea>
+    <div class="g2 mb16">
+      <div class="field"><label>Category *</label>
+        <select id="ef-cat-${targetId}" required>
+          <option value="">— Select —</option>
+          ${cats.map(c=>`<option value="${c}">${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Amount (₹) *</label>
+        <input type="number" id="ef-amt-${targetId}" placeholder="0" min="0" required>
+      </div>
     </div>
-    <div style="display:flex;gap:10px;margin-top:8px">
-      <button class="btn ${formType==='income'?'btn-green':'btn-red'}" onclick="submitAllEntries('${targetId}')" style="flex:1">
-        ✓ Save All ${formType==='income'?'Income':'Expense'} Entries
+    <div class="field"><label>Quick Amount</label>
+      <div class="chips">${QUICK_AMOUNTS.map(a=>`<button type="button" class="chip" onclick="setEntryAmount(${a},'${targetId}')">${fmtINR(a)}</button>`).join('')}</div>
+    </div>
+    <div class="field"><label>Note (optional)</label>
+      <textarea id="ef-note-${targetId}" rows="2" placeholder="e.g. Diesel fill-up at Ram Petroleum"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+      <button class="btn ${entryFormType==='income'?'btn-green':'btn-red'}" onclick="submitEntry('${targetId}',false)" style="flex:1">
+        ✓ Save Entry
       </button>
+      <button class="btn btn-outline" onclick="submitEntry('${targetId}',true)">✓ Save &amp; Add Another</button>
       ${targetId==='modalEntryForm'?`<button class="btn btn-outline" onclick="closeEntryModal()">Cancel</button>`:''}
     </div>`;
 }
 
-function buildIncomeLines(targetId) {
-  return `
-    <div class="dcr-wrap">
-      <div class="dcr-section-title cr">💰 CR — Income Lines (Route-wise)</div>
-      <div id="income-lines-${targetId}">
-        ${incomeLineHTML(0, targetId)}
-      </div>
-      <button class="add-expense-line" onclick="addIncomeLine('${targetId}')">+ Add Another Route / Income Line</button>
-    </div>`;
+function setEntryFormType(type, targetId) {
+  entryFormType = type;
+  const el = document.getElementById(targetId);
+  if (el) el.innerHTML = buildEntryForm(targetId);
 }
 
-function incomeLineHTML(idx, targetId) {
-  const routeOptions = ROUTES.length
-    ? ROUTES.map(r=>`<option value="${r.label||r.id}">${r.label||r.id}</option>`).join('')
-    : '';
-  return `
-    <div class="route-expense-row" id="il-${targetId}-${idx}">
-      <div class="re-header">
-        <span style="font-size:12px;font-weight:700;color:#16a34a">Line ${idx+1}</span>
-        ${idx>0?`<button class="btn btn-icon" style="background:#fee2e2;color:#dc2626;font-size:12px" onclick="removeIncomeLine('${targetId}',${idx})">✕</button>`:''}
-      </div>
-      <div class="g2">
-        <div class="field"><label>Category *</label>
-          <select id="il-cat-${targetId}-${idx}" required>
-            <option value="">— Select —</option>
-            ${INCOME_CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}
-          </select>
-        </div>
-        <div class="field"><label>Route / Booking Name</label>
-          <select id="il-route-${targetId}-${idx}" onchange="ilFareHint('${targetId}',${idx})">
-            <option value="">— Select Route —</option>
-            ${routeOptions}
-            <option value="__custom__">Custom / Other</option>
-          </select>
-        </div>
-      </div>
-      <div id="il-custom-route-wrap-${targetId}-${idx}" style="display:none" class="field">
-        <label>Custom Route / Booking Name</label>
-        <input type="text" id="il-custom-route-${targetId}-${idx}" placeholder="e.g. Barwani→Indore or Wedding Vikram Patel">
-      </div>
-      <div class="g3">
-        <div class="field">
-          <label>Trip 1 Passengers</label>
-          <input type="number" id="il-pax1-${targetId}-${idx}" placeholder="0" min="0" oninput="ilCalc('${targetId}',${idx})">
-          <div class="field-hint">Morning trip</div>
-        </div>
-        <div class="field">
-          <label>Trip 2 Passengers</label>
-          <input type="number" id="il-pax2-${targetId}-${idx}" placeholder="0" min="0" oninput="ilCalc('${targetId}',${idx})">
-          <div class="field-hint">Evening trip (if applicable)</div>
-        </div>
-        <div class="field">
-          <label>Fare per Seat (₹)</label>
-          <input type="number" id="il-fare-${targetId}-${idx}" placeholder="0" min="0" oninput="ilCalc('${targetId}',${idx})">
-        </div>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>Total Amount (₹) *</label>
-          <input type="number" id="il-amt-${targetId}-${idx}" placeholder="Auto-calculated or enter manually" min="0" required>
-          <div class="field-hint" id="il-hint-${targetId}-${idx}"></div>
-        </div>
-        <div class="field"><label>Quick Amount</label>
-          <div class="chips">${QUICK_AMOUNTS.slice(0,6).map(a=>`<button class="chip" onclick="setILAmount(${a},'${targetId}',${idx})">${fmtINR(a)}</button>`).join('')}</div>
-        </div>
-      </div>
-    </div>`;
+function setEntryAmount(amt, targetId) {
+  const el = document.getElementById('ef-amt-'+targetId);
+  if (el) el.value = amt;
 }
 
-function buildExpenseLines(targetId) {
-  return `
-    <div class="dcr-wrap">
-      <div class="dcr-section-title dr">💸 DR — Expense Lines</div>
-      <div id="expense-lines-${targetId}">
-        ${expenseLineHTML(0, targetId)}
-      </div>
-      <button class="add-expense-line" onclick="addExpenseLine('${targetId}')">+ Add Another Expense Line</button>
-    </div>`;
-}
+async function submitEntry(targetId, keepOpen) {
+  const busId = document.getElementById('ef-bus-'+targetId)?.value;
+  const date  = document.getElementById('ef-date-'+targetId)?.value;
+  const cat   = document.getElementById('ef-cat-'+targetId)?.value;
+  const amt   = +document.getElementById('ef-amt-'+targetId)?.value || 0;
+  const note  = document.getElementById('ef-note-'+targetId)?.value || '';
 
-function expenseLineHTML(idx, targetId) {
-  return `
-    <div class="route-expense-row" id="el-${targetId}-${idx}">
-      <div class="re-header">
-        <span style="font-size:12px;font-weight:700;color:#dc2626">DR Line ${idx+1}</span>
-        ${idx>0?`<button class="btn btn-icon" style="background:#fee2e2;color:#dc2626;font-size:12px" onclick="removeExpenseLine('${targetId}',${idx})">✕</button>`:''}
-      </div>
-      <div class="g2">
-        <div class="field"><label>Category *</label>
-          <select id="el-cat-${targetId}-${idx}" required>
-            <option value="">— Select —</option>
-            ${EXPENSE_CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}
-          </select>
-        </div>
-        <div class="field"><label>Amount (₹) *</label>
-          <input type="number" id="el-amt-${targetId}-${idx}" placeholder="0" min="0" required>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="field"><label>Paid To / Vendor</label>
-          <input type="text" id="el-vendor-${targetId}-${idx}" placeholder="e.g. Ram Petroleum">
-        </div>
-        <div class="field"><label>Bill / Ref No.</label>
-          <input type="text" id="el-ref-${targetId}-${idx}" placeholder="Optional">
-        </div>
-      </div>
-      <div class="chips">${QUICK_AMOUNTS.slice(0,6).map(a=>`<button class="chip" onclick="setELAmount(${a},'${targetId}',${idx})">${fmtINR(a)}</button>`).join('')}</div>
-    </div>`;
-}
-
-// Income line helpers
-let incomeLineCount = {};
-let expenseLineCount = {};
-
-function addIncomeLine(targetId) {
-  if (!incomeLineCount[targetId]) incomeLineCount[targetId] = 1;
-  const idx = incomeLineCount[targetId]++;
-  const container = document.getElementById(`income-lines-${targetId}`);
-  const div = document.createElement('div');
-  div.innerHTML = incomeLineHTML(idx, targetId);
-  container.appendChild(div.firstElementChild);
-  // wire route dropdown
-  wireRouteDropdown(targetId, idx);
-}
-
-function removeIncomeLine(targetId, idx) {
-  const el = document.getElementById(`il-${targetId}-${idx}`);
-  if (el) el.remove();
-}
-
-function addExpenseLine(targetId) {
-  if (!expenseLineCount[targetId]) expenseLineCount[targetId] = 1;
-  const idx = expenseLineCount[targetId]++;
-  const container = document.getElementById(`expense-lines-${targetId}`);
-  const div = document.createElement('div');
-  div.innerHTML = expenseLineHTML(idx, targetId);
-  container.appendChild(div.firstElementChild);
-}
-
-function removeExpenseLine(targetId, idx) {
-  const el = document.getElementById(`el-${targetId}-${idx}`);
-  if (el) el.remove();
-}
-
-function ilCalc(targetId, idx) {
-  const pax1 = +document.getElementById(`il-pax1-${targetId}-${idx}`)?.value || 0;
-  const pax2 = +document.getElementById(`il-pax2-${targetId}-${idx}`)?.value || 0;
-  const fare  = +document.getElementById(`il-fare-${targetId}-${idx}`)?.value || 0;
-  const total = (pax1 + pax2) * fare;
-  const amtEl = document.getElementById(`il-amt-${targetId}-${idx}`);
-  const hintEl= document.getElementById(`il-hint-${targetId}-${idx}`);
-  if (total > 0 && amtEl) amtEl.value = total;
-  if (hintEl) {
-    if (pax1||pax2) hintEl.textContent = `Trip1: ${pax1} pax + Trip2: ${pax2} pax = ${pax1+pax2} total × ₹${fare} = ${fmtINR(total)}`;
-    else hintEl.textContent = '';
-  }
-}
-
-function ilFareHint(targetId, idx) {
-  const sel = document.getElementById(`il-route-${targetId}-${idx}`);
-  const customWrap = document.getElementById(`il-custom-route-wrap-${targetId}-${idx}`);
-  if (sel && sel.value === '__custom__') {
-    customWrap.style.display = 'block';
-  } else if (customWrap) {
-    customWrap.style.display = 'none';
-  }
-  // Auto-fill fare from routes config
-  if (sel && sel.value && sel.value !== '__custom__') {
-    const route = ROUTES.find(r=>(r.label||r.id)===sel.value);
-    if (route && route.price) {
-      const fareEl = document.getElementById(`il-fare-${targetId}-${idx}`);
-      if (fareEl && !fareEl.value) fareEl.value = route.price;
-    }
-  }
-}
-
-function setILAmount(amt, targetId, idx) {
-  const el=document.getElementById(`il-amt-${targetId}-${idx}`); if(el) el.value=amt;
-}
-function setELAmount(amt, targetId, idx) {
-  const el=document.getElementById(`el-amt-${targetId}-${idx}`); if(el) el.value=amt;
-}
-
-function wireRouteDropdown(targetId, idx) {
-  const sel = document.getElementById(`il-route-${targetId}-${idx}`);
-  if (sel) sel.addEventListener('change', ()=>ilFareHint(targetId, idx));
-}
-
-/* ════════════════════════════════════════════════════
-   SUBMIT
-════════════════════════════════════════════════════ */
-function submitAllEntries(targetId) {
-  const busId = document.getElementById('ef-bus')?.value;
-  const date  = document.getElementById('ef-date')?.value;
-  const notes = document.getElementById('ef-notes')?.value || '';
   if (!busId) { toast('Please select a bus.'); return; }
   if (!date)  { toast('Please select a date.'); return; }
-  const bus = BUSES.find(b=>b.id===busId)||{};
+  if (!cat)   { toast('Please select a category.'); return; }
+  if (!amt)   { toast('Please enter an amount.'); return; }
 
-  if (formType === 'income') {
-    // Collect all income lines
-    const containers = document.querySelectorAll(`#income-lines-${targetId} > .route-expense-row`);
-    const toSave = [];
-    let valid = true;
-    containers.forEach(row => {
-      const idParts = row.id.split('-'); // il-targetId-idx
-      const idx = idParts[idParts.length-1];
-      const cat   = document.getElementById(`il-cat-${targetId}-${idx}`)?.value;
-      const amt   = +document.getElementById(`il-amt-${targetId}-${idx}`)?.value || 0;
-      const pax1  = +document.getElementById(`il-pax1-${targetId}-${idx}`)?.value || 0;
-      const pax2  = +document.getElementById(`il-pax2-${targetId}-${idx}`)?.value || 0;
-      const fare  = +document.getElementById(`il-fare-${targetId}-${idx}`)?.value || 0;
-      let routeSel= document.getElementById(`il-route-${targetId}-${idx}`)?.value || '';
-      if (routeSel === '__custom__') routeSel = document.getElementById(`il-custom-route-${targetId}-${idx}`)?.value || '';
+  const bus = ALL_BUSES.find(b=>b.id===busId) || {};
+  const result = await window.RK.addFinanceEntry({
+    busId, busPlate: bus.plate||'', busTitle: bus.title||'',
+    date, type: entryFormType, category: cat, amount: amt, note
+  });
 
-      if (!cat) { toast(`Line ${+idx+1}: Please select a category.`); valid=false; return; }
-      if (!amt) { toast(`Line ${+idx+1}: Please enter an amount.`); valid=false; return; }
-      toSave.push({ type:'income', busId, busPlate:bus.plate, busTitle:bus.title, date, category:cat, amount:amt, route:routeSel, pax1, pax2, fare, notes });
-    });
-    if (!valid) return;
-    if (!toSave.length) { toast('Please add at least one income line.'); return; }
-    addEntries(toSave);
-    toast(`✅ ${toSave.length} income ${toSave.length===1?'entry':'entries'} saved for ${bus.plate}`);
+  await refreshEntries();
+  computeBusList();
+  populateDropdowns();
+
+  toast(`✅ ${entryFormType==='income'?'Income':'Expense'} entry saved for ${bus.plate||busId}` + (result && result.local && !(window.RK.isSupabaseActive && window.RK.isSupabaseActive()) ? ' (saved on this device — will sync once online)' : ''));
+
+  if (targetId==='modalEntryForm' && !keepOpen) {
+    closeEntryModal();
   } else {
-    // Collect all expense lines
-    const containers = document.querySelectorAll(`#expense-lines-${targetId} > .route-expense-row`);
-    const toSave = [];
-    let valid = true;
-    containers.forEach(row => {
-      const idParts = row.id.split('-');
-      const idx = idParts[idParts.length-1];
-      const cat    = document.getElementById(`el-cat-${targetId}-${idx}`)?.value;
-      const amt    = +document.getElementById(`el-amt-${targetId}-${idx}`)?.value || 0;
-      const vendor = document.getElementById(`el-vendor-${targetId}-${idx}`)?.value || '';
-      const refNo  = document.getElementById(`el-ref-${targetId}-${idx}`)?.value || '';
-      if (!cat) { toast(`Line ${+idx+1}: Please select a category.`); valid=false; return; }
-      if (!amt) { toast(`Line ${+idx+1}: Please enter an amount.`); valid=false; return; }
-      toSave.push({ type:'expense', busId, busPlate:bus.plate, busTitle:bus.title, date, category:cat, amount:amt, vendor, refNo, notes });
-    });
-    if (!valid) return;
-    if (!toSave.length) { toast('Please add at least one expense line.'); return; }
-    addEntries(toSave);
-    toast(`✅ ${toSave.length} expense ${toSave.length===1?'entry':'entries'} saved for ${bus.plate}`);
+    const el = document.getElementById(targetId);
+    if (el) el.innerHTML = buildEntryForm(targetId);
   }
 
-  if (targetId==='modalEntryForm') { closeEntryModal(); }
-  else { rebuildForm(formType, targetId); }
-  renderDashboard();
-}
-
-function rebuildForm(type, targetId) {
-  formType = type;
-  incomeLineCount[targetId] = 1;
-  expenseLineCount[targetId] = 1;
-  document.getElementById(targetId).innerHTML = buildEntryForm(type, targetId);
-  // Wire initial route dropdown
-  wireRouteDropdown(targetId, 0);
+  renderDashboard(); renderLedger(); renderIncomeTable(); renderExpenseTable(); renderBuswise();
 }
 
 function buildInlineForm() {
   const el=document.getElementById('inlineEntryForm');
-  if (el) { el.innerHTML=buildEntryForm('income','inlineEntryForm'); wireRouteDropdown('inlineEntryForm',0); }
+  if (el) { entryFormType='income'; el.innerHTML=buildEntryForm('inlineEntryForm'); }
 }
 
 /* ════════════════════════════════════════════════════
@@ -1124,11 +971,8 @@ function buildInlineForm() {
 function openEntryModal(type) {
   const modal=document.getElementById('entryModal');
   const form=document.getElementById('modalEntryForm');
-  formType = type || 'income';
-  incomeLineCount['modalEntryForm'] = 1;
-  expenseLineCount['modalEntryForm'] = 1;
-  form.innerHTML = buildEntryForm(formType, 'modalEntryForm');
-  wireRouteDropdown('modalEntryForm', 0);
+  entryFormType = type || 'income';
+  form.innerHTML = buildEntryForm('modalEntryForm');
   modal.style.display='flex';
 }
 function closeEntryModal() { document.getElementById('entryModal').style.display='none'; }
@@ -1145,7 +989,6 @@ function doExport() {
   const to=document.getElementById('exp-modal-to').value;
   if(type==='summary') { exportSummary(busId,from,to); return; }
   if(type==='daily')   { exportDaily(busId,from,to); return; }
-  if(type==='route')   { exportRoute(busId,from,to); return; }
   const filter={busId,fromDate:from,toDate:to};
   if(type==='income')  filter.type='income';
   if(type==='expense') filter.type='expense';
@@ -1159,34 +1002,34 @@ function doExport() {
 function buildTable(entries, showDelete=true, showFooter=false) {
   const {income,expense,profit}=sumEntries(entries);
   const rows=entries.map(e=>{
-    const bus=BUSES.find(b=>b.id===e.busId)||{plate:e.busId||'—',title:''};
-    const paxStr = (e.pax1||e.pax2) ? `T1:${e.pax1||0} T2:${e.pax2||0}` : (e.pax?`${e.pax}`:'—');
+    const idLiteral = typeof e.id === 'number' ? e.id : `'${String(e.id).replace(/'/g,"\\'")}'`;
     return `<tr>
       <td>${e.date}</td>
       <td><span class="badge ${e.type==='income'?'badge-cr':'badge-dr'}">${e.type==='income'?'CR':'DR'}</span></td>
-      <td><strong>${bus.plate}</strong><br><span style="font-size:11px;color:#94a3b8">${bus.title}</span></td>
+      <td><strong>${e.busPlate||e.busId||'—'}</strong><br><span style="font-size:11px;color:#94a3b8">${e.busTitle||''}</span></td>
       <td>${e.category}</td>
-      <td style="font-size:12px;color:#0369a1">${e.route||e.workType||e.tripRef||'—'}</td>
       <td class="${e.type==='income'?'amt-inc':'amt-exp'}" style="font-size:14px">${fmtINR(e.amount)}</td>
-      <td style="font-size:12px;color:#64748b">${paxStr}</td>
-      <td style="max-width:160px;font-size:11px;color:#64748b">${e.notes||e.vendor||'—'}</td>
-      ${showDelete?`<td><button class="btn btn-icon" style="background:#fee2e2;color:#dc2626" onclick="delEntry('${e.id}')">🗑</button></td>`:''}
+      <td style="max-width:220px;font-size:12px;color:#64748b">${e.note||'—'}</td>
+      ${showDelete?`<td><button class="btn btn-icon" style="background:#fee2e2;color:#dc2626" onclick="delEntry(${idLiteral})">🗑</button></td>`:''}
     </tr>`;
   }).join('');
   const footer=showFooter?`<tr class="tbl-footer">
-    <td colspan="5">Total</td>
+    <td colspan="4">Total</td>
     <td><span class="amt-inc">${fmtINR(income)}</span> CR / <span class="amt-exp">${fmtINR(expense)}</span> DR → <strong style="color:${profit>=0?'#16a34a':'#dc2626'}">${fmtINR(profit)}</strong></td>
-    <td colspan="${showDelete?3:2}"></td>
+    <td colspan="${showDelete?2:1}"></td>
   </tr>`:'';
   return `<table class="tbl"><thead><tr>
-    <th>Date</th><th>Type</th><th>Bus</th><th>Category</th><th>Route/Trip</th>
-    <th>Amount</th><th>Pax</th><th>Notes/Vendor</th>${showDelete?'<th></th>':''}
+    <th>Date</th><th>Type</th><th>Bus</th><th>Category</th><th>Amount</th><th>Note</th>${showDelete?'<th></th>':''}
   </tr></thead><tbody>${rows}</tbody>${footer}</table>`;
 }
 
-function delEntry(id) {
+async function delEntry(id) {
   if(!confirm('Delete this entry?')) return;
-  deleteEntry(id); renderDashboard(); renderLedger(); renderIncomeTable(); renderExpenseTable(); renderBuswise();
+  await window.RK.deleteFinanceEntry(id);
+  await refreshEntries();
+  computeBusList();
+  populateDropdowns();
+  renderDashboard(); renderLedger(); renderIncomeTable(); renderExpenseTable(); renderBuswise();
   toast('Entry deleted.');
 }
 
@@ -1194,15 +1037,10 @@ function delEntry(id) {
    EXCEL EXPORT
 ════════════════════════════════════════════════════ */
 function toExcelRow(e) {
-  const bus=BUSES.find(b=>b.id===e.busId)||{plate:e.busId||'',title:''};
   return {
     'Date': e.date, 'Type': e.type==='income'?'CR — Income':'DR — Expense',
-    'Bus Number': bus.plate, 'Bus Name': bus.title,
-    'Category': e.category, 'Route / Trip': e.route||e.workType||e.tripRef||'',
-    'Amount (₹)': +e.amount||0,
-    'Trip 1 Passengers': e.pax1||'', 'Trip 2 Passengers': e.pax2||'',
-    'Fare/Seat': e.fare||'', 'Paid To': e.vendor||'',
-    'Bill / Ref No': e.refNo||'', 'Notes': e.notes||''
+    'Bus Number': e.busPlate||e.busId||'', 'Bus Name': e.busTitle||'',
+    'Category': e.category, 'Amount (₹)': +e.amount||0, 'Note': e.note||''
   };
 }
 
@@ -1219,11 +1057,10 @@ function exportToExcel(entries, filename, sheetName, prebuiltRows) {
 }
 
 function exportSummary(busId,from,to) {
-  const rows=BUSES.filter(b=>busId==='all'||b.id===busId).map(bus=>{
+  const rows=ALL_BUSES.filter(b=>busId==='all'||b.id===busId).map(bus=>{
     const e=filterEntries({busId:bus.id,fromDate:from,toDate:to});
     const {income,expense,profit}=sumEntries(e);
-    const pax=e.filter(x=>x.type==='income').reduce((s,x)=>s+(+x.pax1||0)+(+x.pax2||0),0);
-    return {'Bus Number':bus.plate,'Bus Name':bus.title,'Total Income CR (₹)':income,'Total Expense DR (₹)':expense,'Net Profit (₹)':profit,'Margin %':income>0?((profit/income)*100).toFixed(1)+'%':'—','Total Passengers':pax,'Entries':e.length};
+    return {'Bus Number':bus.plate,'Bus Name':bus.title,'Total Income CR (₹)':income,'Total Expense DR (₹)':expense,'Net Profit (₹)':profit,'Margin %':income>0?((profit/income)*100).toFixed(1)+'%':'—','Entries':e.length};
   });
   exportToExcel(null,'Profit_Summary','Summary',rows);
   closeExportModal();
@@ -1241,45 +1078,22 @@ function exportDaily(busId,from,to) {
   closeExportModal();
 }
 
-function exportRoute(busId,from,to) {
-  const entries=filterEntries({busId,fromDate:from,toDate:to,type:'income'});
-  const byRoute={};
-  entries.forEach(e=>{ const k=e.route||e.category||'Unspecified'; if(!byRoute[k])byRoute[k]={income:0,pax:0,trips:0}; byRoute[k].income+=(+e.amount||0); byRoute[k].pax+=(+e.pax1||0)+(+e.pax2||0); byRoute[k].trips++; });
-  const rows=Object.entries(byRoute).sort((a,b)=>b[1].income-a[1].income).map(([route,v])=>({'Route/Booking':route,'Total Income (₹)':v.income,'Total Passengers':v.pax,'Trips':v.trips,'Avg per Trip':v.trips>0?Math.round(v.income/v.trips):0}));
-  exportToExcel(null,'Route_Summary','Routes',rows);
-  closeExportModal();
-}
-
 /* ════════════════════════════════════════════════════
    WHATSAPP SHARE
 ════════════════════════════════════════════════════ */
-function showWAModal() {
-  // Populate wa-bus dropdown once
-  const sel = document.getElementById('wa-bus');
-  if (sel.options.length === 1) {
-    BUSES.forEach(b => {
-      const o = document.createElement('option');
-      o.value = b.id; o.textContent = `${b.plate} — ${b.title}`;
-      sel.appendChild(o);
-    });
-  }
-  document.getElementById('waModal').style.display = 'flex';
-}
+function showWAModal() { document.getElementById('waModal').style.display = 'flex'; }
 function closeWAModal() { document.getElementById('waModal').style.display = 'none'; }
 document.getElementById('waModal').addEventListener('click', function(e){ if(e.target===this) closeWAModal(); });
 
 function doShareWA() {
   const period = document.getElementById('wa-period').value;
   const busId  = document.getElementById('wa-bus').value;
-  const msg = buildWAMessage(period, busId);
-  const wa  = (typeof CONFIG !== 'undefined' && CONFIG.company) ? CONFIG.company.whatsapp : '919977855338';
-  window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+  _sendWA(buildWAMessage(period, busId));
   closeWAModal();
 }
 
-// Quick share buttons on each bus card
-function shareWABusDaily(busId, plate)  { _sendWA(buildWAMessage('today', busId)); }
-function shareWABusWeekly(busId, plate) { _sendWA(buildWAMessage('week',  busId)); }
+function shareWABusDaily(busId)  { _sendWA(buildWAMessage('today', busId)); }
+function shareWABusWeekly(busId) { _sendWA(buildWAMessage('week',  busId)); }
 
 function _sendWA(msg) {
   const wa = (typeof CONFIG !== 'undefined' && CONFIG.company) ? CONFIG.company.whatsapp : '919977855338';
@@ -1299,9 +1113,8 @@ function buildWAMessage(period, busId) {
   msg    += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
   if (busId === 'all') {
-    // Summary for all buses
     let totalInc = 0, totalExp = 0;
-    BUSES.forEach(bus => {
+    ALL_BUSES.filter(b=>!b.archived).forEach(bus => {
       const entries = filterEntries({ busId: bus.id, fromDate, toDate });
       const { income, expense, profit } = sumEntries(entries);
       totalInc += income; totalExp += expense;
@@ -1319,26 +1132,15 @@ function buildWAMessage(period, busId) {
     msg += `  ${totalProfit>=0?'✅':'❌'} Net Profit  : *${fmtINR(totalProfit)}*\n`;
     if (totalInc > 0) msg += `  📈 Margin: ${((totalProfit/totalInc)*100).toFixed(1)}%\n`;
   } else {
-    // Single bus detailed report
-    const bus = BUSES.find(b => b.id === busId) || { plate: busId, title: '' };
+    const bus = ALL_BUSES.find(b => b.id === busId) || { plate: busId, title: '' };
     const entries = filterEntries({ busId, fromDate, toDate });
     const { income, expense, profit } = sumEntries(entries);
-    const totalPax = entries.filter(e=>e.type==='income').reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
 
     msg += `🚌 *${bus.plate}* — ${bus.title}\n\n`;
     msg += `💰 *Income (CR)*\n`;
-
-    // Route-wise income
-    const routeTotals = {};
-    entries.filter(e=>e.type==='income').forEach(e=>{
-      const k = e.route||e.category||'Other';
-      if (!routeTotals[k]) routeTotals[k] = { income:0, pax:0 };
-      routeTotals[k].income += (+e.amount||0);
-      routeTotals[k].pax   += (+e.pax1||0)+(+e.pax2||0);
-    });
-    Object.entries(routeTotals).forEach(([k,v]) => {
-      msg += `  • ${k}: ${fmtINR(v.income)}${v.pax ? ` (${v.pax} pax)` : ''}\n`;
-    });
+    const incCat = {};
+    entries.filter(e=>e.type==='income').forEach(e=>{ incCat[e.category]=(incCat[e.category]||0)+(+e.amount||0); });
+    Object.entries(incCat).sort((a,b)=>b[1]-a[1]).forEach(([k,v]) => { msg += `  • ${k}: ${fmtINR(v)}\n`; });
     msg += `  ─────────────────────\n`;
     msg += `  Total Income: *${fmtINR(income)}*\n\n`;
 
@@ -1356,13 +1158,11 @@ function buildWAMessage(period, busId) {
     msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
     msg += `${profit>=0?'✅':'❌'} *Net P&L: ${fmtINR(profit)}*\n`;
     if (income > 0) msg += `📈 Margin: ${((profit/income)*100).toFixed(1)}%\n`;
-    if (totalPax)   msg += `👥 Passengers: ${totalPax}\n`;
   }
 
   msg += `\n_Rewa Kripa Travels Finance Report_`;
   return msg;
 }
-
 
 function quickDailyReport() {
   const today = new Date().toISOString().split("T")[0];
@@ -1373,25 +1173,23 @@ function quickDailyReport() {
   const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   const dateLabel = now.toLocaleDateString("en-IN", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
   let busLines = "";
-  BUSES.forEach(bus => {
+  ALL_BUSES.filter(b=>!b.archived).forEach(bus => {
     const be = filterEntries({ busId: bus.id, fromDate: today, toDate: today });
     if (!be.length) return;
-    const { income: bi, expense: bx, profit: bp } = sumEntries(be);
-    const bpax = be.filter(x=>x.type==="income").reduce((s,x)=>s+(+x.pax1||0)+(+x.pax2||0),0);
-    const routes = {};
-    be.filter(x=>x.type==="income").forEach(x=>{ const k=x.route||x.category||"Route"; if(!routes[k])routes[k]={amt:0,pax:0}; routes[k].amt+=(+x.amount||0); routes[k].pax+=(+x.pax1||0)+(+x.pax2||0); });
-    busLines += `\n🚌 *${bus.plate}* (${bus.title})\n`;
-    Object.entries(routes).forEach(([r,v]) => { busLines += `  • ${r}: ${fmtINR(v.amt)}${v.pax ? " ("+v.pax+" pax)" : ""}\n`; });
-    const expCats = {};
-    be.filter(x=>x.type==="expense").forEach(x=>{ expCats[x.category]=(expCats[x.category]||0)+(+x.amount||0); });
-    Object.entries(expCats).forEach(([c,v]) => { busLines += `  💸 ${c}: ${fmtINR(v)}\n`; });
-    busLines += `  ${bp>=0?"✅":"❌"} Net: *${fmtINR(bp)}*${bpax?" | 👥 "+bpax+" pax":""}`;
+    const { profit: bp } = sumEntries(be);
+    const incCat = {};
+    be.filter(x=>x.type==="income").forEach(x=>{ incCat[x.category]=(incCat[x.category]||0)+(+x.amount||0); });
+    const expCat = {};
+    be.filter(x=>x.type==="expense").forEach(x=>{ expCat[x.category]=(expCat[x.category]||0)+(+x.amount||0); });
+    busLines += `\n\u{1F68C} *${bus.plate}* (${bus.title})\n`;
+    Object.entries(incCat).forEach(([c,v]) => { busLines += `  \u{1F4B0} ${c}: \u20B9${Number(v).toLocaleString("en-IN")}\n`; });
+    Object.entries(expCat).forEach(([c,v]) => { busLines += `  \u{1F4B8} ${c}: \u20B9${Number(v).toLocaleString("en-IN")}\n`; });
+    busLines += `  ${bp>=0?"\u2705":"\u274C"} Net: *\u20B9${Number(bp).toLocaleString("en-IN")}*`;
   });
-  const totalPax = entries.filter(e=>e.type==="income").reduce((s,e)=>s+(+e.pax1||0)+(+e.pax2||0),0);
-  const msg = `🚌 *REWA KRIPA TRAVELS*\n📊 *Daily Report — ${dateLabel}*\n🕐 Generated at ${timeStr}\n━━━━━━━━━━━━━━━━━━━━━${busLines||"\n_No entries for today yet_"}\n━━━━━━━━━━━━━━━━━━━━━\n💰 *Total Income : ${fmtINR(income)}*\n💸 *Total Expense: ${fmtINR(expense)}*\n${profit>=0?"✅":"❌"} *Net Profit  : ${fmtINR(profit)}*\n${totalPax?"👥 *Passengers   : "+totalPax+"*\n":""}${income>0?"📈 *Margin       : "+((profit/income)*100).toFixed(1)+"%*\n":""}\n_Rewa Kripa Travels — Daily Finance Report_`;
+  const msg = "\u{1F68C} *REWA KRIPA TRAVELS*\n\u{1F4CA} *Daily Report \u2014 "+dateLabel+"*\n\u{1F550} Generated at "+timeStr+"\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"+(busLines||"\n_No entries for today yet_\n")+"\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\u{1F4B0} *Total Income : \u20B9"+Number(income).toLocaleString("en-IN")+"*\n\u{1F4B8} *Total Expense: \u20B9"+Number(expense).toLocaleString("en-IN")+"*\n"+(profit>=0?"\u2705":"\u274C")+" *Net Profit  : \u20B9"+Number(profit).toLocaleString("en-IN")+"*\n"+(income>0?"\u{1F4C8} *Margin       : "+((profit/income)*100).toFixed(1)+"%*\n":"")+"\n_Rewa Kripa Travels \u2014 Daily Finance Report_";
   const wa = (typeof CONFIG !== "undefined" && CONFIG.company) ? CONFIG.company.whatsapp : "919977855338";
   window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(msg), "_blank");
-  toast("📲 Daily report opened in WhatsApp!");
+  toast("\u{1F4F2} Daily report sent to WhatsApp!");
 }
 
 function fmtINR(n) { return '₹'+Number(n).toLocaleString('en-IN'); }
