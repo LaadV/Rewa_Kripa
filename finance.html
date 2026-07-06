@@ -247,6 +247,7 @@ a{text-decoration:none;color:inherit;}
     </div>
     <div class="topbar-right">
       <button class="topbar-btn btn-ghost" onclick="window.open('admin.html','_blank')">⚙️ Admin Panel</button>
+      <button class="topbar-btn btn-ghost" onclick="openPwModal()">🔑 Change Password</button>
       <button class="topbar-btn btn-ghost" onclick="manualRefresh()">🔄 Refresh</button>
       <button class="topbar-btn btn-ghost" onclick="showExportModal()">📥 Export</button>
       <button class="topbar-btn btn-green" onclick="quickDailyReport()">📲 Today's Report</button>
@@ -459,21 +460,35 @@ a{text-decoration:none;color:inherit;}
   </div>
 </div>
 
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay" id="pwModal">
+  <div class="modal-box" style="max-width:420px">
+    <button class="modal-close" onclick="closePwModal()">✕</button>
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:18px;color:#0f172a">🔑 Change Finance Password</h3>
+    <div class="field"><label>Current Password</label><input type="password" id="pw-current" placeholder="Enter current password"></div>
+    <div class="field"><label>New Password</label><input type="password" id="pw-new" placeholder="Enter new password"></div>
+    <div class="field"><label>Confirm New Password</label><input type="password" id="pw-confirm" placeholder="Confirm new password"></div>
+    <p style="font-size:12px;color:#94a3b8;margin:6px 0 14px">Stored securely in Supabase — never visible in any file the browser loads.</p>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="submitPwChange()">Update Password</button>
+      <button class="btn btn-outline" onclick="closePwModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
 /* ════════════════════════════════════════════════════
    CONSTANTS — pulled from config.js
 ════════════════════════════════════════════════════ */
-let ADMIN_PASSWORD, INCOME_CATEGORIES, EXPENSE_CATEGORIES, QUICK_AMOUNTS;
+let INCOME_CATEGORIES, EXPENSE_CATEGORIES, QUICK_AMOUNTS;
 
 try {
-  ADMIN_PASSWORD      = CONFIG.finance.adminPassword;
   INCOME_CATEGORIES   = CONFIG.finance.incomeCategories;
   EXPENSE_CATEGORIES  = CONFIG.finance.expenseCategories;
   QUICK_AMOUNTS       = CONFIG.finance.quickAmounts;
 } catch(e) {
-  ADMIN_PASSWORD    = 'Swift@8606';
   INCOME_CATEGORIES = ['Daily Route','Tour Package','Marriage Booking','Party Booking','Charter / Private Hire','Festival Special','School Trip','Corporate Booking','Other Income'];
   EXPENSE_CATEGORIES= ['Fuel','Driver Salary','Conductor Salary','Helper Salary','Bus Repair','Tyre Puncture','Tyre Replacement','Engine Repair','Oil & Lubricants','Bus Wash','Toll Tax','Parking','Insurance','Road Tax / Permit','Fitness Certificate','Spare Parts','AC Repair','Electrical Repair','Driver Food / Allowance','Other Expense'];
   QUICK_AMOUNTS     = [100,200,500,1000,2000,5000,10000,15000,20000,50000];
@@ -562,15 +577,21 @@ function dateRange(period) {
 /* ════════════════════════════════════════════════════
    AUTH
 ════════════════════════════════════════════════════ */
-function doLogin() {
+async function doLogin() {
   const pw = document.getElementById('pwInput').value;
-  if (pw === ADMIN_PASSWORD) {
+  const btn = document.querySelector('.login-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
+  const result = await window.RK.verifyFinancePassword(pw);
+  if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
+  if (result.ok) {
     sessionStorage.setItem('rk_fin_auth','1');
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
     initApp();
   } else {
-    document.getElementById('loginErr').textContent='Incorrect password.';
+    document.getElementById('loginErr').textContent = result.reason==='offline'
+      ? 'Cannot verify password — check your internet connection and try again.'
+      : 'Incorrect password.';
     document.getElementById('pwInput').value='';
   }
 }
@@ -1083,6 +1104,29 @@ function exportDaily(busId,from,to) {
 ════════════════════════════════════════════════════ */
 function showWAModal() { document.getElementById('waModal').style.display = 'flex'; }
 function closeWAModal() { document.getElementById('waModal').style.display = 'none'; }
+
+/* ── CHANGE PASSWORD ── */
+function openPwModal() {
+  document.getElementById('pw-current').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  document.getElementById('pwModal').style.display = 'flex';
+}
+function closePwModal() { document.getElementById('pwModal').style.display = 'none'; }
+document.getElementById('pwModal').addEventListener('click', function(e){ if(e.target===this) closePwModal(); });
+
+async function submitPwChange() {
+  const cur = document.getElementById('pw-current').value;
+  const pw1 = document.getElementById('pw-new').value;
+  const pw2 = document.getElementById('pw-confirm').value;
+  if (!cur) { toast('Please enter your current password.'); return; }
+  if (!pw1) { toast('Please enter a new password.'); return; }
+  if (pw1 !== pw2) { toast('Passwords do not match.'); return; }
+  if (pw1.length < 6) { toast('New password should be at least 6 characters.'); return; }
+  const ok = await window.RK.changeFinancePassword(cur, pw1);
+  if (ok) { toast('✅ Password updated!'); closePwModal(); }
+  else { toast('❌ Could not update — check your current password and try again.'); }
+}
 document.getElementById('waModal').addEventListener('click', function(e){ if(e.target===this) closeWAModal(); });
 
 function doShareWA() {

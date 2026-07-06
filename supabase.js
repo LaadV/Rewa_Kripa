@@ -11,7 +11,11 @@ const SUPABASE_URL  = 'https://wqxirssvjmilpkyszvml.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxeGlyc3N2am1pbHBreXN6dm1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNjA3ODEsImV4cCI6MjA5MTYzNjc4MX0.XhC_DU2Z3H0n5zbcxiAjAgzhxczaNrnxXXfpPck-x-E';
 
 const ADMIN_EMAIL    = 'admin@rewakripa.com';
-const ADMIN_PASSWORD = 'Swift@8606';
+// NOTE: admin/finance passwords are no longer stored here. They live as
+// bcrypt hashes in Supabase (see auth_passwords.sql) and are verified via
+// RPC functions that only ever return true/false — the browser never
+// receives the password or its hash. Default password remains Swift@8606
+// until changed via the Settings screens in admin.html / finance.html.
 
 const SUPABASE_CONFIGURED = true;  // credentials are real
 
@@ -208,12 +212,60 @@ async function saveConfig(configJson) {
 
 /* ── AUTH ─────────────────────────────────────────────────── */
 
-function adminLogin(password) {
-  if (password === ADMIN_PASSWORD) { sessionStorage.setItem('rk_admin', '1'); return true; }
-  return false;
+async function adminLogin(password) {
+  const sb = await getSB();
+  if (!sb) return { ok: false, reason: 'offline' };
+  try {
+    const { data, error } = await sb.rpc('verify_admin_password', { input_password: password });
+    if (error) throw error;
+    if (data === true) { sessionStorage.setItem('rk_admin', '1'); return { ok: true }; }
+    return { ok: false, reason: 'wrong' };
+  } catch (e) {
+    console.warn('adminLogin:', e.message);
+    return { ok: false, reason: 'error' };
+  }
 }
 function isAdminLoggedIn() { return sessionStorage.getItem('rk_admin') === '1'; }
 function adminLogout()     { sessionStorage.removeItem('rk_admin'); }
+
+async function verifyFinancePassword(password) {
+  const sb = await getSB();
+  if (!sb) return { ok: false, reason: 'offline' };
+  try {
+    const { data, error } = await sb.rpc('verify_finance_password', { input_password: password });
+    if (error) throw error;
+    return { ok: data === true, reason: data === true ? null : 'wrong' };
+  } catch (e) {
+    console.warn('verifyFinancePassword:', e.message);
+    return { ok: false, reason: 'error' };
+  }
+}
+
+async function changeAdminPassword(currentPassword, newPassword) {
+  const sb = await getSB();
+  if (!sb) return false;
+  try {
+    const { data, error } = await sb.rpc('set_admin_password', { current_password: currentPassword, new_password: newPassword });
+    if (error) throw error;
+    return data === true;
+  } catch (e) {
+    console.warn('changeAdminPassword:', e.message);
+    return false;
+  }
+}
+
+async function changeFinancePassword(currentPassword, newPassword) {
+  const sb = await getSB();
+  if (!sb) return false;
+  try {
+    const { data, error } = await sb.rpc('set_finance_password', { current_password: currentPassword, new_password: newPassword });
+    if (error) throw error;
+    return data === true;
+  } catch (e) {
+    console.warn('changeFinancePassword:', e.message);
+    return false;
+  }
+}
 
 /* ── localStorage FALLBACK ────────────────────────────────── */
 
@@ -361,7 +413,8 @@ window.RK = {
   getBookedSeats, bookSeats, unblockSeat, unblockAllSeats, unblockAllBusSeats,
   subscribeSeats, getConfig, saveConfig,
   adminLogin, isAdminLoggedIn, adminLogout,
-  checkAutoReset, SUPABASE_CONFIGURED, ADMIN_PASSWORD,
+  checkAutoReset, SUPABASE_CONFIGURED,
+  verifyFinancePassword, changeAdminPassword, changeFinancePassword,
   uploadImage,
   getFinanceEntries, addFinanceEntry, deleteFinanceEntry,
   isSupabaseActive: function() { return !!_supabase && _sdkReady; }

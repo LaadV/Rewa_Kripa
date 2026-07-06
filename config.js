@@ -488,7 +488,9 @@ var CONFIG = {
   finance: {
 
     // ── Password for Finance Manager login ──────────────────
-    adminPassword: "Swift@8606",   // Change this to your preferred password
+    // Moved to Supabase (see auth_passwords.sql) so it's never visible in
+    // this file. Change it from the Settings screen inside admin.html or
+    // the 🔑 Change Password button inside finance.html — not here.
 
     // ── Income categories (shown in Add Entry form) ─────────
     incomeCategories: [

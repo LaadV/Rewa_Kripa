@@ -409,25 +409,43 @@ body{font-family:'Poppins',sans-serif;background:#f1f5f9;color:#0f172a;min-heigh
    Uses window.RK (supabase.js) for DB access
 ═══════════════════════════════════════════════ */
 
-const ADMIN_PW = (typeof CONFIG !== 'undefined' && CONFIG.finance)
-  ? CONFIG.finance.adminPassword : 'Swift@8606';
-
 let staffList = [];       // all staff from DB
 let attMap = {};          // { staff_id: attendance_row } for selected date
 let editingStaffId = null;
 
 /* ── AUTH ── */
-function doLogin() {
+async function doLogin() {
   const pw = document.getElementById('pwInput').value;
-  if (pw === ADMIN_PW || (typeof window.RK !== 'undefined' && window.RK.ADMIN_PASSWORD && pw === window.RK.ADMIN_PASSWORD)) {
+  const btn = document.querySelector('.login-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
+  const [finRes, admRes] = await Promise.all([
+    window.RK.verifyFinancePassword(pw),
+    checkAdminPwOnly(pw)
+  ]);
+  if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
+  if (finRes.ok || admRes.ok) {
     sessionStorage.setItem('rk_staff_auth','1');
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
     initApp();
   } else {
-    document.getElementById('loginErr').textContent='Incorrect password.';
+    document.getElementById('loginErr').textContent = (finRes.reason==='offline')
+      ? 'Cannot verify password — check your internet connection and try again.'
+      : 'Incorrect password.';
     document.getElementById('pwInput').value='';
   }
+}
+// Checks the admin password WITHOUT creating an admin session (adminLogin()
+// would set sessionStorage rk_admin=1, which we don't want triggered from
+// the staff check-in page). Uses the same verify_admin_password RPC directly.
+async function checkAdminPwOnly(pw) {
+  try {
+    const sb = await getSB();
+    if (!sb) return { ok:false };
+    const { data, error } = await sb.rpc('verify_admin_password', { input_password: pw });
+    if (error) return { ok:false };
+    return { ok: data === true };
+  } catch(e) { return { ok:false }; }
 }
 document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 function doLogout() {

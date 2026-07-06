@@ -312,12 +312,13 @@
         </div>
         <div class="adm-card">
           <h3>Admin Password</h3>
+          <div class="field"><label>Current Password</label><input type="password" id="curPw" placeholder="Enter your current password"></div>
           <div class="adm-grid-2">
             <div class="field"><label>New Password</label><input type="password" id="newPw" placeholder="Enter new password"></div>
             <div class="field"><label>Confirm Password</label><input type="password" id="confirmPw" placeholder="Confirm new password"></div>
           </div>
           <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
-          <p style="font-size:12px;color:#94a3b8;margin-top:8px">Saved in supabase.js — update that file on your server too.</p>
+          <p style="font-size:12px;color:#94a3b8;margin-top:8px">Stored securely in Supabase — never visible in any file the browser loads.</p>
         </div>
       </div>
 
@@ -340,14 +341,22 @@ var activeTripIdx  = 0;
 var workingConfig  = null;   // deep copy of CONFIG we edit in memory
 
 /* ── LOGIN ── */
-function doLogin() {
+async function doLogin() {
   var pw = document.getElementById('pwInput').value;
-  if (window.RK.adminLogin(pw)) {
+  var btn = document.querySelector('.login-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
+  var result = await window.RK.adminLogin(pw);
+  if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
+  if (result.ok) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminPortal').style.display = 'flex';
     initPortal();
   } else {
-    document.getElementById('loginErr').style.display = 'block';
+    var errEl = document.getElementById('loginErr');
+    errEl.textContent = result.reason === 'offline'
+      ? 'Cannot verify password — check your internet connection and try again.'
+      : 'Incorrect password. Please try again.';
+    errEl.style.display = 'block';
     document.getElementById('pwInput').value = '';
     document.getElementById('pwInput').focus();
   }
@@ -872,12 +881,23 @@ function saveSupabaseConfig() {
   toast('Config saved. Update SUPABASE_URL and SUPABASE_ANON in supabase.js and re-deploy.');
 }
 
-function changePassword() {
+async function changePassword() {
+  var curPw = document.getElementById('curPw').value;
   var pw1 = document.getElementById('newPw').value;
   var pw2 = document.getElementById('confirmPw').value;
+  if (!curPw) { toast('Please enter your current password.'); return; }
   if (!pw1) { toast('Please enter a new password.'); return; }
   if (pw1 !== pw2) { toast('Passwords do not match.'); return; }
-  toast('Update ADMIN_PASSWORD in supabase.js to: ' + pw1);
+  if (pw1.length < 6) { toast('New password should be at least 6 characters.'); return; }
+  var ok = await window.RK.changeAdminPassword(curPw, pw1);
+  if (ok) {
+    toast('✅ Password updated! Use it next time you sign in.');
+    document.getElementById('curPw').value = '';
+    document.getElementById('newPw').value = '';
+    document.getElementById('confirmPw').value = '';
+  } else {
+    toast('❌ Could not update — check your current password and try again.');
+  }
 }
 
 /* ── Helpers ── */
