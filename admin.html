@@ -353,9 +353,13 @@ async function doLogin() {
     initPortal();
   } else {
     var errEl = document.getElementById('loginErr');
-    errEl.textContent = result.reason === 'offline'
-      ? 'Cannot verify password — check your internet connection and try again.'
-      : 'Incorrect password. Please try again.';
+    if (result.reason === 'offline') {
+      errEl.textContent = 'Cannot verify password — check your internet connection and try again.';
+    } else if (result.reason === 'error') {
+      errEl.textContent = 'Error checking password: ' + (result.message || 'unknown error') + ' — has auth_passwords.sql been run in Supabase?';
+    } else {
+      errEl.textContent = 'Incorrect password. Please try again.';
+    }
     errEl.style.display = 'block';
     document.getElementById('pwInput').value = '';
     document.getElementById('pwInput').focus();

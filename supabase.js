@@ -222,7 +222,7 @@ async function adminLogin(password) {
     return { ok: false, reason: 'wrong' };
   } catch (e) {
     console.warn('adminLogin:', e.message);
-    return { ok: false, reason: 'error' };
+    return { ok: false, reason: 'error', message: e.message };
   }
 }
 function isAdminLoggedIn() { return sessionStorage.getItem('rk_admin') === '1'; }
@@ -237,7 +237,7 @@ async function verifyFinancePassword(password) {
     return { ok: data === true, reason: data === true ? null : 'wrong' };
   } catch (e) {
     console.warn('verifyFinancePassword:', e.message);
-    return { ok: false, reason: 'error' };
+    return { ok: false, reason: 'error', message: e.message };
   }
 }
 
