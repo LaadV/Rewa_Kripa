@@ -751,7 +751,7 @@ function renderDashboard() {
   const maxExp=Math.max(...busData.map(b=>b.expense),1);
   document.getElementById('busChart').innerHTML=busData.length?`<div class="chart-bar-wrap">${busData.map(b=>`
     <div style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:5px">${b.plate} <span style="font-weight:400;color:#94a3b8;font-size:11px">${b.title}${b.archived?' · Archived':''}</span></div>
+      <div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:5px">${escHtml(b.plate)} <span style="font-weight:400;color:#94a3b8;font-size:11px">${escHtml(b.title)}${b.archived?' · Archived':''}</span></div>
       <div class="chart-bar-row"><div class="chart-bar-label" style="color:#16a34a;width:55px">CR</div>
         <div class="chart-bar-track"><div class="chart-bar-fill inc" style="width:${(b.income/maxInc*100).toFixed(1)}%"><span class="chart-bar-val">${fmtINR(b.income)}</span></div></div></div>
       <div class="chart-bar-row" style="margin-top:3px"><div class="chart-bar-label" style="color:#dc2626;width:55px">DR</div>
@@ -836,8 +836,8 @@ function renderBuswise() {
     div.innerHTML=`
       <div class="bus-pl-header" style="background:${profit>=0?'#f0fdf4':'#fff1f2'}">
         <div>
-          <div style="font-size:17px;font-weight:700;color:#0f172a">🚌 ${bus.plate}${bus.archived?' <span style="font-size:11px;font-weight:600;color:#92400e;background:#fef9c3;padding:2px 9px;border-radius:100px;margin-left:6px;vertical-align:middle">Archived</span>':''}</div>
-          <div style="font-size:13px;color:#64748b;margin-top:2px">${bus.title}</div>
+          <div style="font-size:17px;font-weight:700;color:#0f172a">🚌 ${escHtml(bus.plate)}${bus.archived?' <span style="font-size:11px;font-weight:600;color:#92400e;background:#fef9c3;padding:2px 9px;border-radius:100px;margin-left:6px;vertical-align:middle">Archived</span>':''}</div>
+          <div style="font-size:13px;color:#64748b;margin-top:2px">${escHtml(bus.title)}</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="${profit>=0?'pill-profit':'pill-loss'}">${profit>=0?'✅ Profit':'❌ Loss'}: ${fmtINR(Math.abs(profit))}</span>
@@ -868,7 +868,7 @@ function renderBuswise() {
             <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:10px;display:flex;align-items:center;gap:6px">💰 Income by Category</div>
             ${Object.keys(incomeCatTotals).length?Object.entries(incomeCatTotals).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
               <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px">
-                <span style="font-weight:600">${k}</span><span class="amt-inc">${fmtINR(v)}</span>
+                <span style="font-weight:600">${escHtml(k)}</span><span class="amt-inc">${fmtINR(v)}</span>
               </div>`).join('')
             :'<p style="color:#94a3b8;font-size:13px">No income entries</p>'}
             <div style="padding:8px 0;font-size:13px;font-weight:700;color:#0f172a">Total: <span class="amt-inc">${fmtINR(income)}</span></div>
@@ -877,7 +877,7 @@ function renderBuswise() {
             <div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:10px;display:flex;align-items:center;gap:6px">💸 Expenses by Category</div>
             ${Object.keys(expCatTotals).length?Object.entries(expCatTotals).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
               <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px">
-                <span>${k}</span><span class="amt-exp">${fmtINR(v)}</span>
+                <span>${escHtml(k)}</span><span class="amt-exp">${fmtINR(v)}</span>
               </div>`).join('')
             :'<p style="color:#94a3b8;font-size:13px">No expense entries</p>'}
             <div style="padding:8px 0;font-size:13px;font-weight:700;color:#0f172a">Total: <span class="amt-exp">${fmtINR(expense)}</span></div>
@@ -933,7 +933,7 @@ function buildEntryForm(targetId) {
       <div class="field"><label>Bus *</label>
         <select id="ef-bus-${targetId}" required>
           <option value="">— Select Bus —</option>
-          ${liveBuses.map(b=>`<option value="${b.id}">${b.plate} — ${b.title}</option>`).join('')}
+          ${liveBuses.map(b=>`<option value="${b.id}">${escHtml(b.plate)} — ${escHtml(b.title)}</option>`).join('')}
         </select>
         ${!liveBuses.length?'<div class="field-hint" style="color:#dc2626">No buses found — add one in the Admin Panel first.</div>':''}
       </div>
@@ -1051,17 +1051,23 @@ function doExport() {
 /* ════════════════════════════════════════════════════
    TABLE BUILDER
 ════════════════════════════════════════════════════ */
+function escHtml(s) {
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 function buildTable(entries, showDelete=true, showFooter=false) {
   const {income,expense,profit}=sumEntries(entries);
   const rows=entries.map(e=>{
     const idLiteral = typeof e.id === 'number' ? e.id : `'${String(e.id).replace(/'/g,"\\'")}'`;
     return `<tr>
-      <td>${e.date}</td>
+      <td>${escHtml(e.date)}</td>
       <td><span class="badge ${e.type==='income'?'badge-cr':'badge-dr'}">${e.type==='income'?'CR':'DR'}</span></td>
-      <td><strong>${e.busPlate||e.busId||'—'}</strong><br><span style="font-size:11px;color:#94a3b8">${e.busTitle||''}</span></td>
-      <td>${e.category}</td>
+      <td><strong>${escHtml(e.busPlate||e.busId||'—')}</strong><br><span style="font-size:11px;color:#94a3b8">${escHtml(e.busTitle||'')}</span></td>
+      <td>${escHtml(e.category)}</td>
       <td class="${e.type==='income'?'amt-inc':'amt-exp'}" style="font-size:14px">${fmtINR(e.amount)}</td>
-      <td style="max-width:220px;font-size:12px;color:#64748b">${e.note||'—'}</td>
+      <td style="max-width:220px;font-size:12px;color:#64748b">${escHtml(e.note||'—')}</td>
       ${showDelete?`<td><button class="btn btn-icon" style="background:#fee2e2;color:#dc2626" onclick="delEntry(${idLiteral})">🗑</button></td>`:''}
     </tr>`;
   }).join('');

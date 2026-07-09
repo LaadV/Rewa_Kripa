@@ -48,6 +48,7 @@ function _initClient() {
   s.onload  = _initClient;
   s.onerror = function() {
     console.warn('⚠️ Supabase SDK load failed — using localStorage fallback');
+    _sdkReady = true;
     _sdkQueue.forEach(fn => fn(null));
     _sdkQueue = [];
   };
