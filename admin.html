@@ -828,9 +828,9 @@ async function parseWA(isBlock) {
   }
 
   var html = '<div style="background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e5e7eb">' +
-    '<p style="font-size:13px;font-weight:600;margin-bottom:8px">Parsed: ' + paxLines.length + ' seat(s) | Bus: ' + busId + ' | Date: ' + useDate + '</p>' +
+    '<p style="font-size:13px;font-weight:600;margin-bottom:8px">Parsed: ' + paxLines.length + ' seat(s) | Bus: ' + esc(busId) + ' | Date: ' + esc(useDate) + '</p>' +
     '<table class="adm-table"><tr><th>Seat</th><th>Gender</th><th>Name</th><th>Action</th></tr>' +
-    paxLines.map(function(p){ return '<tr><td>Seat ' + p.num + '</td><td>' + (p.gender==='F'?'♀ Female':'♂ Male') + '</td><td>' + (p.name||'—') + '</td><td style="color:' + (isBlock?'#dc2626':'#16a34a') + '">' + (isBlock?'Will Block':'Will Unblock') + '</td></tr>'; }).join('') +
+    paxLines.map(function(p){ return '<tr><td>Seat ' + p.num + '</td><td>' + (p.gender==='F'?'♀ Female':'♂ Male') + '</td><td>' + esc(p.name||'—') + '</td><td style="color:' + (isBlock?'#dc2626':'#16a34a') + '">' + (isBlock?'Will Block':'Will Unblock') + '</td></tr>'; }).join('') +
     '</table></div>';
   result.innerHTML = html;
 
@@ -862,9 +862,9 @@ async function loadDashboard() {
   }
   cont.innerHTML = '<table class="adm-table"><tr><th>Bus</th><th>Seat</th><th>Gender</th><th>Passenger</th><th>Phone</th></tr>' +
     allBookings.map(function(s) {
-      return '<tr><td>' + s._bus + '</td><td>Seat ' + s.seat_num + '</td>' +
+      return '<tr><td>' + esc(s._bus) + '</td><td>Seat ' + s.seat_num + '</td>' +
         '<td>' + (s.gender==='F'?'♀ Female':'♂ Male') + '</td>' +
-        '<td>' + (s.passenger_name||'—') + '</td><td>' + (s.passenger_phone||'—') + '</td></tr>';
+        '<td>' + esc(s.passenger_name||'—') + '</td><td>' + esc(s.passenger_phone||'—') + '</td></tr>';
     }).join('') + '</table>';
 }
 
