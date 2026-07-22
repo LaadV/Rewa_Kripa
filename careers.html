@@ -32,6 +32,7 @@ function applyJob(role){
   var msg='\uD83E\uDDD1\u200D\uD83D\uDCBC *JOB APPLICATION \u2014 REWA KRIPA TRAVELS*\n\nI am interested in the *'+role+'* position.\n\nName: \nAge: \nQualification: \nExperience: \nCity: \n\nPlease let me know the next steps. Thank you!';
   window.open('https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent(msg),'_blank');
 }
+window.applyJob = applyJob; // exposed for the dynamically-generated onclick="applyJob(...)" attribute on each job's Apply button
 })();
 </script>
 </body></html>

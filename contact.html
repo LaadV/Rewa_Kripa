@@ -47,6 +47,7 @@ function sendWA(){
   var text='\uD83D\uDCEC *REWA KRIPA \u2014 CONTACT FORM*\n\n\uD83D\uDC64 *Name:* '+name+'\n\uD83D\uDCF1 *Phone:* '+phone+'\n\uD83D\uDCCC *Subject:* '+subj+'\n\n\uD83D\uDCAC *Message:*\n'+msg;
   window.open('https://wa.me/'+c.whatsapp+'?text='+encodeURIComponent(text),'_blank');
 }
+window.sendWA = sendWA; // exposed for the onclick="sendWA()" attribute on the submit button
 })();
 </script>
 </body></html>

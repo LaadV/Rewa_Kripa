@@ -127,6 +127,7 @@ function bookTripWA(){
     '_Please share payment details to confirm booking. Thank you!_';
   window.open('https://wa.me/'+CONFIG.company.whatsapp+'?text='+encodeURIComponent(msg),'_blank');
 }
+window.bookTripWA = bookTripWA; // exposed for the onclick="bookTripWA()" attribute on the CTA button
 })();
 </script>
 </body>
